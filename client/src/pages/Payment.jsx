@@ -25,9 +25,9 @@ export default function Payment() {
 
   const fetchCart = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/cart"
-      );
+     const res = await axios.get(
+  `${import.meta.env.VITE_API_URL}/api/cart`
+);
 
       setCartItems(res.data);
     } catch (err) {
@@ -106,7 +106,7 @@ export default function Payment() {
 
     try {
       const { data } = await axios.post(
-        "http://localhost:5000/api/payment/create",
+  `${import.meta.env.VITE_API_URL}/api/payment/create`,
         {
           amount: total,
           customerName: "Nikita",
@@ -130,7 +130,7 @@ export default function Payment() {
         handler: async function (response) {
           try {
             await axios.post(
-              "http://localhost:5000/api/payment/verify",
+  `${import.meta.env.VITE_API_URL}/api/payment/verify`,
               response
             );
 

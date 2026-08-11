@@ -39,8 +39,8 @@ export default function Navbar() {
   const fetchCartCount = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/cart"
-      );
+  `${import.meta.env.VITE_API_URL}/api/cart`
+);
 
       const cart = Array.isArray(response.data)
         ? response.data

@@ -15,7 +15,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import "../styles/Cart.css";
 
-const API_URL = "http://localhost:5000/api/cart";
+const API_URL = `${import.meta.env.VITE_API_URL}/api/cart`;
 
 export default function Cart() {
   const [cartItems, setCartItems] = useState([]);

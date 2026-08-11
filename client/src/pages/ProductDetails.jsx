@@ -61,7 +61,7 @@ export default function ProductDetails() {
   const addToCart = async () => {
     try {
       await fetch(
-        "http://localhost:5000/api/cart",
+  `${import.meta.env.VITE_API_URL}/api/cart`,
         {
           method: "POST",
           headers: {

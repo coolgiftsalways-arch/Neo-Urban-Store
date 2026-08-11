@@ -67,10 +67,7 @@ app.use(
   productRoutes
 );
 
-app.use(
-  "/uploads",
-  express.static("uploads")
-);
+
 
 // ==========================================
 // TEST ROUTE
