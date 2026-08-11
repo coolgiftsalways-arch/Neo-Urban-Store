@@ -1,0 +1,218 @@
+/* ==========================================================================
+   CUSTOMERS PAGE - CYBERPUNK NEON DARK STYLES
+   ========================================================================== */
+
+.customers-page {
+    width: 100%;
+    padding: 30px;
+}
+
+/* Header Section */
+.customers-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.customers-header h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #ffffff 30%, var(--accent-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.customers-header p {
+    margin-top: 6px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Toolbar & Glassmorphic Search Bar */
+.customers-toolbar {
+    margin-bottom: 30px;
+}
+
+.customers-search {
+    width: 380px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.customers-search:focus-within {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.customers-search svg {
+    font-size: 18px;
+    color: var(--text-muted);
+}
+
+.customers-search input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.customers-search input::placeholder {
+    color: var(--text-muted);
+}
+
+/* Customers Table Wrapper */
+.customers-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-flat);
+}
+
+.customers-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.customers-table thead {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.customers-table th {
+    padding: 16px 20px;
+    text-align: left;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 1px solid var(--border);
+}
+
+.customers-table td {
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    color: var(--text);
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+.customers-table tbody tr {
+    transition: background 0.3s ease;
+}
+
+.customers-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Customer Info & Neon Avatar */
+.customer-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(224, 36, 36, 0.8), rgba(0, 240, 255, 0.8));
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 700;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+}
+
+.customer-info h4 {
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 2px;
+    font-weight: 600;
+}
+
+.customer-info span {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* Email & Phone Icons */
+.customers-table td svg {
+    margin-right: 8px;
+    color: var(--accent-blue);
+    vertical-align: middle;
+}
+
+/* View Action Button */
+.view-btn {
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 16px;
+}
+
+.view-btn:hover {
+    background: rgba(0, 240, 255, 0.15);
+    color: var(--accent-blue);
+    border-color: rgba(0, 240, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+}
+
+/* Responsive Overrides */
+@media (max-width: 1000px) {
+    .customers-table {
+        overflow-x: auto;
+    }
+
+    .customers-table table {
+        min-width: 900px;
+    }
+
+    .customers-search {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .customers-page {
+        padding: 18px;
+    }
+
+    .customers-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .customers-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .customers-search {
+        width: 100%;
+    }
+}

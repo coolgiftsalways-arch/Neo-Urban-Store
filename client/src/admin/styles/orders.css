@@ -1,0 +1,207 @@
+/* ==========================================================================
+   ORDERS PAGE - CYBERPUNK NEON DARK STYLES
+   ========================================================================== */
+
+.orders-page {
+    width: 100%;
+    padding: 30px;
+}
+
+/* Header Section */
+.orders-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.orders-header h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #ffffff 30%, var(--accent-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.orders-header p {
+    margin-top: 8px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Toolbar & Glassmorphic Search Bar */
+.orders-toolbar {
+    margin-bottom: 25px;
+}
+
+.orders-search {
+    width: 380px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.orders-search:focus-within {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.orders-search svg {
+    font-size: 18px;
+    color: var(--text-muted);
+}
+
+.orders-search input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.orders-search input::placeholder {
+    color: var(--text-muted);
+}
+
+/* Orders Table Wrapper */
+.orders-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-flat);
+}
+
+.orders-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.orders-table thead {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.orders-table th {
+    padding: 16px 20px;
+    text-align: left;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 1px solid var(--border);
+}
+
+.orders-table td {
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    color: var(--text);
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+.orders-table tbody tr {
+    transition: background 0.3s ease;
+}
+
+.orders-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Neon Status Badges */
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+}
+
+.processing {
+    color: var(--orange);
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.shipped {
+    color: var(--accent-blue);
+    background: rgba(0, 240, 255, 0.1);
+    border-color: rgba(0, 240, 255, 0.3);
+}
+
+.delivered {
+    color: var(--green);
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+/* Action Button */
+.action-btn {
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+}
+
+.action-btn:hover {
+    background: rgba(0, 240, 255, 0.15);
+    color: var(--accent-blue);
+    border-color: rgba(0, 240, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+}
+
+/* Responsive Overrides */
+@media (max-width: 1000px) {
+    .orders-search {
+        width: 100%;
+    }
+
+    .orders-table {
+        overflow-x: auto;
+    }
+
+    .orders-table table {
+        min-width: 900px;
+    }
+}
+
+@media (max-width: 768px) {
+    .orders-page {
+        padding: 18px;
+    }
+
+    .orders-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .orders-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .orders-search {
+        width: 100%;
+    }
+}

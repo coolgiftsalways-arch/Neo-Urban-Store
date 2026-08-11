@@ -1,0 +1,532 @@
+/* ==========================================================================
+   PORTFOLIO-GRADE CYBERPUNK NEON DARK DASHBOARD STYLESHEET
+   ========================================================================== */
+
+:root {
+  /* Base Colors: Cyber Dark */
+  --bg: #07090e;
+  --surface: #0e131f;
+  --surface-hover: #141c2e;
+
+  /* Typography */
+  --text: #f8fafc;
+  --text-muted: #94a3b8;
+
+  /* Premium Cyberpunk Accent Palette */
+  --accent-blue: #00f0ff;
+  /* Primary Cyan Glow */
+  --accent-purple: #e02424;
+  /* Vivid Pink/Purple Accent */
+  --accent-cyan: #38bdf8;
+  /* Sky Blue Accent */
+
+  /* Indicators */
+  --green: #10b981;
+  /* Neon Emerald */
+  --red: #f43f5e;
+  /* Bright Crimson */
+  --orange: #f59e0b;
+  /* Amber Alert */
+
+  /* Glassmorphism & Modern Borders */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(0, 240, 255, 0.3);
+  --shadow-flat: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  --shadow-hover: 0 20px 40px -15px rgba(0, 240, 255, 0.15);
+
+  --radius: 18px;
+}
+
+/* --- Base Resets --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   MOBILE HAMBURGER BUTTON & OVERLAY
+   ========================================================================== */
+
+.sidebar-toggle {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1001;
+  width: 48px;
+  height: 48px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: var(--shadow-flat);
+  transition: all 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+  transform: translateY(-2px);
+  color: var(--accent-blue);
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 998;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   MAIN DASHBOARD CONTAINER
+   ========================================================================== */
+
+.dashboard-content {
+  position: relative;
+  width: 100%;
+  padding: 40px;
+  background-color: var(--bg);
+  overflow: hidden;
+}
+
+/* Ambient Cyber Glow Overlays */
+.dashboard-content::before {
+  content: "";
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  top: -150px;
+  right: -100px;
+  background: radial-gradient(circle, rgba(224, 36, 36, 0.15), transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.dashboard-content::after {
+  content: "";
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  left: -100px;
+  bottom: -150px;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.12), transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   TYPOGRAPHY & TOPBAR
+   ========================================================================== */
+
+.dashboard-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 32px;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #ffffff 30%, var(--accent-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 36px;
+  padding: 16px 24px;
+  background: rgba(14, 19, 31, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-flat);
+}
+
+/* Glassmorphism Search Box */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 420px;
+  padding: 0 16px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+.search-box:focus-within {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.search-box input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.search-box input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   STAT CARDS & GRID
+   ========================================================================== */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow-flat);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Top Accent Line on Cards */
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  background: var(--surface-hover);
+  border-color: var(--border-glow);
+  box-shadow: var(--shadow-hover);
+}
+
+.stat-card:hover::before {
+  background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+}
+
+.stat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+/* Glowing Neon Icon Pods */
+.stat-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+}
+
+.stat-icon.sales {
+  color: var(--green);
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.stat-icon.orders {
+  color: var(--accent-blue);
+  border-color: rgba(0, 240, 255, 0.3);
+  background: rgba(0, 240, 255, 0.1);
+}
+
+.stat-icon.customers {
+  color: var(--accent-purple);
+  border-color: rgba(224, 36, 36, 0.3);
+  background: rgba(224, 36, 36, 0.1);
+}
+
+.stat-icon.products {
+  color: var(--orange);
+  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.stat-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+
+/* Pill Badges */
+.stat-growth {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+}
+
+.stat-growth.positive {
+  color: var(--green);
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.stat-growth.negative {
+  color: var(--red);
+  background: rgba(244, 63, 94, 0.1);
+  border-color: rgba(244, 63, 94, 0.2);
+}
+
+/* ==========================================================================
+   CHARTS & TABLES CARDS
+   ========================================================================== */
+
+.chart-card,
+.table-card {
+  margin-top: 32px;
+  padding: 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-flat);
+}
+
+.chart-card h2,
+.table-card h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.chart-subtitle {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+/* Embedded Chart Container */
+.chart-placeholder {
+  height: 300px;
+  margin-top: 24px;
+  border-radius: 14px;
+  background: rgba(7, 9, 14, 0.6);
+  border: 1px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* ==========================================================================
+   TABLE DESIGN & STATUS BADGES
+   ========================================================================== */
+
+.table-wrapper {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th {
+  padding: 16px 20px;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: 18px 20px;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* Neon Status Badges */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 20px;
+  border: 1px solid transparent;
+}
+
+.badge.delivered {
+  color: var(--green);
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.badge.processing {
+  color: var(--accent-blue);
+  background: rgba(0, 240, 255, 0.1);
+  border-color: rgba(0, 240, 255, 0.3);
+}
+
+.badge.shipped {
+  color: var(--accent-purple);
+  background: rgba(224, 36, 36, 0.1);
+  border-color: rgba(224, 36, 36, 0.3);
+}
+
+.badge.pending {
+  color: var(--orange);
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+/* Custom Cyber Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-blue);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+/* ==========================================================================
+   RESPONSIVE LAYOUT BREAKPOINTS
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .sidebar-toggle {
+    display: flex;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-content {
+    padding: 24px;
+  }
+
+  .dashboard-title {
+    font-size: 1.8rem;
+    margin-bottom: 24px;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .search-box {
+    max-width: 100%;
+  }
+
+  .stats-grid {
+    gap: 16px;
+  }
+
+  .chart-card,
+  .table-card {
+    padding: 20px;
+    margin-top: 24px;
+  }
+}
+
+@media (max-width: 540px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-title {
+    font-size: 1.5rem;
+  }
+
+  .stat-card {
+    padding: 18px;
+  }
+}

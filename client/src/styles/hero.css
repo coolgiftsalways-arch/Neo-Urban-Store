@@ -1,0 +1,479 @@
+/* ==========================================
+   SUPER DANGER HERO - CORE LAYOUT & VARIABLES
+   ========================================== */
+/* Base Pill Styling */
+.dynamic-island {
+     position: fixed;
+     top: 100px;
+     left: 50%;
+     transform: translateX(-50%);
+     background-color: #000000;
+     color: #ffffff;
+     z-index: 9999;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     border-radius: 28px;
+     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+     font-family: system-ui, -apple-system, sans-serif;
+     overflow: hidden;
+     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Expanded State (When Welcome is showing) */
+.dynamic-island.expanded {
+     width: 220px;
+     height: 48px;
+     opacity: 1;
+}
+
+.dynamic-island-content {
+     white-space: nowrap;
+     font-size: 14px;
+     font-weight: 500;
+     transition: opacity 0.3s ease;
+}
+
+/* Collapsed / Hidden State (Morphs into top edge and disappears) */
+.dynamic-island.collapsed {
+     width: 100px;
+     height: 0px;
+     opacity: 0;
+     transform: translate(-50%, -10px);
+     pointer-events: none;
+}
+
+.dynamic-island.collapsed .dynamic-island-content {
+     opacity: 0;
+}
+/* Main wrapper */
+.danger-hero-wrapper {
+     position: relative;
+     width: 100%;
+     min-height: calc(100vh - 75px);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     overflow: hidden;
+     padding: 80px 24px 60px 24px;
+     background-color: var(--bg-main, #080c16);
+     perspective: 1000px;
+
+     /* Changed Font */
+     font-family: 'Teko', sans-serif;
+}
+
+.danger-svg-bg {
+     position: absolute;
+     inset: 0;
+     width: 100%;
+     height: 100%;
+     z-index: 1;
+     pointer-events: none;
+}
+
+/* Biohazard Caution Tape Accent */
+.hazard-tape {
+     position: absolute;
+     top: 15px;
+     width: 120%;
+     background: #ffd700;
+     color: #000000;
+     font-family: var(--font-action, 'Bebas Neue', sans-serif);
+     font-size: 0.9rem;
+     letter-spacing: 2px;
+     padding: 4px 0;
+     white-space: nowrap;
+     transform: rotate(-2deg);
+     z-index: 5;
+     display: flex;
+     gap: 20px;
+     box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+     overflow: hidden;
+}
+
+/* Hero 2-Column Grid Layout */
+.danger-hero-grid {
+     position: relative;
+     z-index: 10;
+     max-width: 1200px;
+     width: 100%;
+     display: grid;
+     grid-template-columns: 1.2fr 0.8fr;
+     align-items: center;
+     gap: 40px;
+}
+
+.hero-text-col {
+     display: flex;
+     flex-direction: column;
+     align-items: flex-start;
+     gap: 14px;
+}
+
+/* Badge */
+.danger-badge {
+     display: inline-flex;
+     align-items: center;
+     gap: 10px;
+     padding: 6px 16px;
+     background: rgba(10, 15, 29, 0.85);
+     border: 1px solid var(--accent-red-danger, #e60026);
+     border-radius: 4px;
+     font-family: var(--font-action, 'Bebas Neue', sans-serif);
+     font-size: 0.95rem;
+     letter-spacing: 2px;
+     color: #ffffff;
+     transition: all 0.4s ease;
+}
+
+.biohazard-icon {
+     font-size: 1.1rem;
+}
+
+/* Main Title & Glitch */
+.danger-title {
+     font-family: var(--font-logo, 'Teko', sans-serif);
+     font-size: clamp(3.5rem, 7.5vw, 6.5rem);
+     font-weight: 700;
+     line-height: 0.88;
+     text-transform: uppercase;
+     letter-spacing: 2px;
+     margin: 0;
+     color: var(--text-primary, #ffffff);
+}
+
+.red-glitch-text {
+     color: var(--accent-red-danger, #e60026);
+     text-shadow: 0 0 30px rgba(230, 0, 38, 0.9), 0 0 60px rgba(230, 0, 38, 0.5);
+     transition: all 0.4s ease;
+}
+
+/* Subtitle & Paragraph */
+.danger-h5-subtitle {
+     font-family: var(--font-action, 'Bebas Neue', sans-serif);
+     font-size: 1.35rem;
+     letter-spacing: 2.5px;
+     text-transform: uppercase;
+     margin: 4px 0 0 0;
+     transition: color 0.4s ease;
+}
+
+.danger-subtitle {
+     font-family: 'Nosifer', cursive;
+     /* Monster Melting Slime Font */
+     font-size: 0.85rem;
+     /* Adjust size for optimal readability */
+     line-height: 1.8;
+     letter-spacing: 0.5px;
+     max-width: 520px;
+     color: var(--text-secondary, #a1a1aa);
+     margin: 0;
+}
+
+/* Call To Action Group & Pagination */
+.danger-cta-group {
+     display: flex;
+     align-items: center;
+     gap: 24px;
+     margin-top: 14px;
+     flex-wrap: wrap;
+}
+
+.btn-danger-fire {
+     background: var(--accent-red-danger, #e60026);
+     color: #ffffff;
+     border: none;
+     padding: 16px 36px;
+     font-family: var(--font-action, 'Bebas Neue', sans-serif);
+     font-size: 1.25rem;
+     letter-spacing: 2px;
+     cursor: pointer;
+     border-radius: 4px;
+     box-shadow: 0 0 30px rgba(230, 0, 38, 0.6);
+     transition: all 0.3s ease;
+}
+
+.btn-danger-fire:hover {
+     background: #ff002b;
+     box-shadow: 0 0 50px rgba(230, 0, 38, 0.9);
+     transform: translateY(-3px) scale(1.02);
+}
+
+.btn-cyber-outline {
+     background: rgba(13, 19, 34, 0.85);
+     border: 1px solid var(--accent-blue-cyan, #00f0ff);
+     color: var(--accent-blue-cyan, #00f0ff);
+     padding: 16px 32px;
+     border-radius: 4px;
+     font-family: var(--font-action, 'Bebas Neue', sans-serif);
+     font-size: 1.25rem;
+     letter-spacing: 2px;
+     cursor: pointer;
+     transition: all 0.3s ease;
+}
+
+.btn-cyber-outline:hover {
+     background: var(--accent-blue-electric, #0066ff);
+     color: #ffffff;
+     box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+     transform: translateY(-3px);
+}
+
+.stage-dots {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+}
+
+.dot-btn {
+     width: 12px;
+     height: 12px;
+     border-radius: 50%;
+     border: none;
+     cursor: pointer;
+     transition: all 0.3s ease;
+}
+
+.dot-btn.active {
+     transform: scale(1.3);
+}
+
+
+/* ==========================================
+   REAL CAN & ELECTRIC THUNDER CONTAINER
+   ========================================== */
+
+/* Increased max-width and height for bigger presentation */
+.real-can-container {
+     position: relative;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     width: 100%;
+     max-width: 520px;
+     height: 600px;
+     margin: 0 auto;
+}
+
+/* Background Atmosphere Glow */
+.real-can-aura {
+     position: absolute;
+     width: 100%;
+     height: 100%;
+     top: 0;
+     left: 0;
+     border-radius: 50%;
+     filter: blur(80px);
+     z-index: 1;
+     pointer-events: none;
+     transition: background 0.6s ease;
+}
+
+/* Thunder SVG Layer */
+.thunder-svg-layer {
+     position: absolute;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     z-index: 2;
+     pointer-events: none;
+     overflow: visible;
+}
+
+.thunder-bolt {
+     transform-origin: center center;
+     will-change: opacity, transform;
+}
+
+.thunder-primary {
+     stroke-width: 3.5px;
+     stroke-linecap: round;
+     stroke-linejoin: round;
+}
+
+.thunder-core {
+     stroke-width: 2px;
+     stroke-linecap: round;
+     stroke-linejoin: round;
+}
+
+/* Floating Chemical Tags */
+.elements-behind-wrapper {
+     position: absolute;
+     inset: 0;
+     z-index: 2;
+     pointer-events: none;
+}
+
+.floating-elem-tag {
+     position: absolute;
+     padding: 0.25rem 0.6rem;
+     border: 1px solid;
+     border-radius: 3px;
+     font-size: 0.75rem;
+     font-weight: 700;
+     background: rgba(0, 0, 0, 0.75);
+     letter-spacing: 1px;
+}
+
+/* Product PNG Image - Made Larger */
+.real-can-image {
+     position: relative;
+     z-index: 3;
+     width: 85%;
+     max-width: 380px;
+     height: 90%;
+     transform-style: preserve-3d;
+     object-fit: contain;
+}
+
+/* Floor Reflection Shadow */
+.real-can-shadow {
+     position: absolute;
+     bottom: 15px;
+     width: 80%;
+     height: 28px;
+     z-index: 1;
+     border-radius: 50%;
+}
+
+.hazard-tape {
+     font-family: 'Teko', sans-serif;
+}
+
+.danger-badge {
+     font-family: 'Teko', sans-serif;
+}
+
+.danger-title {
+     font-family: 'Teko', sans-serif;
+}
+
+.danger-h5-subtitle {
+     font-family: 'Teko', sans-serif;
+}
+
+.btn-danger-fire {
+     font-family: 'Teko', sans-serif;
+}
+
+.btn-cyber-outline {
+     font-family: 'Teko', sans-serif;
+}
+/* ==========================================
+   MOBILE & TABLET RESPONSIVE BREAKPOINTS
+   ========================================== */
+
+@media (max-width: 968px) {
+     .danger-hero-wrapper {
+          padding: 80px 20px 40px 20px;
+          min-height: auto;
+     }
+
+     .danger-hero-grid {
+          grid-template-columns: 1fr;
+          text-align: center;
+          gap: 24px;
+     }
+
+     /* 1. Show Product & Thunder First (Top) - Scaled Up for Mobile */
+     .real-can-container {
+          order: 1;
+          max-width: 360px;
+          height: 450px;
+          margin: 0 auto;
+     }
+
+     /* 2. Show Text Column Second (Below Image) */
+     .hero-text-col {
+          order: 2;
+          align-items: center;
+          gap: 12px;
+     }
+
+     .danger-subtitle {
+          max-width: 100%;
+     }
+
+     .danger-cta-group {
+          justify-content: center;
+          width: 100%;
+     }
+
+     /* Can Size Scaled Up on Tablet/Mobile */
+     .real-can-image {
+          width: 75%;
+          max-width: 230px;
+     }
+
+     /* Responsive Adjustments for Mobile Lightning */
+     .thunder-svg-layer {
+          transform: scale(1.15);
+          transform-origin: center center;
+     }
+
+     .thunder-primary {
+          stroke-width: 3px;
+     }
+
+     .thunder-core {
+          stroke-width: 1.8px;
+     }
+
+     .floating-elem-tag {
+          font-size: 0.7rem;
+          padding: 0.2rem 0.5rem;
+     }
+}
+
+@media (max-width: 480px) {
+     .danger-hero-wrapper {
+          padding: 70px 16px 30px 16px;
+     }
+
+     .danger-title {
+          font-size: clamp(2.8rem, 12vw, 3.8rem);
+     }
+
+     .danger-badge {
+          font-size: 0.85rem;
+          padding: 5px 12px;
+     }
+
+     .danger-h5-subtitle {
+          font-size: 1.1rem;
+     }
+
+     .danger-subtitle {
+          font-size: 0.95rem;
+     }
+
+     .btn-danger-fire {
+          width: 100%;
+          padding: 14px 24px;
+          font-size: 1.1rem;
+     }
+
+     .stage-dots {
+          width: 100%;
+          justify-content: center;
+          margin-top: 8px;
+     }
+
+     /* Small Mobile Can Enlarged */
+     .real-can-container {
+          max-width: 300px;
+          height: 380px;
+     }
+
+     .real-can-image {
+          width: 70%;
+          max-width: 190px;
+     }
+
+     .thunder-svg-layer {
+          transform: scale(1.18);
+     }
+}

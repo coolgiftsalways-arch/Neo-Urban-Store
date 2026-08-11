@@ -1,0 +1,334 @@
+/* ==========================================================================
+   DESIGN TOKENS (:root Palette)
+   ========================================================================== */
+:root {
+     /* Backgrounds */
+     --bg-main: #060913;
+     /* Ultra-Dark Navy Base */
+     --bg-card: #0A0F1D;
+     /* Dark Navy Card Container */
+     --bg-card-hover: #10172A;
+     /* Card/Input Hover */
+     --bg-input: #0D1322;
+     /* Input Field Background */
+
+     /* Accents */
+     --accent-blue-electric: #0088FF;
+     /* High-Voltage Blue */
+     --accent-blue-cyan: #00D2FF;
+     /* Cyan Highlight */
+     --accent-red-danger: #E60026;
+     /* Crimson Red Danger */
+     --accent-red-hover: #CC0020;
+     /* Red Button Hover */
+
+     /* Typography */
+     --text-primary: #FFFFFF;
+     /* Bright White Headings */
+     --text-secondary: #8E9BAE;
+     /* Muted Cool Grey */
+     --text-muted: #53627A;
+     /* Slate Grey Details */
+
+     /* Borders & Shadows */
+     --border-subtle: #162032;
+     /* Subtle Border */
+     --border-active: #0088FF;
+     /* Active Input/Card Border */
+     --glow-blue: 0 0 20px rgba(0, 136, 255, 0.4);
+     --glow-red: 0 0 20px rgba(230, 0, 38, 0.4);
+}
+
+/* ==========================================================================
+   MAIN SECTION CONTAINER
+   ========================================================================== */
+.about-section {
+     position: relative;
+     background-color: var(--bg-main);
+     color: var(--text-primary);
+     padding: 6rem 1.5rem;
+     overflow: hidden;
+     border-top: 1px solid var(--border-subtle);
+     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.about-container {
+     max-width: 1280px;
+     margin: 0 auto;
+}
+
+/* Ambient Background Glow Orbs */
+.glow-orb-1 {
+     position: absolute;
+     top: -10rem;
+     left: -10rem;
+     width: 26rem;
+     height: 26rem;
+     background-color: rgba(0, 136, 255, 0.12);
+     border-radius: 9999px;
+     filter: blur(120px);
+     pointer-events: none;
+}
+
+.glow-orb-2 {
+     position: absolute;
+     bottom: 0;
+     right: 0;
+     width: 26rem;
+     height: 26rem;
+     background-color: rgba(0, 210, 255, 0.1);
+     border-radius: 9999px;
+     filter: blur(120px);
+     pointer-events: none;
+}
+
+/* ==========================================================================
+   TOP GRID LAYOUT (Text Left + Image Right)
+   ========================================================================== */
+.about-top-grid {
+     display: grid;
+     grid-template-columns: 1fr;
+     gap: 3rem;
+     align-items: center;
+}
+
+@media (min-width: 1024px) {
+     .about-top-grid {
+          grid-template-columns: 7fr 5fr;
+          gap: 4rem;
+     }
+}
+
+.about-text-content {
+     display: flex;
+     flex-direction: column;
+     align-items: flex-start;
+     gap: 1.5rem;
+}
+
+/* Cyber Badge */
+.about-badge {
+     display: inline-flex;
+     align-items: center;
+     gap: 0.5rem;
+     padding: 0.375rem 0.875rem;
+     border-radius: 9999px;
+     background-color: var(--bg-card);
+     border: 1px solid var(--border-subtle);
+     color: var(--accent-blue-cyan);
+     font-size: 0.75rem;
+     font-weight: 700;
+     letter-spacing: 0.1em;
+     text-transform: uppercase;
+     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.icon-svg-small {
+     width: 1rem;
+     height: 1rem;
+     color: var(--accent-blue-cyan);
+}
+
+/* Main Heading & Gradient */
+.about-heading {
+     font-size: 2.25rem;
+     line-height: 1.05;
+     font-weight: 900;
+     letter-spacing: -0.02em;
+     text-transform: uppercase;
+     color: var(--text-primary);
+     margin: 0;
+}
+
+@media (min-width: 640px) {
+     .about-heading {
+          font-size: 3rem;
+     }
+}
+
+@media (min-width: 1024px) {
+     .about-heading {
+          font-size: 3.75rem;
+     }
+}
+
+.text-gradient {
+     background: linear-gradient(135deg, var(--accent-blue-cyan) 0%, var(--accent-blue-electric) 100%);
+     -webkit-background-clip: text;
+     -webkit-text-fill-color: transparent;
+     filter: drop-shadow(0 0 12px rgba(0, 210, 255, 0.3));
+}
+
+.about-description {
+     color: var(--text-secondary);
+     font-size: 1rem;
+     line-height: 1.625;
+     max-width: 42rem;
+     margin: 0;
+}
+
+@media (min-width: 640px) {
+     .about-description {
+          font-size: 1.125rem;
+     }
+}
+
+/* Image Column & Floating Card Showcase */
+.about-image-column {
+     display: flex;
+     justify-content: center;
+}
+
+.about-image-wrapper {
+     position: relative;
+     width: 100%;
+     max-width: 28rem;
+     aspect-ratio: 4 / 5;
+     border-radius: 1.5rem;
+     overflow: hidden;
+     border: 1px solid var(--border-subtle);
+     background-color: var(--bg-card);
+     padding: 0.75rem;
+     box-shadow: var(--glow-blue);
+     transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.about-image-wrapper:hover {
+     border-color: var(--border-active);
+     box-shadow: 0 0 30px rgba(0, 136, 255, 0.6);
+}
+
+.about-img {
+     width: 100%;
+     height: 100%;
+     object-fit: cover;
+     border-radius: 1rem;
+     transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.about-image-wrapper:hover .about-img {
+     transform: scale(1.05);
+}
+
+.about-img-overlay {
+     position: absolute;
+     inset: 0;
+     border-radius: 1rem;
+     background: linear-gradient(to top, var(--bg-main) 10%, transparent 70%);
+     opacity: 0.85;
+     pointer-events: none;
+}
+
+.about-img-text {
+     position: absolute;
+     bottom: 1.5rem;
+     left: 1.5rem;
+     right: 1.5rem;
+     z-index: 2;
+}
+
+.overlay-subtitle {
+     color: var(--accent-blue-cyan);
+     font-size: 0.75rem;
+     font-weight: 800;
+     text-transform: uppercase;
+     letter-spacing: 0.12em;
+}
+
+.overlay-title {
+     color: var(--text-primary);
+     font-size: 1.25rem;
+     font-weight: 900;
+     text-transform: uppercase;
+     margin: 0.25rem 0 0 0;
+}
+
+/* ==========================================================================
+   BOTTOM FEATURE CARDS GRID
+   ========================================================================== */
+.about-cards-grid {
+     margin-top: 5rem;
+     display: grid;
+     grid-template-columns: 1fr;
+     gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+     .about-cards-grid {
+          grid-template-columns: repeat(3, 1fr);
+     }
+}
+
+.feature-card {
+     background-color: var(--bg-card);
+     backdrop-filter: blur(12px);
+     border: 1px solid var(--border-subtle);
+     border-radius: 1.25rem;
+     padding: 1.75rem;
+     transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 640px) {
+     .feature-card {
+          padding: 2.25rem;
+     }
+}
+
+.feature-card:hover {
+     background-color: var(--bg-card-hover);
+     border-color: var(--border-active);
+     transform: translateY(-8px);
+     box-shadow: var(--glow-blue);
+}
+
+/* Card Icon Header Container */
+.card-icon-box {
+     width: 3.25rem;
+     height: 3.25rem;
+     border-radius: 0.875rem;
+     background-color: var(--bg-input);
+     border: 1px solid var(--border-subtle);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     margin-bottom: 1.5rem;
+     transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+.icon-svg {
+     width: 1.5rem;
+     height: 1.5rem;
+     color: var(--accent-blue-cyan);
+     transition: color 0.3s ease;
+}
+
+.feature-card:hover .card-icon-box {
+     border-color: var(--border-active);
+     background-color: rgba(0, 136, 255, 0.15);
+     box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+}
+
+.feature-card:hover .icon-svg {
+     color: var(--text-primary);
+}
+
+.card-title {
+     font-size: 1.25rem;
+     font-weight: 800;
+     text-transform: uppercase;
+     letter-spacing: 0.05em;
+     color: var(--text-primary);
+     margin: 0 0 0.5rem 0;
+     transition: color 0.3s;
+}
+
+.feature-card:hover .card-title {
+     color: var(--accent-blue-cyan);
+}
+
+.card-description {
+     color: var(--text-secondary);
+     font-size: 0.875rem;
+     line-height: 1.625;
+     margin: 0;
+}

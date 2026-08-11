@@ -1,0 +1,1355 @@
+/* =========================================================
+   PAYMENT PAGE
+========================================================= */
+
+.payment-page {
+  position: relative;
+  min-height: calc(100vh - 75px);
+  padding: 35px 5% 80px;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 5% 20%,
+      rgba(0, 136, 255, 0.15),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 95% 75%,
+      rgba(230, 0, 38, 0.16),
+      transparent 32%
+    ),
+    #060913;
+
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   BACKGROUND GRID
+========================================================= */
+
+.payment-grid {
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+  opacity: 0.18;
+
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.035) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.035) 1px,
+      transparent 1px
+    );
+
+  background-size: 55px 55px;
+
+  mask-image:
+    linear-gradient(
+      to bottom,
+      black,
+      transparent
+    );
+}
+
+
+/* =========================================================
+   GLOW
+========================================================= */
+
+.payment-glow {
+  position: absolute;
+
+  width: 500px;
+  height: 500px;
+
+  border-radius: 50%;
+
+  filter: blur(100px);
+
+  pointer-events: none;
+
+  opacity: 0.18;
+
+  animation: glowFloat 7s ease-in-out infinite;
+}
+
+.payment-glow-blue {
+  top: 15%;
+  left: -250px;
+
+  background: #0088ff;
+}
+
+.payment-glow-red {
+  right: -250px;
+  bottom: 5%;
+
+  background: #e60026;
+
+  animation-delay: -3s;
+}
+
+
+@keyframes glowFloat {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-35px);
+  }
+
+}
+
+
+/* =========================================================
+   SCANLINE
+========================================================= */
+
+.payment-scanline {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 2px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #00d2ff,
+      #e60026,
+      transparent
+    );
+
+  opacity: 0.35;
+
+  animation: scan 6s linear infinite;
+
+  pointer-events: none;
+}
+
+
+@keyframes scan {
+
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.4;
+  }
+
+  85% {
+    opacity: 0.4;
+  }
+
+  100% {
+    transform: translateY(700px);
+    opacity: 0;
+  }
+
+}
+
+
+/* =========================================================
+   MAIN SINGLE CHECKOUT CONTAINER
+========================================================= */
+
+.payment-container {
+  position: relative;
+
+  z-index: 2;
+
+  width: 100%;
+  max-width: 1350px;
+
+  margin: 0 auto;
+
+  display: grid;
+
+  grid-template-columns: 1fr 0.92fr;
+
+  align-items: stretch;
+
+  overflow: hidden;
+
+  border-radius: 30px;
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(16, 23, 42, 0.98),
+      rgba(6, 9, 19, 0.99)
+    );
+
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.6),
+    0 0 80px rgba(0, 136, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+
+/* =========================================================
+   SINGLE BOX TOP GLOW
+========================================================= */
+
+.payment-container::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 3px;
+
+  z-index: 10;
+
+  background:
+    linear-gradient(
+      90deg,
+      #e60026,
+      #ff1744,
+      #0088ff,
+      #00d2ff
+    );
+
+  box-shadow:
+    0 0 15px rgba(230, 0, 38, 0.5),
+    0 0 15px rgba(0, 210, 255, 0.35);
+}
+
+
+/* =========================================================
+   LEFT TERMINAL
+========================================================= */
+
+.payment-left {
+  position: relative;
+
+  min-height: 650px;
+
+  padding: 55px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: space-between;
+
+  background:
+    radial-gradient(
+      circle at 15% 80%,
+      rgba(0, 136, 255, 0.09),
+      transparent 40%
+    );
+
+  overflow: hidden;
+}
+
+
+/* LEFT SIDE DIVIDER */
+
+.payment-left::after {
+  content: "";
+
+  position: absolute;
+
+  top: 8%;
+  right: 0;
+
+  width: 1px;
+  height: 84%;
+
+  background:
+    linear-gradient(
+      to bottom,
+      transparent,
+      rgba(0, 210, 255, 0.35),
+      rgba(230, 0, 38, 0.3),
+      transparent
+    );
+}
+
+
+/* IMPORTANT:
+   Disable the old individual-card top border
+*/
+
+.payment-left::before,
+.payment-right::before {
+  display: none;
+}
+
+
+/* =========================================================
+   TERMINAL TOP
+========================================================= */
+
+.terminal-top {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+
+.terminal-label {
+  color: #00d2ff;
+
+  font-family:
+    var(--font-action, sans-serif);
+
+  font-size: 14px;
+
+  font-weight: 800;
+
+  letter-spacing: 5px;
+}
+
+
+.secure-status {
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 10px 17px;
+
+  border: 1px solid
+    rgba(0, 210, 255, 0.4);
+
+  border-radius: 30px;
+
+  color: #00d2ff;
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+  letter-spacing: 2px;
+
+  background:
+    rgba(0, 210, 255, 0.025);
+}
+
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: #00ff9d;
+
+  box-shadow:
+    0 0 10px #00ff9d;
+
+  animation:
+    statusPulse 1.8s infinite;
+}
+
+
+@keyframes statusPulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(0.65);
+    opacity: 0.5;
+  }
+
+}
+
+
+/* =========================================================
+   TITLE
+========================================================= */
+.payment-title {
+  margin: 35px 0 18px;
+  font-family: var(--font-action, sans-serif);
+  font-size: clamp(42px, 4vw, 62px);
+  line-height: 0.95;
+  letter-spacing: 1px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+
+.payment-title span {
+  color: #e60026;
+
+  text-shadow:
+    0 0 12px
+      rgba(230, 0, 38, 0.5),
+    0 0 35px
+      rgba(230, 0, 38, 0.2);
+}
+
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+.payment-description {
+  max-width: 540px;
+
+  color: #8e9bae;
+
+  font-size: 18px;
+
+  line-height: 1.7;
+
+  margin-bottom: 20px;
+}
+
+
+/* =========================================================
+   REACTOR
+========================================================= */
+
+.reactor-wrapper {
+  position: relative;
+
+  width: 180px;
+  height: 180px;
+
+  margin: 15px auto 10px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+}
+
+
+.reactor-ring {
+  position: absolute;
+
+  border-radius: 50%;
+
+  border: 1px solid;
+}
+
+
+.ring-one {
+  width: 180px;
+  height: 180px;
+
+  border-color:
+    rgba(0, 210, 255, 0.7);
+
+  animation:
+    reactorSpin 8s linear infinite;
+}
+
+
+.ring-two {
+  width: 135px;
+  height: 135px;
+
+  border-color:
+    rgba(230, 0, 38, 0.7);
+
+  animation:
+    reactorSpinReverse 5s linear infinite;
+}
+
+
+.ring-three {
+  width: 95px;
+  height: 95px;
+
+  border-color:
+    rgba(0, 136, 255, 0.8);
+
+  animation:
+    reactorSpin 3s linear infinite;
+}
+
+
+.reactor-core {
+  width: 55px;
+  height: 55px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      #ffffff 0%,
+      #00d2ff 20%,
+      #0088ff 45%,
+      #060913 75%
+    );
+
+  color: white;
+
+  font-size: 20px;
+
+  box-shadow:
+    0 0 20px
+      rgba(0, 210, 255, 0.7),
+    0 0 60px
+      rgba(0, 136, 255, 0.35);
+
+  animation:
+    reactorPulse 2s ease-in-out infinite;
+}
+
+
+@keyframes reactorSpin {
+
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+@keyframes reactorSpinReverse {
+
+  from {
+    transform: rotate(360deg);
+  }
+
+  to {
+    transform: rotate(0deg);
+  }
+
+}
+
+
+@keyframes reactorPulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.12);
+  }
+
+}
+
+
+/* =========================================================
+   SECURITY FEATURES
+========================================================= */
+
+.security-features {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 12px;
+}
+
+
+.security-item {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 15px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 14px;
+
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    background 0.3s ease;
+}
+
+
+.security-item:hover {
+  transform: translateY(-4px);
+
+  border-color:
+    rgba(0, 210, 255, 0.35);
+
+  background:
+    rgba(0, 210, 255, 0.04);
+
+}
+
+
+.security-item svg {
+  color: #00d2ff;
+
+  font-size: 18px;
+}
+
+
+.security-item div {
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+.security-item strong {
+  font-size: 10px;
+
+  letter-spacing: 1.5px;
+}
+
+
+.security-item span {
+  color: #53627a;
+
+  font-size: 9px;
+
+  margin-top: 3px;
+}
+
+
+/* =========================================================
+   RIGHT ORDER SECTION
+========================================================= */
+
+.payment-right {
+  position: relative;
+
+  min-height: 650px;
+
+  padding: 45px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  background:
+    rgba(10, 15, 29, 0.35);
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   ORDER HEADER
+========================================================= */
+
+.order-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  padding-bottom: 28px;
+
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.08);
+}
+
+
+.order-label {
+  display: block;
+
+  color: #00d2ff;
+
+  font-size: 11px;
+
+  font-weight: 900;
+
+  letter-spacing: 4px;
+
+  margin-bottom: 12px;
+}
+
+
+.order-header h2 {
+  margin: 0;
+
+  font-size: 38px;
+
+  font-weight: 800;
+}
+
+
+.item-count {
+  width: 76px;
+  height: 76px;
+
+  border-radius: 18px;
+
+  border: 1px solid
+    rgba(230, 0, 38, 0.5);
+
+  background:
+    rgba(230, 0, 38, 0.04);
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  box-shadow:
+    inset 0 0 20px
+      rgba(230, 0, 38, 0.05);
+}
+
+
+.item-count strong {
+  color: #ff1744;
+
+  font-size: 28px;
+
+  line-height: 1;
+}
+
+
+.item-count span {
+  color: #53627a;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  letter-spacing: 1px;
+
+  margin-top: 5px;
+}
+
+
+/* =========================================================
+   ITEMS
+========================================================= */
+
+.payment-items {
+  flex: 1;
+}
+
+
+.payment-item {
+  display: flex;
+
+  align-items: center;
+
+  gap: 18px;
+
+  padding: 28px 10px;
+
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.07);
+
+  transition:
+    background 0.3s ease,
+    transform 0.3s ease;
+}
+
+
+.payment-item:hover {
+  background:
+    rgba(0, 210, 255, 0.025);
+
+  transform: translateX(4px);
+}
+
+
+.payment-item-image {
+  width: 84px;
+  height: 84px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 8px 25px
+      rgba(0, 0, 0, 0.25);
+}
+
+
+.payment-item-image img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+}
+
+
+.payment-info {
+  flex: 1;
+}
+
+
+.payment-info > span {
+  display: block;
+
+  color: #00d2ff;
+
+  font-size: 10px;
+
+  font-weight: 900;
+
+  letter-spacing: 2px;
+
+  text-transform: uppercase;
+
+  margin-bottom: 6px;
+}
+
+
+.payment-info h4 {
+  margin: 0;
+
+  font-size: 18px;
+
+  font-weight: 800;
+}
+
+
+.payment-info p {
+  margin: 6px 0 0;
+
+  color: #53627a;
+
+  font-size: 11px;
+
+  letter-spacing: 1px;
+}
+
+
+.payment-info p strong {
+  color: #8e9bae;
+}
+
+
+.payment-item-price {
+  font-size: 18px;
+
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   TOTAL
+========================================================= */
+
+.payment-total {
+  padding-top: 25px;
+}
+
+
+.payment-total > div {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  padding: 9px 0;
+
+  color: #8e9bae;
+
+  font-size: 15px;
+}
+
+
+.payment-total > div span:last-child {
+  color: #ffffff;
+
+  font-weight: 700;
+}
+
+
+.grand-total {
+  margin-top: 15px;
+
+  padding-top: 22px !important;
+
+  border-top:
+    1px solid
+    rgba(255, 255, 255, 0.1);
+}
+
+
+.grand-total span:first-child {
+  color: #ffffff;
+
+  font-size: 22px;
+
+  font-weight: 900;
+}
+
+
+.grand-total span:last-child {
+  color: #00d2ff !important;
+
+  font-size: 27px;
+
+  font-weight: 900 !important;
+
+  text-shadow:
+    0 0 15px
+      rgba(0, 210, 255, 0.35);
+}
+
+
+/* =========================================================
+   PAY BUTTON
+========================================================= */
+
+.pay-btn {
+  position: relative;
+
+  width: 100%;
+
+  height: 62px;
+
+  margin-top: 25px;
+
+  border: none;
+
+  border-radius: 16px;
+
+  overflow: hidden;
+
+  cursor: pointer;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      100deg,
+      #e60026,
+      #ff1744,
+      #ff512f
+    );
+
+  font-size: 16px;
+
+  font-weight: 900;
+
+  letter-spacing: 1px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 12px;
+
+  box-shadow:
+    0 10px 35px
+      rgba(230, 0, 38, 0.28);
+
+  transition:
+    box-shadow 0.3s ease,
+    filter 0.3s ease,
+    transform 0.3s ease;
+}
+
+
+.pay-btn::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: -120%;
+
+  width: 70%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.28),
+      transparent
+    );
+
+  transform: skewX(-20deg);
+
+  transition: left 0.7s ease;
+}
+
+
+.pay-btn:hover::before {
+  left: 150%;
+}
+
+
+.pay-btn:hover {
+  box-shadow:
+    0 15px 45px
+      rgba(230, 0, 38, 0.45);
+
+  filter: brightness(1.08);
+
+  transform: translateY(-2px);
+}
+
+
+.pay-btn:active {
+  transform: translateY(1px);
+}
+
+
+.pay-btn:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+
+  box-shadow: none;
+
+  transform: none;
+}
+
+
+.pay-btn-text {
+  position: relative;
+
+  z-index: 2;
+}
+
+
+.pay-btn svg {
+  position: relative;
+
+  z-index: 2;
+}
+
+
+/* =========================================================
+   RAZORPAY
+========================================================= */
+
+.razorpay-note {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  margin-top: 15px;
+
+  color: #53627a;
+
+  font-size: 11px;
+}
+
+
+.razorpay-note svg {
+  color: #00d2ff;
+}
+
+
+/* =========================================================
+   EMPTY CART
+========================================================= */
+
+.empty-payment {
+  min-height: 250px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  color: #53627a;
+}
+
+
+.empty-payment svg {
+  font-size: 35px;
+
+  color: #00d2ff;
+
+  margin-bottom: 15px;
+}
+
+
+.empty-payment button {
+  padding: 10px 20px;
+
+  border: 1px solid
+    rgba(0, 210, 255, 0.4);
+
+  background: transparent;
+
+  color: #00d2ff;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+
+  .payment-container {
+    grid-template-columns: 1fr;
+  }
+
+
+  .payment-left {
+    min-height: 550px;
+  }
+
+
+  .payment-left::after {
+    display: none;
+  }
+
+}
+
+
+@media (max-width: 650px) {
+
+  .payment-page {
+    padding:
+      20px 15px 50px;
+  }
+
+
+  /* Keep ONE outer box on mobile */
+
+  .payment-container {
+    border-radius: 22px;
+
+    display: block;
+  }
+
+
+  .payment-left,
+  .payment-right {
+    min-height: auto;
+
+    padding: 28px 22px;
+
+    border-radius: 0;
+
+    border: none;
+  }
+
+
+  .payment-left {
+    min-height: 500px;
+
+    border-bottom:
+      1px solid
+      rgba(255, 255, 255, 0.08);
+  }
+
+
+  .terminal-top {
+    align-items: flex-start;
+  }
+
+
+  .terminal-label {
+    font-size: 10px;
+
+    letter-spacing: 3px;
+  }
+
+
+  .secure-status {
+    padding: 8px 11px;
+
+    font-size: 9px;
+  }
+
+
+  .payment-title {
+    font-size: 52px;
+
+    margin-top: 35px;
+  }
+
+
+  .payment-description {
+    font-size: 15px;
+  }
+
+
+  .security-features {
+    grid-template-columns: 1fr;
+  }
+
+
+  .reactor-wrapper {
+    transform: scale(0.8);
+
+    margin: 0 auto;
+  }
+
+
+  .order-header h2 {
+    font-size: 28px;
+  }
+
+
+  .item-count {
+    width: 60px;
+    height: 60px;
+  }
+
+
+  .item-count strong {
+    font-size: 22px;
+  }
+
+
+  .payment-item {
+    gap: 12px;
+  }
+
+
+  .payment-item-image {
+    width: 65px;
+    height: 65px;
+  }
+
+
+  .payment-info h4 {
+    font-size: 15px;
+  }
+
+
+  .payment-item-price {
+    font-size: 15px;
+  }
+
+}
+
+
+/* =========================================================
+   EXTRA PREMIUM EFFECTS
+========================================================= */
+
+.payment-container {
+  animation:
+    checkoutReveal 0.8s ease-out both;
+}
+
+
+@keyframes checkoutReveal {
+
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+}
+
+
+/* Subtle moving light inside the checkout */
+
+.payment-container::after {
+  content: "";
+
+  position: absolute;
+
+  width: 300px;
+  height: 300px;
+
+  top: -180px;
+  left: 40%;
+
+  border-radius: 50%;
+
+  background:
+    rgba(0, 210, 255, 0.04);
+
+  filter: blur(60px);
+
+  pointer-events: none;
+
+  animation:
+    checkoutLight 8s ease-in-out infinite;
+}
+
+
+@keyframes checkoutLight {
+
+  0%,
+  100% {
+    transform: translateX(-80px);
+  }
+
+  50% {
+    transform: translateX(100px);
+  }
+
+}

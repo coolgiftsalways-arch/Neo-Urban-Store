@@ -1,0 +1,452 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Changa+One:ital@0;1&display=swap');
+:root {
+  /* ==========================================
+     DANGER TYPOGRAPHY VARS
+     ========================================== */
+  --font-logo: 'Teko', sans-serif;
+  /* High-impact condensed */
+  --font-display: 'Orbitron', sans-serif;
+  /* Sci-fi cyber danger */
+  --font-glitch: 'Rubik Glitch', system-ui;
+  /* Volatile hazard text */
+  --font-action: 'Bebas Neue', sans-serif;
+  /* Aggressive buttons & titles */
+  --font-body: 'Inter', system-ui, sans-serif;
+  /* Clean readable body text */
+}
+/* ==========================================
+   THEME VARIABLES (Zero Pure Black)
+   ========================================== */
+:root {
+  /* Backgrounds */
+  --bg-main: #060913;
+  /* Ultra-Dark Navy Base */
+  --bg-card: #0A0F1D;
+  /* Dark Navy Card Container */
+  --bg-card-hover: #10172A;
+  /* Card/Input Hover */
+  --bg-input: #0D1322;
+  /* Input Field Background */
+
+  /* Accents */
+  --accent-blue-electric: #0088FF;
+  /* High-Voltage Blue */
+  --accent-blue-cyan: #00D2FF;
+  /* Cyan Highlight */
+  --accent-red-danger: #E60026;
+  /* Crimson Red Danger */
+  --accent-red-hover: #CC0020;
+  /* Red Button Hover */
+
+  /* Typography */
+  --text-primary: #FFFFFF;
+  /* Bright White Headings */
+  --text-secondary: #8E9BAE;
+  /* Muted Cool Grey */
+  --text-muted: #53627A;
+  /* Slate Grey Details */
+
+  /* Borders & Shadows */
+  --border-subtle: #162032;
+  /* Subtile Border */
+  --border-active: #0088FF;
+  /* Active Input/Card Border */
+  --glow-blue: 0 0 20px rgba(0, 136, 255, 0.4);
+  --glow-red: 0 0 20px rgba(230, 0, 38, 0.4);
+}
+
+/* ==========================================
+   GLOBAL RESET & BODY
+   ========================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  font-family: 'Teko', sans-serif;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  /* Disable CSS native smooth scrolling so Lenis handles full physics */
+  scroll-behavior: auto !important;
+}
+
+/* Fix rubber-banding overflow on Mac/iOS */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+/* ==========================================
+   REUSABLE UI COMPONENTS & UTILITIES
+   ========================================== */
+/* ==========================================
+   NAVBAR START 
+   ========================================== */
+.navbar-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+
+  background: rgba(6, 9, 19, 0.75);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body {
+  padding-top: 74px;
+}
+
+ .navbar-container {
+   max-width: 1280px;
+   margin: 0 auto;
+   padding: 16px 24px;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+ }
+
+ /* Logo */
+ .nav-logo a {
+  font-family: var(--font-logo);
+   font-size: 1.25rem;
+   font-weight: 900;
+   color: var(--text-primary);
+   text-decoration: none;
+   letter-spacing: 1px;
+ }
+
+ .text-glow {
+   color: var(--accent-red-danger);
+   text-shadow: 0 0 15px rgba(230, 0, 38, 0.8);
+ }
+
+ /* Desktop Links (Dual Slide-Up Text Animation) */
+ .desktop-links {
+   display: flex;
+   gap: 36px;
+ }
+
+ .desktop-links a {
+  font-family: var(--font-action);
+   text-decoration: none;
+   display: inline-block;
+   overflow: hidden;
+   height: 22px;
+ }
+
+ .link-wrapper {
+   display: flex;
+   flex-direction: column;
+   transition: transform 0.4s cubic-bezier(0.76, 0, 0.24, 1);
+ }
+
+ .desktop-links a:hover .link-wrapper {
+   transform: translateY(-22px);
+ }
+
+ .link-text {
+   color: var(--text-secondary);
+   font-weight: 600;
+   font-size: 0.95rem;
+   height: 22px;
+   display: flex;
+   align-items: center;
+ }
+
+ .link-text-hover {
+   color: var(--accent-blue-cyan);
+   font-weight: 700;
+   font-size: 0.95rem;
+   height: 22px;
+   display: flex;
+   align-items: center;
+   text-shadow: var(--glow-blue);
+ }
+
+ /* Right Navigation Actions (Search + Cart Icon) */
+ .nav-actions {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+ }
+
+ .search-wrapper {
+   position: relative;
+   display: flex;
+   align-items: center;
+ }
+
+ .danger-input {
+   background-color: var(--bg-input);
+   border: 1px solid var(--border-subtle);
+   color: var(--text-primary);
+   padding: 10px 16px;
+   border-radius: 8px;
+   outline: none;
+   transition: all 0.3s ease;
+ }
+
+ .danger-input:focus {
+   border-color: var(--accent-blue-electric);
+   box-shadow: var(--glow-blue);
+ }
+
+ .search-input {
+   width: 170px;
+   padding-right: 36px;
+   font-size: 0.85rem;
+ }
+
+ .search-input:focus {
+   width: 210px;
+ }
+
+ .search-icon {
+   position: absolute;
+   right: 12px;
+   font-size: 0.85rem;
+   pointer-events: none;
+   opacity: 0.7;
+ }
+
+ /* Shopping Bag Button */
+ .cart-btn {
+   position: relative;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   width: 42px;
+   height: 42px;
+   background-color: var(--bg-card);
+   border: 1px solid var(--border-subtle);
+   border-radius: 10px;
+   color: var(--text-primary);
+   cursor: pointer;
+   transition: all 0.3s ease;
+ }
+
+ .cart-btn:hover {
+   border-color: var(--accent-red-danger);
+   background-color: var(--bg-card-hover);
+   box-shadow: var(--glow-red);
+ }
+
+ .bag-icon {
+   width: 20px;
+   height: 20px;
+   stroke: var(--text-primary);
+   transition: stroke 0.2s ease;
+ }
+
+ .cart-btn:hover .bag-icon {
+   stroke: var(--accent-red-danger);
+ }
+
+ .cart-badge {
+   position: absolute;
+   top: -4px;
+   right: -4px;
+   background-color: var(--accent-red-danger);
+   color: #FFFFFF;
+   font-size: 0.7rem;
+   font-weight: 800;
+   width: 18px;
+   height: 18px;
+   border-radius: 50%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   box-shadow: 0 0 10px rgba(230, 0, 38, 0.8);
+ }
+
+ .magnetic-btn {
+   will-change: transform;
+ }
+
+ /* Mobile Hamburger Button */
+ .hamburger-btn {
+   display: none;
+   flex-direction: column;
+   justify-content: center;
+   gap: 6px;
+   width: 32px;
+   height: 32px;
+   background: transparent;
+   border: none;
+   cursor: pointer;
+   z-index: 102;
+ }
+
+ .hamburger-btn span {
+   width: 100%;
+   height: 2px;
+   background-color: var(--text-primary);
+   border-radius: 2px;
+   transition: all 0.3s ease;
+ }
+
+ /* ==========================================
+   CENTER POPUP (MOBILE POPUP MENU)
+   ========================================== */
+ .mobile-popup-wrapper {
+   display: none;
+   position: fixed;
+   inset: 0;
+   margin: auto;
+   width: 88%;
+   max-width: 330px;
+   height: fit-content;
+   background: rgba(10, 15, 29, 0.94);
+   border: 1px solid rgba(230, 0, 38, 0.5);
+   backdrop-filter: blur(20px);
+   padding: 36px 28px;
+   z-index: 200;
+   box-shadow: 0 0 40px rgba(230, 0, 38, 0.3), 0 20px 40px rgba(0, 0, 0, 0.9);
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   transform-origin: center center;
+ }
+
+ .popup-close-btn {
+   position: absolute;
+   top: 14px;
+   right: 18px;
+   background: transparent;
+   border: none;
+   color: var(--text-secondary);
+   font-size: 1.3rem;
+   cursor: pointer;
+   transition: color 0.2s ease;
+ }
+
+ .popup-close-btn:hover {
+   color: var(--accent-red-danger);
+ }
+
+ .mobile-popup-links {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 18px;
+   width: 100%;
+ }
+
+ .mobile-link-item {
+   overflow: hidden;
+   width: 100%;
+ }
+
+ .mobile-popup-links a {
+   display: block;
+  font-family: var(--font-action);
+   color: var(--text-primary);
+   text-decoration: none;
+   font-size: 1.2rem;
+   font-weight: 800;
+   letter-spacing: 1px;
+   text-transform: uppercase;
+   width: 100%;
+   text-align: center;
+   padding: 10px 0;
+   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+   transition: all 0.2s ease;
+ }
+
+ .mobile-popup-links a:hover {
+   color: var(--accent-red-danger);
+   border-bottom-color: var(--accent-red-danger);
+   text-shadow: var(--glow-red);
+ }
+
+ .popup-overlay {
+   position: fixed;
+   inset: 0;
+   background-color: rgba(6, 9, 19, 0.85);
+   backdrop-filter: blur(10px);
+   z-index: 150;
+ }
+
+ /* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
+ @media (max-width: 868px) {
+   .desktop-links {
+     display: none;
+   }
+
+   .hamburger-btn {
+     display: flex;
+   }
+
+   .navbar-container {
+     display: grid;
+     grid-template-columns: auto 1fr auto;
+     align-items: center;
+   }
+
+   .nav-logo {
+     text-align: center;
+   }
+
+   .nav-logo a {
+     font-size: 0.95rem;
+     letter-spacing: 0.5px;
+   }
+
+   .search-input {
+     width: 110px;
+   }
+
+   .search-input:focus {
+     width: 130px;
+   }
+ }
+
+ @media (max-width: 480px) {
+   .nav-logo a {
+     font-size: 0.85rem;
+     letter-spacing: 0.2px;
+   }
+
+   .search-input {
+     width: 95px;
+     padding-left: 10px;
+     padding-right: 28px;
+     font-size: 0.78rem;
+   }
+
+   .cart-btn {
+     width: 38px;
+     height: 38px;
+   }
+
+   .bag-icon {
+     width: 18px;
+     height: 18px;
+   }
+ }
+     /* ==========================================
+     NAVBAR END
+     ========================================== */
