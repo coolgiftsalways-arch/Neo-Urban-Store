@@ -16,7 +16,20 @@ import { Link, useNavigate } from "react-router-dom";
 import "../styles/Cart.css";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/cart`;
+const IMAGE_BASE_URL = import.meta.env.VITE_API_URL;
 
+const getImageUrl = (image) => {
+  if (!image) return "";
+
+  if (
+    image.startsWith("http://") ||
+    image.startsWith("https://")
+  ) {
+    return image;
+  }
+
+  return `${IMAGE_BASE_URL}/${image.replace(/^\/+/, "")}`;
+};
 export default function Cart() {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -302,11 +315,15 @@ export default function Cart() {
                   {/* IMAGE */}
 
                   <div className="cart-image">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                    />
-                  </div>
+  <img
+    src={getImageUrl(item.image)}
+    alt={item.name}
+    onError={(e) => {
+      console.error("CART IMAGE FAILED:", item.image);
+      console.error("IMAGE URL:", getImageUrl(item.image));
+    }}
+  />
+</div>
 
                   {/* INFO */}
 

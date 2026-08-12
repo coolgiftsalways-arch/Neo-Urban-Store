@@ -1,20 +1,39 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaSearch, FaArrowDown, FaBolt } from "react-icons/fa";
+import {
+  FaSearch,
+  FaArrowDown,
+  FaBolt,
+} from "react-icons/fa";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 
 import "../styles/Shop.css";
 import ProductCard from "../components/ProductCard";
 
+// =========================================================
+// API
+// =========================================================
+
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+// =========================================================
+// CATEGORIES
+// =========================================================
+
 const categories = [
   "All",
-  "Energy",
-  "Tea",
-  "Juice",
-  "Water",
-  "Soft Drinks",
+  "Imported",
+  "Rare",
+  "Diet",
+  "Zero Sugar",
+  "Limited Edition",
 ];
+
+// =========================================================
+// CATEGORY INFORMATION
+// =========================================================
 
 const categoryInfo = {
   All: {
@@ -66,14 +85,30 @@ const categoryInfo = {
   },
 };
 
+// =========================================================
+// SHOP
+// =========================================================
+
 export default function Shop() {
   const [searchParams] = useSearchParams();
+
   const slug = searchParams.get("category");
 
+  // =======================================================
+  // STATES
+  // =======================================================
+
   const [products, setProducts] = useState([]);
+
   const [loading, setLoading] = useState(true);
+
   const [error, setError] = useState("");
+
   const [search, setSearch] = useState("");
+
+  // =======================================================
+  // CATEGORY FROM URL
+  // =======================================================
 
   const getCategory = () => {
     switch (slug) {
@@ -100,9 +135,9 @@ export default function Shop() {
   const [selectedCategory, setSelectedCategory] =
     useState(getCategory());
 
-  // =========================================================
+  // =======================================================
   // FETCH PRODUCTS
-  // =========================================================
+  // =======================================================
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -110,27 +145,91 @@ export default function Shop() {
         setLoading(true);
         setError("");
 
-       const res = await axios.get(
-  `${import.meta.env.VITE_API_URL}/api/products`
-);
-        
+        console.log(
+          "Fetching products from:",
+          `${API_URL}/api/products`
+        );
 
-        console.log("Products from MongoDB:", res.data);
+        const response = await axios.get(
+          `${API_URL}/api/products`,
+          {
+            timeout: 10000,
+          }
+        );
 
-        if (Array.isArray(res.data)) {
-          setProducts(res.data);
-        } else {
+        console.log(
+          "Products received from MongoDB:",
+          response.data
+        );
+
+        // ===================================================
+        // CHECK RESPONSE
+        // ===================================================
+
+        if (!Array.isArray(response.data)) {
+          console.error(
+            "Expected array but received:",
+            response.data
+          );
+
           setProducts([]);
+
           setError(
             "Products data is not in the correct format."
           );
+
+          return;
         }
+
+        // ===================================================
+        // SORT PRODUCTS A → Z
+        // ===================================================
+
+        const sortedProducts = [...response.data].sort(
+          (a, b) => {
+            const nameA = String(a?.name || "")
+              .trim()
+              .toLowerCase();
+
+            const nameB = String(b?.name || "")
+              .trim()
+              .toLowerCase();
+
+            return nameA.localeCompare(nameB);
+          }
+        );
+
+        console.log(
+          "Sorted products A-Z:",
+          sortedProducts
+        );
+
+        setProducts(sortedProducts);
+
       } catch (err) {
-        console.error("Failed to fetch products:", err);
+        console.error(
+          "❌ Failed to fetch products:",
+          err
+        );
+
+        console.error(
+          "API URL:",
+          `${API_URL}/api/products`
+        );
+
+        if (err.response) {
+          console.error(
+            "Server response:",
+            err.response.data
+          );
+        }
+
+        setProducts([]);
 
         setError(
-          "Unable to load products. Please try again."
+          "Unable to load products. Please make sure your server is running on port 5000."
         );
+
       } finally {
         setLoading(false);
       }
@@ -139,38 +238,73 @@ export default function Shop() {
     fetchProducts();
   }, []);
 
-  // =========================================================
-  // CATEGORY FROM URL
-  // =========================================================
+  // =======================================================
+  // UPDATE CATEGORY WHEN URL CHANGES
+  // =======================================================
 
   useEffect(() => {
     setSelectedCategory(getCategory());
   }, [slug]);
 
-  // =========================================================
+  // =======================================================
   // FILTER PRODUCTS
-  // =========================================================
+  // =======================================================
 
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
-      const categoryMatch =
-        selectedCategory === "All" ||
-        product.category === selectedCategory;
+    const searchValue = search
+      .trim()
+      .toLowerCase();
 
-      const searchMatch = product.name
-        ?.toLowerCase()
-        .includes(search.toLowerCase());
+    return products.filter((product) => {
+      // ---------------------------------------------------
+      // CATEGORY MATCH
+      // ---------------------------------------------------
+
+      const productCategory = String(
+        product?.category || ""
+      )
+        .trim()
+        .toLowerCase();
+
+      const selected =
+        String(selectedCategory || "")
+          .trim()
+          .toLowerCase();
+
+      const categoryMatch =
+        selected === "all" ||
+        productCategory === selected;
+
+      // ---------------------------------------------------
+      // SEARCH MATCH
+      // ---------------------------------------------------
+
+      const productName = String(
+        product?.name || ""
+      ).toLowerCase();
+
+      const searchMatch =
+        productName.includes(searchValue);
 
       return categoryMatch && searchMatch;
     });
-  }, [products, selectedCategory, search]);
+  }, [
+    products,
+    selectedCategory,
+    search,
+  ]);
+
+  // =======================================================
+  // CURRENT CATEGORY INFO
+  // =======================================================
 
   const currentInfo =
-    categoryInfo[selectedCategory] || categoryInfo.All;
+    categoryInfo[selectedCategory] ||
+    categoryInfo.All;
 
-  // =========================================================
+  // =======================================================
   // SCROLL TO PRODUCTS
-  // =========================================================
+  // =======================================================
 
   const scrollToProducts = () => {
     document
@@ -181,22 +315,26 @@ export default function Shop() {
       });
   };
 
-  // =========================================================
+  // =======================================================
   // CLEAR SEARCH
-  // =========================================================
+  // =======================================================
 
   const clearSearch = () => {
     setSearch("");
   };
 
-  // =========================================================
+  // =======================================================
   // RESET FILTERS
-  // =========================================================
+  // =======================================================
 
   const resetFilters = () => {
     setSearch("");
     setSelectedCategory("All");
   };
+
+  // =======================================================
+  // RENDER
+  // =======================================================
 
   return (
     <motion.section
@@ -205,15 +343,19 @@ export default function Shop() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.7 }}
     >
+
       {/* =====================================================
           BACKGROUND
       ===================================================== */}
 
       <div className="shop-noise" />
+
       <div className="shop-grid-bg" />
 
       <div className="shop-orb shop-orb-one" />
+
       <div className="shop-orb shop-orb-two" />
+
 
       <div className="shop-container">
 
@@ -221,174 +363,7 @@ export default function Shop() {
             HERO
         ===================================================== */}
 
-        <motion.header
-          className="shop-hero"
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: {},
 
-            visible: {
-              transition: {
-                staggerChildren: 0.12,
-              },
-            },
-          }}
-        >
-          {/* HERO EYEBROW */}
-
-          <motion.div
-            className="hero-eyebrow"
-            variants={{
-              hidden: {
-                opacity: 0,
-                y: 20,
-              },
-
-              visible: {
-                opacity: 1,
-                y: 0,
-                transition: {
-                  duration: 0.7,
-                },
-              },
-            }}
-          >
-            <span className="eyebrow-line" />
-
-            <span>
-              {currentInfo.eyebrow}
-            </span>
-
-            <span className="live-dot" />
-
-            <span className="live-text">
-              LIVE
-            </span>
-          </motion.div>
-
-          {/* HERO TITLE */}
-
-          <motion.div
-            className="hero-title-wrap"
-            variants={{
-              hidden: {
-                opacity: 0,
-                y: 50,
-              },
-
-              visible: {
-                opacity: 1,
-                y: 0,
-
-                transition: {
-                  duration: 0.9,
-                  ease: [0.16, 1, 0.3, 1],
-                },
-              },
-            }}
-          >
-            <h1 className="shop-hero-title">
-              {currentInfo.title}
-
-              <span>
-                {currentInfo.accent}
-              </span>
-            </h1>
-
-            {/* HERO SIDE COPY */}
-
-            <div className="hero-side-copy">
-              <span className="side-number">
-                01
-              </span>
-
-              <div>
-                <span className="side-label">
-                  PREMIUM DRINKS
-                </span>
-
-                <p>
-                  {currentInfo.description}
-                </p>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* HERO BOTTOM */}
-
-          <motion.div
-            className="hero-bottom"
-            variants={{
-              hidden: {
-                opacity: 0,
-                y: 30,
-              },
-
-              visible: {
-                opacity: 1,
-                y: 0,
-
-                transition: {
-                  duration: 0.7,
-                },
-              },
-            }}
-          >
-            {/* STATS */}
-
-            <div className="hero-stats">
-
-              <div className="hero-stat">
-                <strong>
-                  {products.length || "—"}
-                </strong>
-
-                <span>
-                  DRINKS
-                </span>
-              </div>
-
-              <div className="hero-stat-divider" />
-
-              <div className="hero-stat">
-                <strong>
-                  24/7
-                </strong>
-
-                <span>
-                  ENERGY
-                </span>
-              </div>
-
-              <div className="hero-stat-divider" />
-
-              <div className="hero-stat">
-                <strong>
-                  ∞
-                </strong>
-
-                <span>
-                  CRAVINGS
-                </span>
-              </div>
-
-            </div>
-
-            {/* EXPLORE */}
-
-            <button
-              className="explore-button"
-              onClick={scrollToProducts}
-            >
-              <span>
-                EXPLORE COLLECTION
-              </span>
-
-              <FaArrowDown />
-            </button>
-          </motion.div>
-        </motion.header>
 
         {/* =====================================================
             MARQUEE
@@ -398,6 +373,7 @@ export default function Shop() {
           className="shop-marquee"
           aria-hidden="true"
         >
+
           <div className="marquee-track">
 
             <span>
@@ -449,26 +425,31 @@ export default function Shop() {
             <b>✦</b>
 
           </div>
+
         </div>
+
 
         {/* =====================================================
             COLLECTION CONTROLS
-            SMALL LABEL + SEARCH ON SAME LINE
         ===================================================== */}
 
         <motion.div
           className="collection-controls"
+
           initial={{
             opacity: 0,
             y: 25,
           }}
+
           whileInView={{
             opacity: 1,
             y: 0,
           }}
+
           viewport={{
             once: true,
           }}
+
           transition={{
             duration: 0.7,
           }}
@@ -483,12 +464,15 @@ export default function Shop() {
             </span>
 
             <div>
+
               <p>
                 THE COLLECTION
               </p>
+
             </div>
 
           </div>
+
 
           {/* SEARCH */}
 
@@ -506,18 +490,22 @@ export default function Shop() {
             />
 
             {search && (
+
               <button
                 className="clear-search"
                 onClick={clearSearch}
                 aria-label="Clear search"
+                type="button"
               >
                 ×
               </button>
+
             )}
 
           </div>
 
         </motion.div>
+
 
         {/* =====================================================
             CATEGORY NAV
@@ -525,14 +513,17 @@ export default function Shop() {
 
         <motion.div
           className="category-nav"
+
           initial={{
             opacity: 0,
             y: 20,
           }}
+
           whileInView={{
             opacity: 1,
             y: 0,
           }}
+
           viewport={{
             once: true,
           }}
@@ -540,23 +531,30 @@ export default function Shop() {
 
           {categories.map(
             (category, index) => (
+
               <button
                 key={category}
+
+                type="button"
+
                 className={
                   selectedCategory === category
                     ? "category-pill active"
                     : "category-pill"
                 }
+
                 onClick={() =>
                   setSelectedCategory(category)
                 }
               >
 
                 <span className="category-number">
+
                   {String(index + 1).padStart(
                     2,
                     "0"
                   )}
+
                 </span>
 
                 <span>
@@ -565,28 +563,35 @@ export default function Shop() {
 
                 {selectedCategory ===
                   category && (
+
                   <motion.span
                     className="category-active-dot"
                     layoutId="category-dot"
                   />
+
                 )}
 
               </button>
+
             )
           )}
 
         </motion.div>
+
 
         {/* =====================================================
             PRODUCT META
         ===================================================== */}
 
         {!loading && !error && (
+
           <motion.div
             className="product-meta"
+
             initial={{
               opacity: 0,
             }}
+
             animate={{
               opacity: 1,
             }}
@@ -599,60 +604,77 @@ export default function Shop() {
               </span>
 
               <span className="meta-small">
+
                 {filteredProducts.length === 1
                   ? "PRODUCT"
                   : "PRODUCTS"}
+
               </span>
 
             </div>
 
+
             <div className="meta-category">
+
               <FaBolt />
 
               {selectedCategory === "All"
                 ? "ALL COLLECTIONS"
                 : selectedCategory.toUpperCase()}
+
             </div>
 
           </motion.div>
+
         )}
+
 
         {/* =====================================================
             LOADING
         ===================================================== */}
 
         {loading && (
+
           <div className="products-grid">
 
             {Array.from({
               length: 8,
             }).map((_, i) => (
+
               <div
                 className="premium-skeleton"
                 key={i}
               >
+
                 <div className="skeleton-image" />
 
                 <div className="skeleton-line" />
 
                 <div className="skeleton-line short" />
+
               </div>
+
             ))}
 
           </div>
+
         )}
+
 
         {/* =====================================================
             ERROR
         ===================================================== */}
 
         {!loading && error && (
+
           <motion.div
             className="shop-state"
+
             initial={{
               opacity: 0,
               y: 20,
             }}
+
             animate={{
               opacity: 1,
               y: 0,
@@ -660,7 +682,7 @@ export default function Shop() {
           >
 
             <span>
-              ERROR 500
+              ERROR
             </span>
 
             <h2>
@@ -671,14 +693,26 @@ export default function Shop() {
               {error}
             </p>
 
+            <button
+              type="button"
+              onClick={() =>
+                window.location.reload()
+              }
+            >
+              TRY AGAIN
+            </button>
+
           </motion.div>
+
         )}
+
 
         {/* =====================================================
             PRODUCTS
         ===================================================== */}
 
         {!loading && !error && (
+
           <motion.div
             id="product-collection"
             layout
@@ -691,32 +725,41 @@ export default function Shop() {
 
                 filteredProducts.map(
                   (product, index) => (
+
                     <motion.div
                       key={
                         product.id ||
-                        product._id
+                        product._id ||
+                        index
                       }
+
                       layout
+
                       initial={{
                         opacity: 0,
                         y: 40,
                         scale: 0.96,
                       }}
+
                       animate={{
                         opacity: 1,
                         y: 0,
                         scale: 1,
                       }}
+
                       exit={{
                         opacity: 0,
                         scale: 0.94,
                       }}
+
                       transition={{
                         duration: 0.55,
+
                         delay: Math.min(
                           index * 0.035,
                           0.3
                         ),
+
                         ease: [
                           0.16,
                           1,
@@ -725,10 +768,13 @@ export default function Shop() {
                         ],
                       }}
                     >
+
                       <ProductCard
                         product={product}
                       />
+
                     </motion.div>
+
                   )
                 )
 
@@ -736,10 +782,12 @@ export default function Shop() {
 
                 <motion.div
                   className="shop-state"
+
                   initial={{
                     opacity: 0,
                     scale: 0.96,
                   }}
+
                   animate={{
                     opacity: 1,
                     scale: 1,
@@ -764,6 +812,7 @@ export default function Shop() {
                   </p>
 
                   <button
+                    type="button"
                     onClick={resetFilters}
                   >
                     VIEW EVERYTHING
@@ -776,7 +825,9 @@ export default function Shop() {
             </AnimatePresence>
 
           </motion.div>
+
         )}
+
 
         {/* =====================================================
             BOTTOM CTA
@@ -785,45 +836,55 @@ export default function Shop() {
         {!loading &&
           !error &&
           products.length > 0 && (
-            <motion.div
-              className="shop-bottom-cta"
-              initial={{
-                opacity: 0,
-                y: 40,
-              }}
-              whileInView={{
-                opacity: 1,
-                y: 0,
-              }}
-              viewport={{
-                once: true,
-              }}
-            >
 
-              <div>
+          <motion.div
+            className="shop-bottom-cta"
 
-                <span>
-                  YOU MADE IT THIS FAR.
-                </span>
+            initial={{
+              opacity: 0,
+              y: 40,
+            }}
 
-                <h2>
-                  NOW PICK
-                  <strong>
-                    {" "}
-                    YOUR FUEL.
-                  </strong>
-                </h2>
+            whileInView={{
+              opacity: 1,
+              y: 0,
+            }}
 
-              </div>
+            viewport={{
+              once: true,
+            }}
+          >
 
-              <div className="cta-bolt">
-                <FaBolt />
-              </div>
+            <div>
 
-            </motion.div>
-          )}
+              <span>
+                YOU MADE IT THIS FAR.
+              </span>
+
+              <h2>
+
+                NOW PICK
+
+                <strong>
+                  {" "}
+                  YOUR FUEL.
+                </strong>
+
+              </h2>
+
+            </div>
+
+
+            <div className="cta-bolt">
+              <FaBolt />
+            </div>
+
+          </motion.div>
+
+        )}
 
       </div>
+
     </motion.section>
   );
 }

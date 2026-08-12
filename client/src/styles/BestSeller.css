@@ -686,3 +686,126 @@
         gap: 30px;
     }
 }
+
+/* ======================================================
+   INFINITE AUTO PRODUCT SLIDER
+====================================================== */
+
+.bestseller-viewport {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ======================================================
+   SLIDER TRACK
+====================================================== */
+
+.bestseller-slider-track {
+  display: flex;
+  align-items: stretch;
+
+  gap: 24px;
+
+  width: max-content;
+
+  /*
+    SLOW + SMOOTH
+  */
+  animation: bestsellerScroll 35s linear infinite;
+
+  will-change: transform;
+}
+
+/* ======================================================
+   PAUSE WHEN MOUSE IS OVER ANY PRODUCT CARD
+====================================================== */
+
+.bestseller-slider-track:hover {
+  animation-play-state: paused;
+}
+
+/* ======================================================
+   CARD WIDTH
+====================================================== */
+
+.bestseller-slide {
+  flex: 0 0 calc((100vw - 120px) / 4);
+
+  min-width: 280px;
+}
+
+/* ======================================================
+   INFINITE MOVEMENT
+====================================================== */
+
+@keyframes bestsellerScroll {
+
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-50% - 12px));
+  }
+
+}
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width: 1024px) {
+
+  .bestseller-slide {
+    flex: 0 0 calc((100vw - 80px) / 3);
+  }
+
+  .bestseller-slider-track {
+    gap: 20px;
+
+    animation-duration: 30s;
+  }
+
+}
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width: 768px) {
+
+  .bestseller-slider-track {
+    gap: 16px;
+
+    /*
+      Still slow on mobile
+    */
+    animation-duration: 25s;
+  }
+
+  .bestseller-slide {
+    flex: 0 0 80vw;
+
+    min-width: 80vw;
+  }
+
+}
+
+/* ======================================================
+   SMALL MOBILE
+====================================================== */
+
+@media (max-width: 480px) {
+
+  .bestseller-slider-track {
+    animation-duration: 23s;
+  }
+
+  .bestseller-slide {
+    flex: 0 0 84vw;
+
+    min-width: 84vw;
+  }
+
+}

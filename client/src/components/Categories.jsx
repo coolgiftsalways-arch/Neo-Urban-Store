@@ -3,10 +3,10 @@ import { motion } from "framer-motion";
 import CategoryCard from "./CategoryCard";
 import "../styles/Categories.css";
 
-import monster from "../assets/images/monster.jpg";
-import drink from "../assets/images/drink.jpg";
-import juice from "../assets/images/juice.jpg";
-import water from "../assets/images/water.jpg";
+import monster from "../assets/images/bs10.jpg";
+import drink from "../assets/images/bsfive.jpg";
+import juice from "../assets/images/bssevin.jpg";
+import water from "../assets/images/bsone.jpg";
 const categories = [
   {
     id: 1,

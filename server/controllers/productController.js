@@ -1,10 +1,12 @@
 import Product from "../models/Product.js";
 
-// GET ALL PRODUCTS
+// ==========================================
+// GET ALL PRODUCTS — A TO Z
+// ==========================================
 export const getProducts = async (req, res) => {
   try {
     const products = await Product.find().sort({
-      productId: 1,
+      name: 1,
     });
 
     res.json(products);
@@ -17,8 +19,9 @@ export const getProducts = async (req, res) => {
   }
 };
 
-
+// ==========================================
 // GET SINGLE PRODUCT
+// ==========================================
 export const getProduct = async (req, res) => {
   try {
     const product = await Product.findOne({
@@ -41,8 +44,9 @@ export const getProduct = async (req, res) => {
   }
 };
 
-
+// ==========================================
 // ADD PRODUCT
+// ==========================================
 export const createProduct = async (req, res) => {
   try {
     const product = await Product.create(req.body);
@@ -58,8 +62,9 @@ export const createProduct = async (req, res) => {
   }
 };
 
-
+// ==========================================
 // DELETE PRODUCT
+// ==========================================
 export const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findOneAndDelete({

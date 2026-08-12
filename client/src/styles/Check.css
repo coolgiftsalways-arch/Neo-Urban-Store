@@ -188,3 +188,469 @@
      background: #111318;
      color: #ffffff;
 }
+/* ==========================================
+   PAYMENT METHOD
+========================================== */
+
+.payment-section {
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.payment-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  margin-bottom: 16px;
+}
+
+.payment-heading span {
+  color: #ffffff;
+
+  font-size: 17px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.5px;
+}
+
+.payment-heading small {
+  color: #737b8d;
+
+  font-size: 13px;
+}
+
+
+/* ==========================================
+   PAYMENT OPTIONS
+========================================== */
+
+.payment-options {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 14px;
+}
+
+
+/* ==========================================
+   PAYMENT CARD
+========================================== */
+
+.payment-option {
+  position: relative;
+
+  width: 100%;
+
+  min-height: 92px;
+
+  padding: 18px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(22, 25, 36, 0.95),
+      rgba(13, 15, 24, 0.95)
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  border-radius: 16px;
+
+  transition:
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.payment-option:hover {
+  transform: translateY(-2px);
+
+  border-color: rgba(255, 50, 80, 0.5);
+
+  box-shadow:
+    0 10px 30px rgba(255, 30, 60, 0.12);
+}
+
+
+/* ==========================================
+   SELECTED
+========================================== */
+
+.payment-option.selected {
+  border-color: #ff1747;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 23, 71, 0.12),
+      rgba(255, 90, 0, 0.06)
+    );
+
+  box-shadow:
+    0 0 25px rgba(255, 23, 71, 0.12);
+}
+
+
+/* ==========================================
+   ICON
+========================================== */
+
+.payment-icon {
+  width: 48px;
+  height: 48px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ff1747,
+      #ff5a00
+    );
+
+  color: white;
+
+  font-size: 20px;
+}
+
+.cod-icon {
+  background:
+    linear-gradient(
+      135deg,
+      #00cfff,
+      #0077ff
+    );
+}
+
+
+/* ==========================================
+   PAYMENT TEXT
+========================================== */
+/* ==========================================
+   PAYMENT METHOD
+========================================== */
+/* ==========================================
+   PAYMENT METHOD — COMPACT PREMIUM
+========================================== */
+
+.payment-section {
+  grid-column: span 2;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+/* ==========================================
+   HEADING
+========================================== */
+
+.payment-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 14px;
+}
+
+.payment-heading span {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+}
+
+.payment-heading small {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 13px;
+}
+
+/* ==========================================
+   PAYMENT OPTIONS
+========================================== */
+
+.payment-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  max-width: 560px;
+}
+
+/* ==========================================
+   PAYMENT CARD
+========================================== */
+
+.payment-option {
+  position: relative;
+
+  width: 100%;
+  min-height: 82px;
+
+  padding: 14px 15px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(25, 28, 40, 0.95),
+      rgba(12, 14, 22, 0.95)
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.09);
+
+  border-radius: 13px;
+
+  transition:
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+/* hover */
+
+.payment-option:hover {
+  transform: translateY(-2px);
+
+  border-color: rgba(255, 60, 80, 0.4);
+
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.3);
+}
+
+/* ==========================================
+   SELECTED
+========================================== */
+
+.payment-option.selected {
+  border-color: rgba(255, 23, 71, 0.85);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 23, 71, 0.10),
+      rgba(255, 90, 0, 0.035)
+    );
+
+  box-shadow:
+    0 0 18px rgba(255, 23, 71, 0.10),
+    inset 0 0 20px rgba(255, 23, 71, 0.025);
+}
+
+/* ==========================================
+   PAYMENT ICON
+========================================== */
+
+.payment-icon {
+  width: 40px;
+  height: 40px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ff334f,
+      #ff6418
+    );
+
+  color: #ffffff;
+
+  font-size: 17px;
+
+  box-shadow:
+    0 5px 15px rgba(255, 50, 50, 0.18);
+}
+
+.cod-icon {
+  background:
+    linear-gradient(
+      135deg,
+      #00cfff,
+      #008cff
+    );
+
+  box-shadow:
+    0 5px 15px rgba(0, 180, 255, 0.15);
+}
+
+/* ==========================================
+   PAYMENT TEXT
+========================================== */
+
+.payment-info {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+
+  min-width: 0;
+}
+
+.payment-info strong {
+  color: #ffffff;
+
+  font-size: 14px;
+
+  font-weight: 800;
+
+  line-height: 1.2;
+}
+
+.payment-info span {
+  color: rgba(255, 255, 255, 0.48);
+
+  font-size: 10px;
+
+  line-height: 1.35;
+
+  max-width: 150px;
+}
+
+/* ==========================================
+   CHECK ICON
+========================================== */
+
+.payment-check {
+  width: 20px;
+  height: 20px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #ff1747;
+
+  font-size: 18px;
+}
+
+/* ==========================================
+   PAYMENT CARD ACTIVE ANIMATION
+========================================== */
+
+.payment-option.selected .payment-icon {
+  transform: scale(1.03);
+}
+
+/* ==========================================
+   TABLET
+========================================== */
+
+@media (max-width: 768px) {
+
+  .payment-section {
+    grid-column: span 1;
+  }
+
+  .payment-options {
+    max-width: 100%;
+    gap: 10px;
+  }
+
+  .payment-option {
+    min-height: 78px;
+    padding: 12px;
+  }
+
+  .payment-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+  }
+
+  .payment-info strong {
+    font-size: 13px;
+  }
+
+  .payment-info span {
+    font-size: 9px;
+  }
+
+}
+
+/* ==========================================
+   SMALL MOBILE
+========================================== */
+
+@media (max-width: 480px) {
+
+  .payment-options {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .payment-option {
+    min-height: 76px;
+
+    padding: 10px;
+
+    gap: 8px;
+
+    border-radius: 11px;
+  }
+
+  .payment-icon {
+    width: 34px;
+    height: 34px;
+
+    border-radius: 9px;
+
+    font-size: 14px;
+  }
+
+  .payment-info strong {
+    font-size: 12px;
+  }
+
+  .payment-info span {
+    font-size: 8px;
+  }
+
+  .payment-check {
+    width: 17px;
+    height: 17px;
+
+    font-size: 15px;
+  }
+
+}

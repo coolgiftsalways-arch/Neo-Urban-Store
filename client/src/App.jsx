@@ -10,6 +10,7 @@ import Check from "./pages/Check";
 import Payment from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ProductDetails from "./pages/ProductDetails";
+import OrderSuccess from "./pages/OrderSuccess";
 
 import Layout from "./admin/Layout";
 import Dashboard from "./admin/pages/Dashboard";
@@ -52,6 +53,10 @@ function App() {
         element={<ProductDetails />}
         />
 
+        <Route
+        path="/order-success"
+        element={<OrderSuccess />}
+        />
         {/* ================= ADMIN ROUTES ================= */}
 
         <Route path="/admin" element={<Layout />}>
