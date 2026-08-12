@@ -15,13 +15,46 @@ export default function ProductDetails() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // ==========================================
+  // API URL
+  // ==========================================
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  // ==========================================
+  // PRODUCT
+  // ==========================================
   const product = location.state?.product;
 
+  // ==========================================
+  // IMAGE URL HELPER
+  // ==========================================
+  const getImageUrl = (image) => {
+    if (!image) return "";
+
+    // If already a complete URL, use it directly
+    if (image.startsWith("http")) {
+      return image;
+    }
+
+    // Otherwise attach backend URL
+    return `${API_URL}${image}`;
+  };
+
+  // ==========================================
+  // QUANTITY
+  // ==========================================
   const [quantity, setQuantity] = useState(1);
+
+  // ==========================================
+  // ACTIVE IMAGE
+  // ==========================================
   const [activeImage, setActiveImage] = useState(
-    product?.image
+    getImageUrl(product?.image)
   );
 
+  // ==========================================
+  // PRODUCT NOT FOUND
+  // ==========================================
   if (!product) {
     return (
       <div className="product-not-found">
@@ -34,34 +67,41 @@ export default function ProductDetails() {
     );
   }
 
-  /*
-    If your product doesn't have multiple images yet,
-    we use the main product image three times temporarily.
-  */
-
+  // ==========================================
+  // PRODUCT IMAGES
+  // ==========================================
   const productImages =
     product.images?.length > 0
-      ? product.images
+      ? product.images.map(getImageUrl)
       : [
-          product.image,
-          product.image,
-          product.image,
+          getImageUrl(product.image),
+          getImageUrl(product.image),
+          getImageUrl(product.image),
         ];
 
+  // ==========================================
+  // INCREASE QUANTITY
+  // ==========================================
   const increaseQty = () => {
     setQuantity((prev) => prev + 1);
   };
 
+  // ==========================================
+  // DECREASE QUANTITY
+  // ==========================================
   const decreaseQty = () => {
     if (quantity > 1) {
       setQuantity((prev) => prev - 1);
     }
   };
 
+  // ==========================================
+  // ADD TO CART
+  // ==========================================
   const addToCart = async () => {
     try {
-      await fetch(
-  `${import.meta.env.VITE_API_URL}/api/cart`,
+      const response = await fetch(
+        `${API_URL}/api/cart`,
         {
           method: "POST",
           headers: {
@@ -78,33 +118,54 @@ export default function ProductDetails() {
         }
       );
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+
+        throw new Error(
+          errorData.message || "Failed to add product to cart"
+        );
+      }
+
       alert("Added to Cart 🛒");
     } catch (error) {
-      console.log(error);
+      console.log("Add to cart error:", error);
+      alert(error.message || "Unable to add product to cart");
     }
   };
 
   return (
     <main className="product-details-page">
 
-      {/* BACK BUTTON */}
+      {/* ==========================================
+          BACK BUTTON
+      ========================================== */}
 
       <motion.button
         className="back-product-btn"
         onClick={() => navigate(-1)}
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
+        initial={{
+          opacity: 0,
+          x: -20,
+        }}
+        animate={{
+          opacity: 1,
+          x: 0,
+        }}
       >
         <FaArrowLeft />
         Back to Shop
       </motion.button>
 
 
-      {/* PRODUCT DETAILS */}
+      {/* ==========================================
+          PRODUCT DETAILS
+      ========================================== */}
 
       <section className="product-details-container">
 
-        {/* LEFT SIDE */}
+        {/* ==========================================
+            LEFT SIDE
+        ========================================== */}
 
         <motion.div
           className="product-gallery"
@@ -121,7 +182,9 @@ export default function ProductDetails() {
           }}
         >
 
-          {/* MAIN IMAGE */}
+          {/* ========================================
+              MAIN IMAGE
+          ======================================== */}
 
           <div className="product-main-image">
 
@@ -140,46 +203,52 @@ export default function ProductDetails() {
               transition={{
                 duration: 0.4,
               }}
+              onError={(e) => {
+                console.log(
+                  "Product image failed:",
+                  activeImage
+                );
+              }}
             />
 
           </div>
 
 
-          {/* THUMBNAILS */}
+          {/* ========================================
+              THUMBNAILS
+          ======================================== */}
 
           <div className="product-thumbnails">
 
-            {productImages.map(
-              (image, index) => (
+            {productImages.map((image, index) => (
 
-                <button
-                  key={index}
-                  className={
-                    activeImage === image
-                      ? "thumbnail active"
-                      : "thumbnail"
-                  }
-                  onClick={() =>
-                    setActiveImage(image)
-                  }
-                >
+              <button
+                key={index}
+                className={
+                  activeImage === image
+                    ? "thumbnail active"
+                    : "thumbnail"
+                }
+                onClick={() => setActiveImage(image)}
+              >
 
-                  <img
-                    src={image}
-                    alt={`${product.name} ${index + 1}`}
-                  />
+                <img
+                  src={image}
+                  alt={`${product.name} ${index + 1}`}
+                />
 
-                </button>
+              </button>
 
-              )
-            )}
+            ))}
 
           </div>
 
         </motion.div>
 
 
-        {/* RIGHT SIDE */}
+        {/* ==========================================
+            RIGHT SIDE
+        ========================================== */}
 
         <motion.div
           className="product-details-info"
@@ -197,17 +266,23 @@ export default function ProductDetails() {
           }}
         >
 
+          {/* CATEGORY */}
+
           <span className="details-category">
             {product.category}
           </span>
 
+
+          {/* PRODUCT NAME */}
 
           <h1>
             {product.name}
           </h1>
 
 
-          {/* RATING */}
+          {/* ========================================
+              RATING
+          ======================================== */}
 
           <div className="details-rating">
 
@@ -230,14 +305,18 @@ export default function ProductDetails() {
           </div>
 
 
-          {/* PRICE */}
+          {/* ========================================
+              PRICE
+          ======================================== */}
 
           <div className="details-price">
             ₹{product.price}
           </div>
 
 
-          {/* DESCRIPTION */}
+          {/* ========================================
+              DESCRIPTION
+          ======================================== */}
 
           <div className="details-description">
 
@@ -255,7 +334,9 @@ export default function ProductDetails() {
           </div>
 
 
-          {/* QUANTITY */}
+          {/* ========================================
+              QUANTITY
+          ======================================== */}
 
           <div className="details-quantity">
 
@@ -286,7 +367,9 @@ export default function ProductDetails() {
           </div>
 
 
-          {/* ADD TO CART */}
+          {/* ========================================
+              ADD TO CART
+          ======================================== */}
 
           <motion.button
             className="details-cart-btn"
@@ -310,7 +393,9 @@ export default function ProductDetails() {
       </section>
 
 
-      {/* PRODUCT DESCRIPTION */}
+      {/* ==========================================
+          PRODUCT DESCRIPTION
+      ========================================== */}
 
       <motion.section
         className="product-description-section"
@@ -348,7 +433,9 @@ export default function ProductDetails() {
       </motion.section>
 
 
-      {/* SUGGESTED PRODUCTS */}
+      {/* ==========================================
+          SUGGESTED PRODUCTS
+      ========================================== */}
 
       <section className="suggested-products">
 
@@ -366,11 +453,6 @@ export default function ProductDetails() {
 
 
         <div className="suggested-grid">
-
-          {/* 
-             We will connect your actual products
-             here in the next step.
-          */}
 
           <div className="suggested-placeholder">
             Suggested products will appear here.
