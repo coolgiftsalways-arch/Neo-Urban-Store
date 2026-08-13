@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import {
-  FaStar,
-  FaStarHalfAlt,
   FaRegHeart,
   FaHeart,
-  FaShoppingCart,
 } from "react-icons/fa";
 
 import { motion } from "framer-motion";
@@ -35,51 +32,7 @@ const BestSellerCard = ({ product }) => {
 
   const handleWishlist = (e) => {
     e.stopPropagation();
-    setIsWishlisted(!isWishlisted);
-  };
-
-  const handleAddToCart = (e) => {
-    e.stopPropagation();
-    console.log("Added:", product.name);
-  };
-
-  const renderStars = (rating) => {
-    const stars = [];
-
-    const fullStars = Math.floor(rating);
-
-    const hasHalf = rating % 1 !== 0;
-
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(
-        <FaStar
-          key={`full-${i}`}
-          className="star-icon filled"
-        />
-      );
-    }
-
-    if (hasHalf) {
-      stars.push(
-        <FaStarHalfAlt
-          key="half"
-          className="star-icon filled"
-        />
-      );
-    }
-
-    const remaining = 5 - Math.ceil(rating);
-
-    for (let i = 0; i < remaining; i++) {
-      stars.push(
-        <FaStar
-          key={`empty-${i}`}
-          className="star-icon"
-        />
-      );
-    }
-
-    return stars;
+    setIsWishlisted((prev) => !prev);
   };
 
   return (
@@ -96,15 +49,22 @@ const BestSellerCard = ({ product }) => {
         scale: 0.98,
       }}
     >
-      {/* Background */}
+
+      {/* =========================
+          BACKGROUND
+      ========================= */}
 
       <div className="card-bg"></div>
 
       <div className="card-glow"></div>
 
-      {/* Wishlist */}
+
+      {/* =========================
+          WISHLIST
+      ========================= */}
 
       <motion.button
+        type="button"
         className="wishlist-btn"
         onClick={handleWishlist}
         whileTap={{
@@ -122,7 +82,10 @@ const BestSellerCard = ({ product }) => {
         )}
       </motion.button>
 
-      {/* Image */}
+
+      {/* =========================
+          LARGE PRODUCT IMAGE
+      ========================= */}
 
       <motion.div
         className="bestseller-image-wrap"
@@ -142,50 +105,6 @@ const BestSellerCard = ({ product }) => {
         />
       </motion.div>
 
-      {/* Info */}
-
-      <div className="bestseller-info">
-
-        <span className="product-tag">
-          BEST SELLER
-        </span>
-
-        <h3 className="bestseller-name">
-          {product.name}
-        </h3>
-
-        <div className="bestseller-rating">
-
-          <span className="stars">
-            {renderStars(product.rating)}
-          </span>
-
-          <span className="rating-count">
-            ({product.reviews})
-          </span>
-
-        </div>
-
-        <h2 className="bestseller-price">
-          ₹{product.price}
-        </h2>
-
-        <motion.button
-          className="add-to-cart-btn"
-          onClick={handleAddToCart}
-          whileHover={{
-            scale: 1.05,
-          }}
-          whileTap={{
-            scale: 0.95,
-          }}
-        >
-          <FaShoppingCart className="cart-icon" />
-
-          Add to Cart
-        </motion.button>
-
-      </div>
     </motion.div>
   );
 };

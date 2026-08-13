@@ -24,11 +24,10 @@ const API_URL =
 
 const categories = [
   "All",
+  "Regulars",
   "Imported",
   "Rare",
-  "Diet",
-  "Zero Sugar",
-  "Limited Edition",
+  "Collections",
 ];
 
 // =========================================================
@@ -37,6 +36,38 @@ const categories = [
 
 const categoryInfo = {
   All: {
+    eyebrow: "THE FULL COLLECTION",
+    title: "FIND YOUR",
+    accent: "FUEL.",
+    description:
+      "Energy, juice, hydration and everything in between. Pick your next obsession.",
+  },
+
+  Regulars: {
+    eyebrow: "THE FULL COLLECTION",
+    title: "FIND YOUR",
+    accent: "FUEL.",
+    description:
+      "Energy, juice, hydration and everything in between. Pick your next obsession.",
+  },
+
+  Imported: {
+    eyebrow: "THE FULL COLLECTION",
+    title: "FIND YOUR",
+    accent: "FUEL.",
+    description:
+      "Energy, juice, hydration and everything in between. Pick your next obsession.",
+  },
+
+  Rare: {
+    eyebrow: "THE FULL COLLECTION",
+    title: "FIND YOUR",
+    accent: "FUEL.",
+    description:
+      "Energy, juice, hydration and everything in between. Pick your next obsession.",
+  },
+
+  Collections: {
     eyebrow: "THE FULL COLLECTION",
     title: "FIND YOUR",
     accent: "FUEL.",
@@ -256,24 +287,26 @@ export default function Shop() {
       .toLowerCase();
 
     return products.filter((product) => {
+
       // ---------------------------------------------------
-      // CATEGORY MATCH
+      // COLLECTION FILTER
       // ---------------------------------------------------
 
-      const productCategory = String(
-        product?.category || ""
-      )
-        .trim()
-        .toLowerCase();
+      const productCollection =
+        String(
+          product?.collectionType || ""
+        )
+          .trim()
+          .toLowerCase();
 
       const selected =
         String(selectedCategory || "")
           .trim()
           .toLowerCase();
 
-      const categoryMatch =
+      const collectionMatch =
         selected === "all" ||
-        productCategory === selected;
+        productCollection === selected;
 
       // ---------------------------------------------------
       // SEARCH MATCH
@@ -286,8 +319,12 @@ export default function Shop() {
       const searchMatch =
         productName.includes(searchValue);
 
-      return categoryMatch && searchMatch;
+      return (
+        collectionMatch &&
+        searchMatch
+      );
     });
+
   }, [
     products,
     selectedCategory,
@@ -356,14 +393,9 @@ export default function Shop() {
 
       <div className="shop-orb shop-orb-two" />
 
-
       <div className="shop-container">
 
-        {/* =====================================================
-            HERO
-        ===================================================== */}
-
-
+        
 
         {/* =====================================================
             MARQUEE
@@ -428,7 +460,6 @@ export default function Shop() {
 
         </div>
 
-
         {/* =====================================================
             COLLECTION CONTROLS
         ===================================================== */}
@@ -473,7 +504,6 @@ export default function Shop() {
 
           </div>
 
-
           {/* SEARCH */}
 
           <div className="search-box">
@@ -505,7 +535,6 @@ export default function Shop() {
           </div>
 
         </motion.div>
-
 
         {/* =====================================================
             CATEGORY NAV
@@ -578,7 +607,6 @@ export default function Shop() {
 
         </motion.div>
 
-
         {/* =====================================================
             PRODUCT META
         ===================================================== */}
@@ -613,7 +641,6 @@ export default function Shop() {
 
             </div>
 
-
             <div className="meta-category">
 
               <FaBolt />
@@ -627,7 +654,6 @@ export default function Shop() {
           </motion.div>
 
         )}
-
 
         {/* =====================================================
             LOADING
@@ -659,7 +685,6 @@ export default function Shop() {
           </div>
 
         )}
-
 
         {/* =====================================================
             ERROR
@@ -705,7 +730,6 @@ export default function Shop() {
           </motion.div>
 
         )}
-
 
         {/* =====================================================
             PRODUCTS
@@ -828,7 +852,6 @@ export default function Shop() {
 
         )}
 
-
         {/* =====================================================
             BOTTOM CTA
         ===================================================== */}
@@ -873,7 +896,6 @@ export default function Shop() {
               </h2>
 
             </div>
-
 
             <div className="cta-bolt">
               <FaBolt />
