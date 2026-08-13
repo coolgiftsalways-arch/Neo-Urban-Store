@@ -1,218 +1,2615 @@
 /* ==========================================================================
-   CUSTOMERS PAGE - CYBERPUNK NEON DARK STYLES
-   ========================================================================== */
+   PREMIUM APPLE + LINEAR GLASSMORPHISM CUSTOMERS PAGE
+   PART 1 - ROOT + PAGE + HEADER + SEARCH TOOLBAR
+========================================================================== */
 
-.customers-page {
+
+/*==================================================
+CUSTOMERS PAGE
+==================================================*/
+
+
+.cgt-cust-main-page {
+
+
+    --cust-bg: #eef3f9;
+
+
+    --cust-surface: rgba(255, 255, 255, .68);
+
+    --cust-surface-hover: rgba(255, 255, 255, .86);
+
+
+
+    --cust-text: #0f172a;
+
+    --cust-muted: #64748b;
+
+
+
+    --cust-primary: #6366f1;
+
+    --cust-cyan: #06b6d4;
+
+
+    --cust-success: #10b981;
+
+    --cust-danger: #ef4444;
+
+
+
+    --cust-border:
+
+        rgba(255, 255, 255, .75);
+
+
+
+    --cust-shadow:
+
+
+        0 15px 40px rgba(15, 23, 42, .07);
+
+
+
+    --cust-shadow-hover:
+
+
+        0 25px 60px rgba(99, 102, 241, .15);
+
+
+
+    --cust-radius: 24px;
+
+
+
+
     width: 100%;
-    padding: 30px;
-}
 
-/* Header Section */
-.customers-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-}
 
-.customers-header h1 {
-    font-size: 2.2rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    background: linear-gradient(135deg, #ffffff 30%, var(--accent-blue));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
+    min-height: 100vh;
 
-.customers-header p {
-    margin-top: 6px;
-    color: var(--text-muted);
-    font-size: 0.9rem;
-}
 
-/* Toolbar & Glassmorphic Search Bar */
-.customers-toolbar {
-    margin-bottom: 30px;
-}
 
-.customers-search {
-    width: 380px;
-    height: 48px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 0 16px;
-    border: 1px solid var(--border);
-    transition: all 0.3s ease;
-}
+    padding: 35px;
 
-.customers-search:focus-within {
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
-    background: rgba(255, 255, 255, 0.05);
-}
 
-.customers-search svg {
-    font-size: 18px;
-    color: var(--text-muted);
-}
 
-.customers-search input {
-    width: 100%;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: var(--text);
-    font-size: 0.9rem;
-}
+    position: relative;
 
-.customers-search input::placeholder {
-    color: var(--text-muted);
-}
 
-/* Customers Table Wrapper */
-.customers-table {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+
     overflow: hidden;
-    box-shadow: var(--shadow-flat);
+
+
+
+    background:
+
+
+        linear-gradient(180deg,
+            #f8fbff,
+            #eef3f9);
+
+
+
 }
 
-.customers-table table {
-    width: 100%;
-    border-collapse: collapse;
+
+
+/*==================================================
+GLOBAL
+==================================================*/
+
+
+.cgt-cust-main-page *,
+.cgt-cust-main-page *::before,
+.cgt-cust-main-page *::after {
+
+
+    box-sizing: border-box;
+
+
 }
 
-.customers-table thead {
-    background: rgba(255, 255, 255, 0.02);
-}
 
-.customers-table th {
-    padding: 16px 20px;
-    text-align: left;
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    border-bottom: 1px solid var(--border);
-}
 
-.customers-table td {
-    padding: 18px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    color: var(--text);
-    font-size: 0.9rem;
-    vertical-align: middle;
-}
 
-.customers-table tbody tr {
-    transition: background 0.3s ease;
-}
+/*==================================================
+BACKGROUND AMBIENT GLOW
+==================================================*/
 
-.customers-table tbody tr:hover {
-    background: rgba(255, 255, 255, 0.02);
-}
 
-/* Customer Info & Neon Avatar */
-.customer-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
+.cgt-cust-main-page::before {
 
-.avatar {
-    width: 46px;
-    height: 46px;
+
+    content: "";
+
+
+    position: absolute;
+
+
+
+    top: -170px;
+
+    right: -160px;
+
+
+
+    width: 500px;
+
+    height: 500px;
+
+
+
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba(224, 36, 36, 0.8), rgba(0, 240, 255, 0.8));
-    color: #ffffff;
+
+
+
+    background:
+
+
+        radial-gradient(circle,
+            rgba(99, 102, 241, .16),
+            transparent 70%);
+
+
+
+    filter: blur(55px);
+
+
+
+    pointer-events: none;
+
+
+}
+
+
+
+
+.cgt-cust-main-page::after {
+
+
+    content: "";
+
+
+    position: absolute;
+
+
+
+    bottom: -180px;
+
+    left: -150px;
+
+
+
+    width: 420px;
+
+    height: 420px;
+
+
+
+    border-radius: 50%;
+
+
+
+    background:
+
+
+        radial-gradient(circle,
+            rgba(6, 182, 212, .14),
+            transparent 70%);
+
+
+
+    filter: blur(60px);
+
+
+
+    pointer-events: none;
+
+
+}
+
+
+
+
+
+/*==================================================
+HEADER
+==================================================*/
+
+
+.cgt-cust-page-header {
+
+
     display: flex;
-    justify-content: center;
+
+
+    justify-content: space-between;
+
+
     align-items: center;
-    font-size: 16px;
-    font-weight: 700;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+
+
+
+    margin-bottom: 38px;
+
+
+
+    position: relative;
+
+
+
+    z-index: 2;
+
+
+
 }
 
-.customer-info h4 {
-    font-size: 0.95rem;
-    color: var(--text);
-    margin-bottom: 2px;
-    font-weight: 600;
+
+
+.cgt-cust-page-header h1 {
+
+
+    font-size: 2.45rem;
+
+
+    font-weight: 800;
+
+
+
+    letter-spacing: -1px;
+
+
+
+    background:
+
+
+        linear-gradient(135deg,
+            #0f172a,
+            #6366f1,
+            #06b6d4);
+
+
+
+    -webkit-background-clip: text;
+
+
+
+    -webkit-text-fill-color: transparent;
+
+
+
 }
 
-.customer-info span {
-    color: var(--text-muted);
-    font-size: 0.8rem;
+
+
+
+.cgt-cust-page-header p {
+
+
+    margin-top: 10px;
+
+
+
+    font-size: .95rem;
+
+
+
+    color:
+
+        var(--cust-muted);
+
+
+
+    line-height: 1.7;
+
+
+
 }
 
-/* Email & Phone Icons */
-.customers-table td svg {
-    margin-right: 8px;
-    color: var(--accent-blue);
+
+
+
+
+/*==================================================
+FILTER TOOLBAR
+==================================================*/
+
+
+.cgt-cust-filter-toolbar {
+
+
+    margin-bottom: 30px;
+
+
+
+    position: relative;
+
+
+
+    z-index: 2;
+
+
+
+}
+
+
+
+
+
+/*==================================================
+SEARCH GLASS BOX
+==================================================*/
+
+
+.cgt-cust-search-box {
+
+
+    width: 400px;
+
+
+
+    height: 54px;
+
+
+
+    display: flex;
+
+
+
+    align-items: center;
+
+
+
+    gap: 14px;
+
+
+
+    padding:
+
+        0 18px;
+
+
+
+    background:
+
+
+        rgba(255, 255, 255, .65);
+
+
+
+    backdrop-filter:
+
+        blur(22px);
+
+
+
+    -webkit-backdrop-filter:
+
+        blur(22px);
+
+
+
+    border:
+
+
+        1px solid var(--cust-border);
+
+
+
+    border-radius: 18px;
+
+
+
+    box-shadow:
+
+
+        var(--cust-shadow);
+
+
+
+    transition: .35s;
+
+
+
+}
+
+
+
+
+.cgt-cust-search-box:hover {
+
+
+    background:
+
+
+        rgba(255, 255, 255, .8);
+
+
+
+}
+
+
+
+
+.cgt-cust-search-box:focus-within {
+
+
+    transform:
+
+
+        translateY(-4px);
+
+
+
+    background:
+
+
+        rgba(255, 255, 255, .9);
+
+
+
+    border-color:
+
+
+        rgba(99, 102, 241, .35);
+
+
+
+    box-shadow:
+
+
+        0 18px 40px rgba(99, 102, 241, .15);
+
+
+
+}
+
+
+
+
+
+.cgt-cust-search-box svg {
+
+
+    font-size: 20px;
+
+
+
+    color:
+
+        var(--cust-primary);
+
+
+
+}
+
+
+
+
+
+.cgt-cust-search-box input {
+
+
+    width: 100%;
+
+
+
+    border: none;
+
+
+
+    outline: none;
+
+
+
+    background: transparent;
+
+
+
+    color:
+
+        var(--cust-text);
+
+
+
+    font-size: .92rem;
+
+
+
+    font-weight: 500;
+
+
+
+}
+
+
+
+
+
+.cgt-cust-search-box input::placeholder {
+
+
+    color:
+
+        var(--cust-muted);
+
+
+
+}
+
+/* ==========================================================================
+   PREMIUM APPLE + LINEAR GLASSMORPHISM CUSTOMERS PAGE
+   PART 2 - TABLE + PROFILE + AVATAR + ACTION BUTTONS
+========================================================================== */
+
+
+/*==================================================
+CUSTOMERS TABLE PANEL
+==================================================*/
+
+
+.cgt-cust-table-panel {
+
+
+    position: relative;
+
+
+
+    z-index: 2;
+
+
+
+    background:
+
+
+        rgba(255, 255, 255, .68);
+
+
+
+    backdrop-filter:
+
+
+        blur(25px);
+
+
+
+    -webkit-backdrop-filter:
+
+
+        blur(25px);
+
+
+
+    border:
+
+
+        1px solid rgba(255, 255, 255, .75);
+
+
+
+    border-radius:
+
+
+        26px;
+
+
+
+    overflow: hidden;
+
+
+
+    box-shadow:
+
+
+        var(--cust-shadow);
+
+
+
+    transition: .35s;
+
+
+
+}
+
+
+
+.cgt-cust-table-panel:hover {
+
+
+    box-shadow:
+
+
+        var(--cust-shadow-hover);
+
+
+
+}
+
+
+
+
+
+/* Glass glow */
+
+
+.cgt-cust-table-panel::before {
+
+
+    content: "";
+
+
+    position: absolute;
+
+
+
+    width: 250px;
+
+    height: 250px;
+
+
+
+    top: -120px;
+
+    right: -120px;
+
+
+
+    border-radius: 50%;
+
+
+
+    background:
+
+
+        radial-gradient(circle,
+            rgba(99, 102, 241, .18),
+            transparent 70%);
+
+
+
+    filter: blur(40px);
+
+
+
+    pointer-events: none;
+
+
+}
+
+
+
+
+
+/*==================================================
+DATA TABLE
+==================================================*/
+
+
+.cgt-cust-data-grid {
+
+
+    width: 100%;
+
+
+
+    border-collapse: collapse;
+
+
+
+    position: relative;
+
+
+
+    z-index: 2;
+
+
+
+}
+
+
+
+
+/*==================================================
+TABLE HEADER
+==================================================*/
+
+
+.cgt-cust-table-panel thead {
+
+
+    background:
+
+
+        rgba(255, 255, 255, .45);
+
+
+
+}
+
+
+
+.cgt-cust-data-grid th {
+
+
+    padding:
+
+
+        18px 22px;
+
+
+
+    text-align: left;
+
+
+
+    font-size: .78rem;
+
+
+
+    font-weight: 800;
+
+
+
+    letter-spacing: 1px;
+
+
+
+    text-transform: uppercase;
+
+
+
+    color:
+
+
+        var(--cust-muted);
+
+
+
+    border-bottom:
+
+
+        1px solid rgba(226, 232, 240, .7);
+
+
+
+}
+
+
+
+
+/*==================================================
+TABLE BODY
+==================================================*/
+
+
+.cgt-cust-data-grid td {
+
+
+    padding:
+
+
+        18px 22px;
+
+
+
+    font-size: .92rem;
+
+
+
+    color:
+
+
+        var(--cust-text);
+
+
+
+    border-bottom:
+
+
+        1px solid rgba(226, 232, 240, .45);
+
+
+
     vertical-align: middle;
+
+
+
+    transition: .3s;
+
+
+
 }
 
-/* View Action Button */
-.view-btn {
-    width: 38px;
-    height: 38px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.03);
-    color: var(--text);
+
+
+
+.cgt-cust-data-grid tbody tr {
+
+
+    transition: .35s;
+
+
+
+}
+
+
+
+.cgt-cust-data-grid tbody tr:hover {
+
+
+    background:
+
+
+        rgba(255, 255, 255, .75);
+
+
+
+    transform:
+
+
+        translateY(-2px);
+
+
+
+}
+
+
+
+
+
+.cgt-cust-data-grid tbody tr:last-child td {
+
+
+    border-bottom: none;
+
+
+}
+
+
+
+
+
+/*==================================================
+CUSTOMER PROFILE
+==================================================*/
+
+
+.cgt-cust-profile-info {
+
+
     display: flex;
-    justify-content: center;
+
+
+
     align-items: center;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+
+
+    gap: 15px;
+
+
+
+}
+
+
+
+
+/*==================================================
+PREMIUM AVATAR
+==================================================*/
+
+
+.cgt-cust-user-avatar {
+
+
+    width: 52px;
+
+
+    height: 52px;
+
+
+
+    border-radius: 18px;
+
+
+
+    display: flex;
+
+
+
+    align-items: center;
+
+
+
+    justify-content: center;
+
+
+
+    font-size: 17px;
+
+
+
+    font-weight: 800;
+
+
+
+    color: white;
+
+
+
+    background:
+
+
+        linear-gradient(135deg,
+            #6366f1,
+            #06b6d4);
+
+
+
+    border:
+
+
+        1px solid rgba(255, 255, 255, .8);
+
+
+
+    box-shadow:
+
+
+        0 12px 30px rgba(99, 102, 241, .25);
+
+
+
+    transition: .35s;
+
+
+
+}
+
+
+
+.cgt-cust-user-avatar:hover {
+
+
+    transform:
+
+
+        translateY(-5px) scale(1.05);
+
+
+
+    box-shadow:
+
+
+        0 18px 40px rgba(99, 102, 241, .35);
+
+
+
+}
+
+
+
+
+/*==================================================
+USER TEXT
+==================================================*/
+
+
+.cgt-cust-profile-info h4 {
+
+
+    font-size: .98rem;
+
+
+
+    font-weight: 750;
+
+
+
+    color:
+
+
+        var(--cust-text);
+
+
+
+    margin-bottom: 4px;
+
+
+
+}
+
+
+
+.cgt-cust-profile-info span {
+
+
+    font-size: .82rem;
+
+
+
+    color:
+
+
+        var(--cust-muted);
+
+
+
+}
+
+
+
+
+
+/*==================================================
+CONTACT DETAILS
+==================================================*/
+
+
+.cgt-cust-data-grid td svg {
+
+
+    margin-right: 9px;
+
+
+
     font-size: 16px;
+
+
+
+    color:
+
+
+        var(--cust-primary);
+
+
+
+    vertical-align: middle;
+
+
+
 }
 
-.view-btn:hover {
-    background: rgba(0, 240, 255, 0.15);
-    color: var(--accent-blue);
-    border-color: rgba(0, 240, 255, 0.4);
-    transform: translateY(-2px);
-    box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+
+
+
+
+.cgt-cust-contact {
+
+
+    display: flex;
+
+
+
+    align-items: center;
+
+
+
+    color:
+
+
+        var(--cust-text);
+
+
+
 }
 
-/* Responsive Overrides */
-@media (max-width: 1000px) {
-    .customers-table {
-        overflow-x: auto;
-    }
 
-    .customers-table table {
-        min-width: 900px;
-    }
 
-    .customers-search {
-        width: 100%;
-    }
+
+
+/*==================================================
+CUSTOMER STATUS
+==================================================*/
+
+
+.cgt-cust-status {
+
+
+    display: inline-flex;
+
+
+
+    align-items: center;
+
+
+
+    gap: 7px;
+
+
+
+    padding:
+
+
+        7px 14px;
+
+
+
+    border-radius:
+
+
+        999px;
+
+
+
+    font-size: .78rem;
+
+
+
+    font-weight: 700;
+
+
+
 }
 
-@media (max-width: 768px) {
-    .customers-page {
-        padding: 18px;
+
+
+.cgt-cust-status::before {
+
+
+    content: "";
+
+
+
+    width: 7px;
+
+
+
+    height: 7px;
+
+
+
+    border-radius: 50%;
+
+
+
+    background: currentColor;
+
+
+
+}
+
+
+
+.cgt-cust-status.active {
+
+
+    color: #059669;
+
+
+
+    background:
+
+
+        rgba(16, 185, 129, .12);
+
+
+
+    border:
+
+
+        1px solid rgba(16, 185, 129, .25);
+
+
+
+}
+
+
+
+.cgt-cust-status.blocked {
+
+
+    color: #ef4444;
+
+
+
+    background:
+
+
+        rgba(239, 68, 68, .12);
+
+
+
+    border:
+
+
+        1px solid rgba(239, 68, 68, .25);
+
+
+
+}
+
+
+
+
+
+/*==================================================
+VIEW ACTION BUTTON
+==================================================*/
+
+
+.cgt-cust-action-view {
+
+
+    width: 42px;
+
+
+    height: 42px;
+
+
+
+    display: flex;
+
+
+
+    align-items: center;
+
+
+
+    justify-content: center;
+
+
+
+    border-radius: 14px;
+
+
+
+    border:
+
+
+        1px solid rgba(255, 255, 255, .8);
+
+
+
+    background:
+
+
+        rgba(255, 255, 255, .55);
+
+
+
+    backdrop-filter:
+
+
+        blur(12px);
+
+
+
+    color:
+
+
+        var(--cust-muted);
+
+
+
+    cursor: pointer;
+
+
+
+    transition: .35s;
+
+
+
+    box-shadow:
+
+
+        0 8px 20px rgba(15, 23, 42, .05);
+
+
+
+}
+
+
+
+
+.cgt-cust-action-view:hover {
+
+
+    transform:
+
+
+        translateY(-4px) scale(1.05);
+
+
+
+    background:
+
+
+        rgba(99, 102, 241, .12);
+
+
+
+    color:
+
+
+        var(--cust-primary);
+
+
+
+    border-color:
+
+
+        rgba(99, 102, 241, .35);
+
+
+
+    box-shadow:
+
+
+        0 15px 35px rgba(99, 102, 241, .18);
+
+
+
+}
+
+/* ==========================================================================
+   PREMIUM APPLE + LINEAR GLASSMORPHISM CUSTOMERS PAGE
+   PART 3 - ANIMATIONS + EMPTY STATE + RESPONSIVE + FINAL POLISH
+========================================================================== */
+
+
+/*==================================================
+PAGE REVEAL ANIMATION
+==================================================*/
+
+
+.cgt-cust-page-header,
+.cgt-cust-filter-toolbar,
+.cgt-cust-table-panel {
+
+
+    opacity: 0;
+
+
+    animation:
+
+        custFadeUp .7s ease forwards;
+
+
+}
+
+
+
+.cgt-cust-page-header {
+
+
+    animation-delay: .1s;
+
+
+}
+
+
+
+.cgt-cust-filter-toolbar {
+
+
+    animation-delay: .2s;
+
+
+}
+
+
+
+.cgt-cust-table-panel {
+
+
+    animation-delay: .3s;
+
+
+}
+
+
+
+
+@keyframes custFadeUp {
+
+
+    from {
+
+
+        opacity: 0;
+
+
+        transform:
+
+
+            translateY(25px);
+
+
+
     }
 
-    .customers-header {
+
+
+    to {
+
+
+        opacity: 1;
+
+
+        transform:
+
+
+            translateY(0);
+
+
+
+    }
+
+
+}
+
+
+
+
+
+/*==================================================
+TABLE ROW ANIMATION
+==================================================*/
+
+
+.cgt-cust-data-grid tbody tr {
+
+
+    animation:
+
+
+        custRowReveal .45s ease forwards;
+
+
+}
+
+
+
+@keyframes custRowReveal {
+
+
+    from {
+
+
+        opacity: 0;
+
+
+        transform:
+
+
+            translateX(-18px);
+
+
+
+    }
+
+
+
+    to {
+
+
+        opacity: 1;
+
+
+        transform:
+
+
+            translateX(0);
+
+
+
+    }
+
+
+}
+
+
+
+
+
+/*==================================================
+AVATAR FLOAT EFFECT
+==================================================*/
+
+
+.cgt-cust-user-avatar {
+
+
+    animation:
+
+
+        custFloat 5s ease-in-out infinite;
+
+
+}
+
+
+
+
+@keyframes custFloat {
+
+
+    0%,
+    100% {
+
+
+        transform:
+
+
+            translateY(0);
+
+
+    }
+
+
+    50% {
+
+
+        transform:
+
+
+            translateY(-5px);
+
+
+    }
+
+
+
+}
+
+
+
+
+
+/*==================================================
+LOADING SKELETON
+==================================================*/
+
+
+.cgt-cust-skeleton {
+
+
+    height: 65px;
+
+
+    border-radius: 16px;
+
+
+
+    background:
+
+
+        linear-gradient(90deg,
+            rgba(226, 232, 240, .4),
+            rgba(255, 255, 255, .9),
+            rgba(226, 232, 240, .4));
+
+
+
+    background-size: 200% 100%;
+
+
+
+    animation:
+
+
+        custSkeleton 1.5s infinite;
+
+
+
+}
+
+
+
+@keyframes custSkeleton {
+
+
+    from {
+
+
+        background-position:
+
+            200% 0;
+
+
+    }
+
+
+    to {
+
+
+        background-position:
+
+            -200% 0;
+
+
+    }
+
+
+
+}
+
+
+
+
+
+/*==================================================
+EMPTY CUSTOMER STATE
+==================================================*/
+
+
+.cgt-cust-empty {
+
+
+    height: 320px;
+
+
+
+    display: flex;
+
+
+
+    flex-direction: column;
+
+
+
+    justify-content: center;
+
+
+
+    align-items: center;
+
+
+
+    gap: 15px;
+
+
+
+    background:
+
+
+        rgba(255, 255, 255, .55);
+
+
+
+    backdrop-filter:
+
+
+        blur(20px);
+
+
+
+    border:
+
+
+        1px dashed rgba(148, 163, 184, .45);
+
+
+
+    border-radius: 26px;
+
+
+
+}
+
+
+
+
+.cgt-cust-empty svg {
+
+
+    font-size: 58px;
+
+
+
+    color:
+
+
+        var(--cust-primary);
+
+
+
+    filter:
+
+
+        drop-shadow(0 15px 30px rgba(99, 102, 241, .3));
+
+
+
+}
+
+
+
+.cgt-cust-empty h3 {
+
+
+    font-size: 1.3rem;
+
+
+
+    font-weight: 800;
+
+
+
+    color:
+
+
+        var(--cust-text);
+
+
+
+}
+
+
+
+.cgt-cust-empty p {
+
+
+    font-size: .9rem;
+
+
+
+    color:
+
+
+        var(--cust-muted);
+
+
+
+}
+
+
+
+
+
+/*==================================================
+CUSTOMER COUNT BADGE
+==================================================*/
+
+
+.cgt-cust-count {
+
+
+    display: inline-flex;
+
+
+
+    padding:
+
+
+        7px 15px;
+
+
+
+    border-radius:
+
+
+        999px;
+
+
+
+    background:
+
+
+        rgba(99, 102, 241, .12);
+
+
+
+    color:
+
+
+        var(--cust-primary);
+
+
+
+    font-size: .8rem;
+
+
+
+    font-weight: 700;
+
+
+
+    border:
+
+
+        1px solid rgba(99, 102, 241, .2);
+
+
+
+}
+
+
+
+
+
+/*==================================================
+CUSTOM SCROLLBAR
+==================================================*/
+
+
+.cgt-cust-main-page::-webkit-scrollbar {
+
+
+    width: 10px;
+
+
+}
+
+
+
+.cgt-cust-main-page::-webkit-scrollbar-track {
+
+
+    background: transparent;
+
+
+}
+
+
+
+.cgt-cust-main-page::-webkit-scrollbar-thumb {
+
+
+    background:
+
+
+        linear-gradient(180deg,
+            #6366f1,
+            #06b6d4);
+
+
+
+    border-radius: 20px;
+
+
+}
+
+
+
+
+
+/*==================================================
+TABLET RESPONSIVE
+==================================================*/
+
+
+@media(max-width:1000px) {
+
+
+
+    .cgt-cust-page-header {
+
+
         flex-direction: column;
+
+
+
         align-items: flex-start;
-        gap: 10px;
+
+
+
+        gap: 18px;
+
+
+
     }
 
-    .customers-header h1 {
-        font-size: 1.8rem;
-    }
 
-    .customers-search {
+
+    .cgt-cust-search-box {
+
+
         width: 100%;
+
+
+
     }
+
+
+
+    .cgt-cust-table-panel {
+
+
+        overflow-x: auto;
+
+
+
+    }
+
+
+
+    .cgt-cust-data-grid {
+
+
+        min-width: 900px;
+
+
+
+    }
+
+
+
+}
+
+
+
+
+
+/*==================================================
+MOBILE RESPONSIVE
+==================================================*/
+
+
+@media(max-width:768px) {
+
+
+
+    .cgt-cust-main-page {
+
+
+        padding: 18px;
+
+
+
+    }
+
+
+
+    .cgt-cust-page-header h1 {
+
+
+        font-size: 1.85rem;
+
+
+
+    }
+
+
+
+    .cgt-cust-profile-info {
+
+
+        gap: 12px;
+
+
+
+    }
+
+
+
+    .cgt-cust-user-avatar {
+
+
+        width: 46px;
+
+
+        height: 46px;
+
+
+
+        border-radius: 15px;
+
+
+
+    }
+
+
+
+    .cgt-cust-table-panel {
+
+
+        border-radius: 20px;
+
+
+
+    }
+
+
+
+    .cgt-cust-data-grid th,
+    .cgt-cust-data-grid td {
+
+
+        padding:
+
+            15px;
+
+
+
+    }
+
+
+
+    .cgt-cust-empty {
+
+
+        height: 250px;
+
+
+
+    }
+
+
+
+}
+
+
+
+
+
+/*==================================================
+SMALL MOBILE
+==================================================*/
+
+
+@media(max-width:400px) {
+
+
+
+    .cgt-cust-page-header h1 {
+
+
+        font-size: 1.6rem;
+
+
+
+    }
+
+
+
+    .cgt-cust-search-box {
+
+
+        height: 48px;
+
+
+
+    }
+
+
+
+    .cgt-cust-action-view {
+
+
+        width: 38px;
+
+
+        height: 38px;
+
+
+
+    }
+
+
+
+}
+/* =====================================================
+   CUSTOMER DETAILS MODAL
+===================================================== */
+
+.cgt-customer-modal-overlay {
+  position: fixed;
+
+  /* Keep the admin sidebar visible on the left */
+  top: 0;
+  left: 390px;
+  right: 0;
+  bottom: 0;
+
+  z-index: 99999;
+
+  background: rgba(10, 18, 40, 0.48);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px;
+
+  animation: customerOverlayIn 0.25s ease;
+}
+
+@keyframes customerOverlayIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.cgt-customer-modal {
+  width: min(850px, 100%);
+
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.98),
+      rgba(247, 250, 255, 0.97)
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.9);
+
+  border-radius: 28px;
+
+  box-shadow:
+    0 35px 100px rgba(20, 30, 80, 0.28);
+
+  padding: 32px;
+
+  animation: customerModalIn 0.3s ease;
+}
+
+@keyframes customerModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/* =====================================================
+   MODAL HEADER
+===================================================== */
+
+.cgt-customer-modal-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  margin-bottom: 28px;
+}
+
+.cgt-customer-modal-header h2 {
+  margin: 0;
+
+  font-size: 28px;
+
+  font-weight: 800;
+
+  color: #17213d;
+}
+
+.cgt-customer-modal-header p {
+  margin: 7px 0 0;
+
+  color: #71809d;
+
+  font-size: 14px;
+}
+
+.cgt-customer-modal-close {
+  width: 44px;
+  height: 44px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background: #f0f3fa;
+
+  color: #62708c;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 20px;
+
+  cursor: pointer;
+
+  transition: 0.25s ease;
+}
+
+.cgt-customer-modal-close:hover {
+  background: #e7ebf5;
+
+  color: #4d5cff;
+
+  transform: rotate(5deg);
+}
+
+
+/* =====================================================
+   PROFILE
+===================================================== */
+
+.cgt-customer-modal-profile {
+  display: flex;
+
+  align-items: center;
+
+  gap: 18px;
+
+  padding: 22px;
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(99, 102, 241, 0.08),
+      rgba(14, 165, 233, 0.07)
+    );
+
+  border: 1px solid rgba(99, 102, 241, 0.1);
+
+  margin-bottom: 24px;
+}
+
+.cgt-customer-big-avatar {
+  width: 68px;
+  height: 68px;
+
+  border-radius: 20px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 27px;
+
+  font-weight: 800;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #6366f1,
+      #06b6d4
+    );
+
+  box-shadow:
+    0 12px 25px rgba(79, 70, 229, 0.25);
+}
+
+.cgt-customer-modal-profile h3 {
+  margin: 0 0 8px;
+
+  font-size: 22px;
+
+  color: #18223e;
+}
+
+.cgt-customer-modal-profile span {
+  display: inline-flex;
+
+  padding: 6px 12px;
+
+  border-radius: 999px;
+
+  background: rgba(16, 185, 129, 0.1);
+
+  color: #059669;
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+
+/* =====================================================
+   INFO GRID
+===================================================== */
+
+.cgt-customer-info-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 14px;
+
+  margin-bottom: 26px;
+}
+
+.cgt-customer-info-card {
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 18px;
+
+  background: rgba(255, 255, 255, 0.8);
+
+  border: 1px solid #e7ebf4;
+
+  border-radius: 18px;
+}
+
+.cgt-customer-info-icon {
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #5965f2;
+
+  background: rgba(89, 101, 242, 0.1);
+
+  font-size: 18px;
+}
+
+.cgt-customer-info-card small {
+  display: block;
+
+  color: #8a96ae;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.7px;
+
+  margin-bottom: 5px;
+}
+
+.cgt-customer-info-card strong {
+  display: block;
+
+  color: #1c2743;
+
+  font-size: 14px;
+
+  word-break: break-word;
+}
+
+
+/* =====================================================
+   ADDRESS
+===================================================== */
+
+.cgt-customer-address-section {
+  margin-top: 5px;
+}
+
+.cgt-customer-section-title {
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  margin-bottom: 12px;
+
+  color: #4e5cf2;
+}
+
+.cgt-customer-section-title h3 {
+  margin: 0;
+
+  color: #26324e;
+
+  font-size: 17px;
+}
+
+.cgt-customer-address-box {
+  padding: 20px;
+
+  border-radius: 18px;
+
+  background: #f7f9fd;
+
+  border: 1px solid #e5eaf3;
+}
+
+.cgt-customer-address-box p {
+  margin: 0 0 14px;
+
+  color: #34415e;
+
+  font-size: 15px;
+
+  line-height: 1.7;
+}
+
+.cgt-customer-address-box > div {
+  display: flex;
+
+  gap: 8px;
+
+  margin-top: 8px;
+
+  font-size: 14px;
+
+  color: #68758f;
+}
+
+.cgt-customer-address-box strong {
+  color: #34415e;
+}
+
+.cgt-customer-location-row {
+  flex-wrap: wrap;
+}
+
+.cgt-customer-location-row span {
+  padding: 7px 11px;
+
+  border-radius: 8px;
+
+  background: white;
+
+  border: 1px solid #e2e7f0;
+
+  color: #53617b;
+}
+
+.cgt-customer-country {
+  align-items: center;
+
+  color: #53617b !important;
+}
+
+
+/* =====================================================
+   LAST ORDER
+===================================================== */
+
+.cgt-customer-last-order {
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  margin-top: 18px;
+
+  padding: 16px 18px;
+
+  border-radius: 16px;
+
+  background: rgba(99, 102, 241, 0.06);
+
+  color: #5a65ef;
+}
+
+.cgt-customer-last-order > svg {
+  font-size: 20px;
+}
+
+.cgt-customer-last-order small {
+  display: block;
+
+  color: #8994aa;
+
+  font-size: 11px;
+
+  text-transform: uppercase;
+
+  font-weight: 700;
+
+  margin-bottom: 3px;
+}
+
+.cgt-customer-last-order strong {
+  color: #28334f;
+
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.cgt-customer-modal-footer {
+  display: flex;
+
+  justify-content: flex-end;
+
+  margin-top: 25px;
+
+  padding-top: 20px;
+
+  border-top: 1px solid #e8ebf2;
+}
+
+.cgt-customer-modal-footer button {
+  border: none;
+
+  padding: 12px 24px;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #6366f1,
+      #4f46e5
+    );
+
+  color: white;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.25s ease;
+}
+
+.cgt-customer-modal-footer button:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 25px rgba(79, 70, 229, 0.25);
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (min-width: 901px) {
+
+  .cgt-customer-modal-overlay {
+    left: 390px;
+    right: 0;
+    top: 0;
+    bottom: 0;
+  }
+
+}
+
+@media (max-width: 900px) {
+
+  .cgt-customer-modal-overlay {
+    left: 0;
+    padding: 20px;
+  }
+
+  .cgt-customer-modal {
+    width: 100%;
+  }
+
+}
+
+@media (max-width: 700px) {
+
+  .cgt-customer-modal-overlay {
+    left: 0;
+    padding: 15px;
+  }
+
+  .cgt-customer-modal {
+    padding: 22px;
+    border-radius: 22px;
+  }
+
+  .cgt-customer-info-grid {
+    grid-template-columns: 1fr;
+  }
+
 }

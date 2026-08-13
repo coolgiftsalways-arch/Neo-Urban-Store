@@ -17,7 +17,6 @@ return (
 
 <div className="admin-main">
 
-<Topbar />
 
 <div className="admin-content">
 

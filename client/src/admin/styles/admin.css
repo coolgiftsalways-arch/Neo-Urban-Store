@@ -1,208 +1,49 @@
 /* ==========================================================================
-   ADMIN LAYOUT & GLOBAL TOKENS - CYBERPUNK NEON DARK
-   ========================================================================== */
+   PREMIUM LIGHT GLASS DESIGN SYSTEM
+========================================================================== */
 
 :root {
-    /* Base Layout Colors */
-    --bg-main: #07090e;
-    --bg-surface: #0e131f;
-    --bg-surface-hover: #141c2e;
 
-    /* Neon Accent Palette */
-    --accent-blue: #00f0ff;
-    /* Primary Cyan Glow */
-    --accent-purple: #e02424;
-    /* Vivid Pink/Red Accent */
-    --accent-blue-glow: rgba(0, 240, 255, 0.25);
-    --accent-purple-glow: rgba(224, 36, 36, 0.25);
+    /* Backgrounds */
+    --cgt-bg-main: #eef3f9;
+    --cgt-bg-secondary: #f7fafd;
+    --cgt-bg-sidebar: rgba(255, 255, 255, .72);
+    --cgt-bg-card: rgba(255, 255, 255, .72);
 
-    /* Typography */
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
+    /* Borders */
+    --cgt-border: rgba(255, 255, 255, .55);
+    --cgt-border-light: rgba(255, 255, 255, .8);
 
-    /* Glassmorphism & Micro Borders */
-    --border-color: rgba(255, 255, 255, 0.08);
-    --border-glow: rgba(0, 240, 255, 0.3);
-    --radius-card: 18px;
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+    /* Primary Colors */
+    --cgt-primary: #4f46e5;
+    --cgt-primary-light: #6366f1;
+    --cgt-secondary: #06b6d4;
+    --cgt-success: #10b981;
+    --cgt-warning: #f59e0b;
+    --cgt-danger: #ef4444;
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+    /* Text */
+    --cgt-text-main: #0f172a;
+    --cgt-text-light: #334155;
+    --cgt-text-muted: #64748b;
 
-body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: var(--bg-main);
-    color: var(--text-main);
-    -webkit-font-smoothing: antialiased;
-}
+    /* Glass */
+    --cgt-glass: rgba(255, 255, 255, .55);
+    --cgt-glass-hover: rgba(255, 255, 255, .78);
 
-/* ==========================================================================
-   ADMIN LAYOUT CONTAINER
-   ========================================================================== */
+    /* Shadows */
+    --cgt-shadow-sm: 0 8px 20px rgba(15, 23, 42, .05);
+    --cgt-shadow-md: 0 15px 35px rgba(15, 23, 42, .08);
+    --cgt-shadow-lg: 0 25px 55px rgba(79, 70, 229, .12);
 
-.admin-layout {
-    display: flex;
-    min-height: 100vh;
-    background: var(--bg-main);
-    overflow: hidden;
-}
+    /* Radius */
+    --cgt-radius: 22px;
+    --cgt-radius-sm: 16px;
 
-/* Main Canvas Content Area */
-.admin-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    background: radial-gradient(circle at 50% 0%, #0e131f 0%, var(--bg-main) 70%);
-    position: relative;
-    overflow: hidden;
-}
+    /* Blur */
+    --cgt-blur: blur(20px);
 
-/* Top Right Ambient Neon Glow (Purple Accent) */
-.admin-main::before {
-    content: "";
-    position: absolute;
-    width: 500px;
-    height: 500px;
-    right: -150px;
-    top: -150px;
-    background: radial-gradient(circle, var(--accent-purple-glow), transparent 70%);
-    filter: blur(100px);
-    pointer-events: none;
-    z-index: 0;
-}
+    /* Transition */
+    --cgt-transition: all .35s cubic-bezier(.4, 0, .2, 1);
 
-/* Bottom Left Ambient Neon Glow (Cyan Accent) */
-.admin-main::after {
-    content: "";
-    position: absolute;
-    width: 450px;
-    height: 450px;
-    left: -150px;
-    bottom: -150px;
-    background: radial-gradient(circle, var(--accent-blue-glow), transparent 70%);
-    filter: blur(100px);
-    pointer-events: none;
-    z-index: 0;
-}
-
-/* ==========================================================================
-   CONTENT CONTAINER & SCROLLBAR
-   ========================================================================== */
-
-.admin-content {
-    flex: 1;
-    padding: 36px 48px;
-    overflow-y: auto;
-    position: relative;
-    z-index: 2;
-}
-
-/* Custom Cyber Scrollbar */
-.admin-content::-webkit-scrollbar {
-    width: 6px;
-}
-
-.admin-content::-webkit-scrollbar-thumb {
-    background: #1e293b;
-    border-radius: 10px;
-}
-
-.admin-content::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-blue);
-    box-shadow: 0 0 10px var(--accent-blue);
-}
-
-.admin-content::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-/* ==========================================================================
-   PAGE TITLE & TYPOGRAPHY
-   ========================================================================== */
-
-.page-title {
-    font-size: 2.2rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    color: var(--text-main);
-    margin-bottom: 32px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.page-title span {
-    background: linear-gradient(135deg, #ffffff 30%, var(--accent-blue) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 2px 8px rgba(0, 240, 255, 0.3));
-}
-
-/* ==========================================================================
-   GRID SYSTEM & GLASSMORPHISM CARDS
-   ========================================================================== */
-
-.admin-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
-}
-
-.admin-card {
-    background: rgba(14, 19, 31, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-card);
-    padding: 24px;
-    transition: var(--transition);
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-}
-
-.admin-card:hover {
-    transform: translateY(-5px);
-    background: var(--bg-surface-hover);
-    border-color: var(--border-glow);
-    box-shadow:
-        0 20px 40px -15px rgba(0, 240, 255, 0.15),
-        0 0 20px var(--accent-blue-glow);
-}
-
-/* Animated Top Line Accent */
-.admin-card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
-    opacity: 0;
-    transition: var(--transition);
-}
-
-.admin-card:hover::before {
-    opacity: 1;
-}
-
-/* ==========================================================================
-   RESPONSIVE BREAKPOINTS
-   ========================================================================== */
-
-@media (max-width: 768px) {
-    .admin-content {
-        padding: 20px;
-    }
-
-    .page-title {
-        font-size: 1.8rem;
-        margin-bottom: 24px;
-    }
 }

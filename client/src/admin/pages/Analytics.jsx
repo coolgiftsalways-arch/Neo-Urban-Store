@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+
 import "../styles/analytics.css";
 
 import {
@@ -9,186 +12,392 @@ import {
 } from "react-icons/fi";
 
 export default function Analytics() {
+  const [analytics, setAnalytics] = useState({
+    totalRevenue: 0,
+    totalOrders: 0,
+    totalCustomers: 0,
+    growthRate: 0,
+    revenueChart: [],
+    topProducts: [],
+    weeklyPerformance: [],
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  // ==========================================
+  // FETCH ANALYTICS
+  // ==========================================
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/analytics/dashboard"
+        );
+
+        console.log("ANALYTICS DATA:", response.data);
+
+        setAnalytics({
+          totalRevenue: response.data.totalRevenue || 0,
+          totalOrders: response.data.totalOrders || 0,
+          totalCustomers:
+            response.data.totalCustomers || 0,
+
+          growthRate:
+            response.data.growthRate || 0,
+
+          revenueChart:
+            response.data.revenueChart || [],
+
+          topProducts:
+            response.data.topProducts || [],
+
+          weeklyPerformance:
+            response.data.weeklyPerformance || [],
+        });
+      } catch (error) {
+        console.error(
+          "Analytics fetch error:",
+          error
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalytics();
+  }, []);
+
+  // ==========================================
+  // FORMAT MONEY
+  // ==========================================
+
+  const formatMoney = (value) => {
+    return Number(value || 0).toLocaleString(
+      "en-IN"
+    );
+  };
+
+  // ==========================================
+  // FORMAT DATE
+  // ==========================================
+
+  const formatDay = (date) => {
+    const d = new Date(date);
+
+    return d.toLocaleDateString("en-IN", {
+      weekday: "long",
+    });
+  };
+
+  // ==========================================
+  // GET GROWTH
+  // ==========================================
+
+  const growth =
+    analytics.growthRate >= 0
+      ? `+${analytics.growthRate}%`
+      : `${analytics.growthRate}%`;
+
+  if (loading) {
+    return (
+      <div className="cgt-custom-analytics-page">
+        <div
+          style={{
+            minHeight: "60vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "18px",
+            fontWeight: "700",
+          }}
+        >
+          Loading analytics...
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="analytics-page">
+    <div className="cgt-custom-analytics-page">
 
-      {/* Header */}
+      {/* ======================================
+          HEADER
+      ====================================== */}
 
-      <div className="analytics-header">
-
+      <div className="cgt-custom-analytics-header">
         <div>
-
           <h1>Analytics</h1>
 
           <p>
-            Track your store performance and business growth.
+            Track your store performance and
+            business growth.
           </p>
-
         </div>
-
       </div>
 
-      {/* KPI CARDS */}
 
-      <div className="analytics-cards">
+      {/* ======================================
+          KPI CARDS
+      ====================================== */}
 
-        <div className="analytics-card revenue">
+      <div className="cgt-custom-analytics-cards">
 
-          <div className="analytics-icon">
+        {/* REVENUE */}
+
+        <div className="cgt-custom-analytics-card cgt-custom-analytics-revenue">
+
+          <div className="cgt-custom-analytics-icon">
             <FiDollarSign />
           </div>
 
           <div>
-
             <span>Total Revenue</span>
 
-            <h2>₹4,82,340</h2>
+            <h2>
+              ₹{formatMoney(
+                analytics.totalRevenue
+              )}
+            </h2>
 
-            <p className="positive">
+            <p className="cgt-custom-positive">
               <FiArrowUpRight />
-              +18.4% this month
-            </p>
 
+              {growth} this month
+            </p>
           </div>
 
         </div>
 
-        <div className="analytics-card orders">
 
-          <div className="analytics-icon">
+        {/* ORDERS */}
+
+        <div className="cgt-custom-analytics-card cgt-custom-analytics-orders">
+
+          <div className="cgt-custom-analytics-icon">
             <FiShoppingBag />
           </div>
 
           <div>
-
             <span>Total Orders</span>
 
-            <h2>1,286</h2>
+            <h2>
+              {analytics.totalOrders.toLocaleString(
+                "en-IN"
+              )}
+            </h2>
 
-            <p className="positive">
+            <p className="cgt-custom-positive">
               <FiArrowUpRight />
-              +12.7%
-            </p>
 
+              Live from MongoDB
+            </p>
           </div>
 
         </div>
 
-        <div className="analytics-card customers">
 
-          <div className="analytics-icon">
+        {/* CUSTOMERS */}
+
+        <div className="cgt-custom-analytics-card cgt-custom-analytics-customers">
+
+          <div className="cgt-custom-analytics-icon">
             <FiUsers />
           </div>
 
           <div>
-
             <span>Customers</span>
 
-            <h2>834</h2>
+            <h2>
+              {analytics.totalCustomers.toLocaleString(
+                "en-IN"
+              )}
+            </h2>
 
-            <p className="positive">
+            <p className="cgt-custom-positive">
               <FiArrowUpRight />
-              +9.2%
-            </p>
 
+              Unique customers
+            </p>
           </div>
 
         </div>
 
-        <div className="analytics-card growth">
 
-          <div className="analytics-icon">
+        {/* GROWTH */}
+
+        <div className="cgt-custom-analytics-card cgt-custom-analytics-growth">
+
+          <div className="cgt-custom-analytics-icon">
             <FiTrendingUp />
           </div>
 
           <div>
-
             <span>Growth Rate</span>
 
-            <h2>34%</h2>
+            <h2>
+              {analytics.growthRate}%
+            </h2>
 
-            <p className="positive">
+            <p className="cgt-custom-positive">
               <FiArrowUpRight />
-              +6.8%
-            </p>
 
+              vs previous month
+            </p>
           </div>
 
         </div>
 
       </div>
 
-      {/* CHARTS */}
 
-      <div className="analytics-grid">
+      {/* ======================================
+          REVENUE + TOP PRODUCTS
+      ====================================== */}
 
-        <div className="chart-card">
+      <div className="cgt-custom-analytics-grid">
 
-          <div className="section-header">
 
-            <h2>Revenue Overview</h2>
+        {/* REVENUE */}
+
+        <div className="cgt-custom-chart-card">
+
+          <div className="cgt-custom-section-header">
+
+            <div>
+              <h2>Revenue Overview</h2>
+
+              <p>
+                Paid orders from the last 7 days
+              </p>
+            </div>
 
             <button>
-              This Month
+              Last 7 Days
             </button>
 
           </div>
 
-          <div className="chart-placeholder">
 
-            <div className="chart-icon">
+          <div className="cgt-custom-real-chart">
 
-              📈
+            {analytics.revenueChart.length > 0 ? (
 
-            </div>
+              analytics.revenueChart.map(
+                (item, index) => {
 
-            <h3>Revenue Chart</h3>
+                  const maxRevenue =
+                    Math.max(
+                      ...analytics.revenueChart.map(
+                        (x) =>
+                          Number(
+                            x.revenue || 0
+                          )
+                      ),
+                      1
+                    );
 
-            <p>
-              Replace this with ApexCharts or Chart.js later.
-            </p>
+                  const height =
+                    (Number(item.revenue || 0) /
+                      maxRevenue) *
+                    100;
+
+                  return (
+                    <div
+                      key={index}
+                      className="cgt-custom-chart-column"
+                    >
+
+                      <div className="cgt-custom-chart-value">
+                        ₹
+                        {formatMoney(
+                          item.revenue
+                        )}
+                      </div>
+
+                      <div className="cgt-custom-chart-bar-wrapper">
+
+                        <div
+                          className="cgt-custom-chart-bar"
+                          style={{
+                            height: `${Math.max(
+                              height,
+                              4
+                            )}%`,
+                          }}
+                        />
+
+                      </div>
+
+                      <span>
+                        {new Date(
+                          item._id
+                        ).toLocaleDateString(
+                          "en-IN",
+                          {
+                            day: "2-digit",
+                            month: "short",
+                          }
+                        )}
+                      </span>
+
+                    </div>
+                  );
+                }
+              )
+
+            ) : (
+
+              <div className="cgt-custom-empty">
+                No paid sales recorded yet.
+              </div>
+
+            )}
 
           </div>
 
         </div>
 
-        <div className="mini-card">
+
+        {/* TOP PRODUCTS */}
+
+        <div className="cgt-custom-mini-card">
 
           <h2>Top Selling Products</h2>
 
           <ul>
 
-            <li>
+            {analytics.topProducts.length > 0 ? (
 
-              <span>Monster Energy</span>
+              analytics.topProducts.map(
+                (product, index) => (
 
-              <strong>420 Sold</strong>
+                  <li key={index}>
 
-            </li>
+                    <span>
+                      <b>
+                        #{index + 1}
+                      </b>
 
-            <li>
+                      {product.name}
+                    </span>
 
-              <span>Red Bull</span>
+                    <strong>
+                      {product.sold} Sold
+                    </strong>
 
-              <strong>390 Sold</strong>
+                  </li>
 
-            </li>
+                )
+              )
 
-            <li>
+            ) : (
 
-              <span>Monster Zero</span>
+              <li>
+                <span>No products sold yet</span>
+              </li>
 
-              <strong>280 Sold</strong>
-
-            </li>
-
-            <li>
-
-              <span>Sparkling Water</span>
-
-              <strong>240 Sold</strong>
-
-            </li>
+            )}
 
           </ul>
 
@@ -196,109 +405,86 @@ export default function Analytics() {
 
       </div>
 
-      {/* PERFORMANCE */}
 
-      <div className="performance-card">
+      {/* ======================================
+          WEEKLY PERFORMANCE
+      ====================================== */}
 
-        <div className="section-header">
+      <div className="cgt-custom-performance-card">
 
-          <h2>Weekly Performance</h2>
+        <div className="cgt-custom-section-header">
+
+          <div>
+            <h2>Weekly Performance</h2>
+
+            <p>
+              Daily paid-order performance
+            </p>
+          </div>
 
         </div>
 
-        <table>
 
-          <thead>
+        <div className="cgt-custom-table-wrapper">
 
-            <tr>
+          <table className="cgt-custom-perf-table">
 
-              <th>Day</th>
+            <thead>
 
-              <th>Orders</th>
+              <tr>
+                <th>Day</th>
+                <th>Orders</th>
+                <th>Revenue</th>
+              </tr>
 
-              <th>Revenue</th>
+            </thead>
 
-              <th>Growth</th>
 
-            </tr>
+            <tbody>
 
-          </thead>
+              {analytics.weeklyPerformance.length >
+              0 ? (
 
-          <tbody>
+                analytics.weeklyPerformance.map(
+                  (day, index) => (
 
-            <tr>
+                    <tr key={index}>
 
-              <td>Monday</td>
+                      <td>
+                        {formatDay(day._id)}
+                      </td>
 
-              <td>86</td>
+                      <td>
+                        {day.orders}
+                      </td>
 
-              <td>₹23,400</td>
+                      <td>
+                        ₹
+                        {formatMoney(
+                          day.revenue
+                        )}
+                      </td>
 
-              <td className="positive">
-                +4%
-              </td>
+                    </tr>
 
-            </tr>
+                  )
+                )
 
-            <tr>
+              ) : (
 
-              <td>Tuesday</td>
+                <tr>
+                  <td colSpan="3">
+                    No weekly sales yet.
+                  </td>
+                </tr>
 
-              <td>103</td>
+              )}
 
-              <td>₹28,900</td>
+            </tbody>
 
-              <td className="positive">
-                +8%
-              </td>
+          </table>
 
-            </tr>
-
-            <tr>
-
-              <td>Wednesday</td>
-
-              <td>91</td>
-
-              <td>₹25,300</td>
-
-              <td className="positive">
-                +6%
-              </td>
-
-            </tr>
-
-            <tr>
-
-              <td>Thursday</td>
-
-              <td>118</td>
-
-              <td>₹34,700</td>
-
-              <td className="positive">
-                +11%
-              </td>
-
-            </tr>
-
-            <tr>
-
-              <td>Friday</td>
-
-              <td>132</td>
-
-              <td>₹39,800</td>
-
-              <td className="positive">
-                +16%
-              </td>
-
-            </tr>
-
-          </tbody>
-
-        </table>
+        </div>
 
       </div>
 

@@ -1,342 +1,2315 @@
 /* ==========================================================================
-   ANALYTICS PAGE - CYBERPUNK NEON DARK STYLES
-   ========================================================================== */
+   PREMIUM APPLE + LINEAR GLASSMORPHISM ANALYTICS
+   PART 1 - ROOT + PAGE + HEADER + KPI CARDS
+========================================================================== */
 
-.analytics-page {
+.cgt-custom-analytics-page {
+
+    /*==========================
+        COLORS
+    ==========================*/
+
+    --cgt-ana-bg: #eef3f9;
+    --cgt-ana-bg-secondary: #f8fbff;
+
+    --cgt-ana-surface: rgba(255, 255, 255, .68);
+    --cgt-ana-surface-hover: rgba(255, 255, 255, .82);
+
+    --cgt-ana-glass: rgba(255, 255, 255, .55);
+
+    --cgt-ana-text: #0f172a;
+    --cgt-ana-text-light: #334155;
+    --cgt-ana-muted: #64748b;
+
+    /*==========================
+        ACCENT COLORS
+    ==========================*/
+
+    --cgt-ana-primary: #6366f1;
+    --cgt-ana-primary-light: #818cf8;
+
+    --cgt-ana-cyan: #06b6d4;
+    --cgt-ana-green: #10b981;
+    --cgt-ana-orange: #f59e0b;
+    --cgt-ana-red: #ef4444;
+
+    /*==========================
+        BORDERS
+    ==========================*/
+
+    --cgt-ana-border: rgba(255, 255, 255, .65);
+    --cgt-ana-border-hover: rgba(99, 102, 241, .22);
+
+    /*==========================
+        SHADOWS
+    ==========================*/
+
+    --cgt-ana-shadow-sm:
+        0 10px 25px rgba(15, 23, 42, .05);
+
+    --cgt-ana-shadow-md:
+        0 18px 40px rgba(15, 23, 42, .08);
+
+    --cgt-ana-shadow-lg:
+        0 30px 65px rgba(99, 102, 241, .14);
+
+    /*==========================
+        OTHER
+    ==========================*/
+
+    --cgt-ana-radius: 24px;
+
     width: 100%;
-    padding: 30px;
+    min-height: 100vh;
+
+    padding: 35px;
+
+    position: relative;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(180deg,
+            #f8fbff 0%,
+            #eef3f9 100%);
+
 }
 
-/* Header */
-.analytics-header {
+/*==================================================
+GLOBAL
+==================================================*/
+
+.cgt-custom-analytics-page *,
+.cgt-custom-analytics-page *::before,
+.cgt-custom-analytics-page *::after {
+
+    box-sizing: border-box;
+
+}
+
+/*==================================================
+BACKGROUND GLOWS
+==================================================*/
+
+.cgt-custom-analytics-page::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: -180px;
+    right: -180px;
+
+    width: 520px;
+    height: 520px;
+
+    border-radius: 50%;
+
+    background:
+
+        radial-gradient(circle,
+            rgba(99, 102, 241, .16),
+            transparent 72%);
+
+    filter: blur(55px);
+
+    pointer-events: none;
+
+    animation: cgtGlowOne 12s ease-in-out infinite;
+
+}
+
+.cgt-custom-analytics-page::after {
+
+    content: "";
+
+    position: absolute;
+
+    bottom: -220px;
+    left: -180px;
+
+    width: 480px;
+    height: 480px;
+
+    border-radius: 50%;
+
+    background:
+
+        radial-gradient(circle,
+            rgba(6, 182, 212, .14),
+            transparent 72%);
+
+    filter: blur(60px);
+
+    pointer-events: none;
+
+    animation: cgtGlowTwo 13s ease-in-out infinite;
+
+}
+
+@keyframes cgtGlowOne {
+
+    0%,
+    100% {
+
+        transform: translateY(0px);
+
+    }
+
+    50% {
+
+        transform: translateY(35px);
+
+    }
+
+}
+
+@keyframes cgtGlowTwo {
+
+    0%,
+    100% {
+
+        transform: translateX(0px);
+
+    }
+
+    50% {
+
+        transform: translateX(40px);
+
+    }
+
+}
+
+/*==================================================
+HEADER
+==================================================*/
+
+.cgt-custom-analytics-header {
+
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 35px;
+
+    margin-bottom: 38px;
+
+    position: relative;
+    z-index: 2;
+
 }
 
-.analytics-header h1 {
-    font-size: 2.2rem;
+.cgt-custom-analytics-header h1 {
+
+    font-size: 2.5rem;
+
     font-weight: 800;
-    letter-spacing: -0.5px;
-    background: linear-gradient(135deg, #ffffff 30%, var(--accent-blue));
+
+    letter-spacing: -1px;
+
+    background:
+
+        linear-gradient(135deg,
+            #0f172a,
+            #6366f1,
+            #06b6d4);
+
+    background-size: 250%;
+
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+
+    animation: cgtGradient 7s linear infinite;
+
 }
 
-.analytics-header p {
-    margin-top: 8px;
-    color: var(--text-muted);
-    font-size: 0.9rem;
+@keyframes cgtGradient {
+
+    0% {
+
+        background-position: 0%;
+
+    }
+
+    100% {
+
+        background-position: 200%;
+
+    }
+
 }
 
-/* KPI Cards & Grid */
-.analytics-cards {
+.cgt-custom-analytics-header p {
+
+    margin-top: 10px;
+
+    font-size: .95rem;
+
+    color: var(--cgt-ana-muted);
+
+    line-height: 1.8;
+
+}
+
+/*==================================================
+KPI GRID
+==================================================*/
+
+.cgt-custom-analytics-cards {
+
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 24px;
-    margin-bottom: 35px;
-}
 
-.analytics-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    box-shadow: var(--shadow-flat);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    grid-template-columns:
+
+        repeat(auto-fit, minmax(280px, 1fr));
+
+    gap: 28px;
+
+    margin-bottom: 38px;
+
     position: relative;
+    z-index: 2;
+
+}
+
+/*==================================================
+CARD
+==================================================*/
+
+.cgt-custom-analytics-card {
+
+    position: relative;
+
     overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    gap: 22px;
+
+    padding: 26px;
+
+    border-radius: 24px;
+
+    background: var(--cgt-ana-surface);
+
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+
+    border: 1px solid var(--cgt-ana-border);
+
+    box-shadow: var(--cgt-ana-shadow-sm);
+
+    transition: .35s cubic-bezier(.4, 0, .2, 1);
+
 }
 
-.analytics-card::before {
+/* Floating Glow */
+
+.cgt-custom-analytics-card::after {
+
     content: "";
+
     position: absolute;
-    top: 0;
+
+    top: -90px;
+    right: -90px;
+
+    width: 180px;
+    height: 180px;
+
+    border-radius: 50%;
+
+    background:
+
+        linear-gradient(135deg,
+            rgba(99, 102, 241, .18),
+            rgba(6, 182, 212, .18));
+
+    filter: blur(45px);
+
+    opacity: .7;
+
+    transition: .4s;
+
+}
+
+/* Left Indicator */
+
+.cgt-custom-analytics-card::before {
+
+    content: "";
+
+    position: absolute;
+
     left: 0;
+    top: 0;
+    bottom: 0;
+
     width: 4px;
-    height: 100%;
-    transition: width 0.3s ease;
+
+    border-radius: 20px;
+
+    transition: .35s;
+
 }
 
-.revenue::before {
-    background: var(--accent-purple);
+/*==================================================
+HOVER
+==================================================*/
+
+.cgt-custom-analytics-card:hover {
+
+    transform:
+
+        translateY(-10px);
+
+    background: var(--cgt-ana-surface-hover);
+
+    border-color: var(--cgt-ana-border-hover);
+
+    box-shadow: var(--cgt-ana-shadow-lg);
+
 }
 
-.orders::before {
-    background: var(--accent-blue);
+.cgt-custom-analytics-card:hover::before {
+
+    width: 7px;
+
 }
 
-.customers::before {
-    background: var(--green);
+.cgt-custom-analytics-card:hover::after {
+
+    transform: scale(1.3);
+
+    opacity: 1;
+
 }
 
-.growth::before {
-    background: var(--orange);
+/*==================================================
+LEFT COLORS
+==================================================*/
+
+.cgt-custom-analytics-revenue::before {
+
+    background: #6366f1;
+
 }
 
-.analytics-card:hover {
-    transform: translateY(-5px);
-    background: var(--surface-hover);
-    border-color: var(--border-glow);
-    box-shadow: var(--shadow-hover);
+.cgt-custom-analytics-orders::before {
+
+    background: #06b6d4;
+
 }
 
-.analytics-card:hover::before {
-    width: 6px;
+.cgt-custom-analytics-customers::before {
+
+    background: #10b981;
+
 }
 
-/* Icon Pods */
-.analytics-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 14px;
+.cgt-custom-analytics-growth::before {
+
+    background: #f59e0b;
+
+}
+
+/*==================================================
+ICON
+==================================================*/
+
+.cgt-custom-analytics-icon {
+
+    width: 64px;
+    height: 64px;
+
+    border-radius: 18px;
+
     display: flex;
-    justify-content: center;
     align-items: center;
-    font-size: 24px;
-    border: 1px solid var(--border);
+    justify-content: center;
+
+    font-size: 26px;
+
+    background: rgba(255, 255, 255, .55);
+
+    backdrop-filter: blur(15px);
+
+    border: 1px solid rgba(255, 255, 255, .75);
+
+    box-shadow:
+
+        0 10px 25px rgba(15, 23, 42, .05);
+
+    transition: .35s;
+
+    flex-shrink: 0;
+
 }
 
-.revenue .analytics-icon {
-    color: var(--accent-purple);
-    background: rgba(224, 36, 36, 0.1);
-    border-color: rgba(224, 36, 36, 0.3);
+/* Revenue */
+
+.cgt-custom-analytics-revenue .cgt-custom-analytics-icon {
+
+    color: #6366f1;
+
+    background:
+
+        linear-gradient(135deg,
+            rgba(99, 102, 241, .15),
+            rgba(129, 140, 248, .10));
+
 }
 
-.orders .analytics-icon {
-    color: var(--accent-blue);
-    background: rgba(0, 240, 255, 0.1);
-    border-color: rgba(0, 240, 255, 0.3);
+/* Orders */
+
+.cgt-custom-analytics-orders .cgt-custom-analytics-icon {
+
+    color: #06b6d4;
+
+    background:
+
+        linear-gradient(135deg,
+            rgba(6, 182, 212, .15),
+            rgba(34, 211, 238, .10));
+
 }
 
-.customers .analytics-icon {
-    color: var(--green);
-    background: rgba(16, 185, 129, 0.1);
-    border-color: rgba(16, 185, 129, 0.3);
+/* Customers */
+
+.cgt-custom-analytics-customers .cgt-custom-analytics-icon {
+
+    color: #10b981;
+
+    background:
+
+        linear-gradient(135deg,
+            rgba(16, 185, 129, .15),
+            rgba(52, 211, 153, .10));
+
 }
 
-.growth .analytics-icon {
-    color: var(--orange);
-    background: rgba(245, 158, 11, 0.1);
-    border-color: rgba(245, 158, 11, 0.3);
+/* Growth */
+
+.cgt-custom-analytics-growth .cgt-custom-analytics-icon {
+
+    color: #f59e0b;
+
+    background:
+
+        linear-gradient(135deg,
+            rgba(245, 158, 11, .15),
+            rgba(251, 191, 36, .10));
+
 }
 
-.analytics-card span {
-    color: var(--text-muted);
-    font-size: 0.85rem;
+.cgt-custom-analytics-card:hover .cgt-custom-analytics-icon {
+
+    transform:
+
+        scale(1.08) rotate(-6deg);
+
+}
+
+/*==================================================
+TEXT
+==================================================*/
+
+.cgt-custom-analytics-card span {
+
+    display: block;
+
+    font-size: .82rem;
+
+    font-weight: 700;
+
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 500;
-}
 
-.analytics-card h2 {
-    margin-top: 4px;
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--text);
-    letter-spacing: -0.5px;
-}
+    letter-spacing: 1px;
 
-.analytics-card p {
-    margin-top: 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.85rem;
-}
+    color: var(--cgt-ana-muted);
 
-.positive {
-    color: var(--green);
-    font-weight: 600;
-}
-
-/* Grid Layout */
-.analytics-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 25px;
-    margin-bottom: 35px;
-}
-
-/* Chart Section */
-.chart-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 28px;
-    box-shadow: var(--shadow-flat);
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.section-header h2 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text);
-}
-
-.section-header button {
-    padding: 10px 18px;
-    border: 1px solid rgba(0, 240, 255, 0.4);
-    border-radius: 10px;
-    background: rgba(0, 240, 255, 0.1);
-    color: var(--accent-blue);
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.section-header button:hover {
-    background: var(--accent-blue);
-    color: #000;
-    box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
-}
-
-.chart-placeholder {
-    height: 320px;
-    border-radius: 14px;
-    background: rgba(7, 9, 14, 0.6);
-    border: 1px dashed var(--border);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-
-.chart-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-    color: var(--accent-blue);
-}
-
-.chart-placeholder h3 {
-    color: var(--text);
     margin-bottom: 6px;
-    font-size: 1.1rem;
+
 }
 
-.chart-placeholder p {
-    color: var(--text-muted);
-    font-size: 0.85rem;
+.cgt-custom-analytics-card h2 {
+
+    font-size: 2.2rem;
+
+    font-weight: 800;
+
+    letter-spacing: -1px;
+
+    color: var(--cgt-ana-text);
+
+    margin-bottom: 8px;
+
 }
 
-/* Top Products / Mini Card */
-.mini-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 28px;
-    box-shadow: var(--shadow-flat);
-}
+.cgt-custom-analytics-card p {
 
-.mini-card h2 {
-    margin-bottom: 20px;
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text);
-}
-
-.mini-card ul {
-    list-style: none;
-}
-
-.mini-card li {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 14px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    color: var(--text);
-    font-size: 0.9rem;
+    gap: 8px;
+
+    font-size: .88rem;
+
+    font-weight: 600;
+
 }
 
-.mini-card li:last-child {
+.cgt-custom-positive {
+
+    color: var(--cgt-ana-green);
+
+}
+/* ==========================================================================
+   PREMIUM APPLE + LINEAR GLASSMORPHISM ANALYTICS
+   PART 2 - CHARTS + MINI CARDS + GLASS PANELS
+========================================================================== */
+
+
+/*==================================================
+ANALYTICS MAIN GRID
+==================================================*/
+
+.cgt-custom-analytics-grid {
+
+    display: grid;
+
+    grid-template-columns: 2fr 1fr;
+
+    gap: 28px;
+
+    margin-bottom: 38px;
+
+    position: relative;
+
+    z-index: 2;
+
+}
+
+
+/*==================================================
+GLASS PANEL BASE
+==================================================*/
+
+.cgt-custom-chart-card,
+.cgt-custom-mini-card,
+.cgt-custom-performance-card {
+
+    background:
+
+        linear-gradient(135deg,
+            rgba(255, 255, 255, .72),
+            rgba(255, 255, 255, .45));
+
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+
+    border: 1px solid rgba(255, 255, 255, .7);
+
+    border-radius: 26px;
+
+    box-shadow:
+
+        0 15px 40px rgba(15, 23, 42, .07);
+
+    position: relative;
+
+    overflow: hidden;
+
+}
+
+
+/* Ambient glow */
+
+.cgt-custom-chart-card::before,
+.cgt-custom-mini-card::before,
+.cgt-custom-performance-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 220px;
+    height: 220px;
+
+    top: -100px;
+    right: -100px;
+
+    border-radius: 50%;
+
+    background:
+
+        radial-gradient(circle,
+            rgba(99, 102, 241, .14),
+            transparent 70%);
+
+    filter: blur(30px);
+
+    pointer-events: none;
+
+}
+
+
+/*==================================================
+CHART CARD
+==================================================*/
+
+.cgt-custom-chart-card {
+
+    padding: 30px;
+
+    transition: .35s ease;
+
+}
+
+
+.cgt-custom-chart-card:hover {
+
+    transform: translateY(-6px);
+
+    box-shadow:
+
+        0 25px 60px rgba(99, 102, 241, .12);
+
+}
+
+
+/*==================================================
+SECTION HEADER
+==================================================*/
+
+.cgt-custom-section-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 25px;
+
+    position: relative;
+
+    z-index: 2;
+
+}
+
+
+.cgt-custom-section-header h2 {
+
+    font-size: 1.35rem;
+
+    font-weight: 800;
+
+    letter-spacing: -.4px;
+
+    color: var(--cgt-ana-text);
+
+}
+
+
+
+/*==================================================
+GLASS BUTTON
+==================================================*/
+
+.cgt-custom-section-header button {
+
+
+    padding:
+
+        11px 20px;
+
+
+    border-radius: 14px;
+
+
+    border:
+
+        1px solid rgba(99, 102, 241, .18);
+
+
+    background:
+
+        rgba(255, 255, 255, .65);
+
+
+    backdrop-filter: blur(15px);
+
+
+    color:
+
+        var(--cgt-ana-primary);
+
+
+    font-weight: 700;
+
+
+    font-size: .85rem;
+
+
+    cursor: pointer;
+
+
+    transition: .3s;
+
+
+    box-shadow:
+
+        0 8px 20px rgba(15, 23, 42, .05);
+
+
+}
+
+
+
+.cgt-custom-section-header button:hover {
+
+
+    background:
+
+        linear-gradient(135deg,
+            #6366f1,
+            #06b6d4);
+
+
+    color: white;
+
+
+    transform:
+
+        translateY(-3px);
+
+
+    box-shadow:
+
+        0 15px 30px rgba(99, 102, 241, .25);
+
+
+}
+
+
+/*==================================================
+CHART PLACEHOLDER
+==================================================*/
+
+
+.cgt-custom-chart-placeholder {
+
+
+    height: 340px;
+
+
+    border-radius: 22px;
+
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+
+    text-align: center;
+
+
+
+    background:
+
+
+        linear-gradient(135deg,
+            rgba(255, 255, 255, .55),
+            rgba(248, 250, 252, .4));
+
+
+
+    border:
+
+        1px dashed rgba(148, 163, 184, .35);
+
+
+
+    backdrop-filter:
+
+        blur(15px);
+
+
+
+    transition: .35s;
+
+
+}
+
+
+
+.cgt-custom-chart-placeholder:hover {
+
+
+    border-color:
+
+        rgba(99, 102, 241, .4);
+
+
+    background:
+
+        rgba(255, 255, 255, .75);
+
+
+}
+
+
+
+/* Chart Icon */
+
+
+.cgt-custom-chart-icon {
+
+
+    width: 85px;
+
+    height: 85px;
+
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+
+    border-radius: 26px;
+
+
+    font-size: 42px;
+
+
+    color:
+
+        var(--cgt-ana-primary);
+
+
+
+    background:
+
+
+        linear-gradient(135deg,
+            rgba(99, 102, 241, .15),
+            rgba(6, 182, 212, .15));
+
+
+
+    box-shadow:
+
+        0 15px 35px rgba(99, 102, 241, .15);
+
+
+
+    margin-bottom: 18px;
+
+
+}
+
+
+
+.cgt-custom-chart-placeholder h3 {
+
+
+    font-size: 1.2rem;
+
+    font-weight: 800;
+
+    color:
+
+        var(--cgt-ana-text);
+
+
+    margin-bottom: 8px;
+
+
+}
+
+
+
+.cgt-custom-chart-placeholder p {
+
+
+    font-size: .9rem;
+
+
+    color:
+
+        var(--cgt-ana-muted);
+
+
+}
+
+
+
+/*==================================================
+MINI CARD / TOP PRODUCTS
+==================================================*/
+
+
+.cgt-custom-mini-card {
+
+
+    padding: 30px;
+
+
+    transition: .35s;
+
+
+}
+
+
+
+.cgt-custom-mini-card:hover {
+
+
+    transform:
+
+        translateY(-6px);
+
+
+    box-shadow:
+
+        0 25px 60px rgba(6, 182, 212, .12);
+
+
+}
+
+
+
+.cgt-custom-mini-card h2 {
+
+
+    font-size: 1.35rem;
+
+
+    font-weight: 800;
+
+
+    color:
+
+        var(--cgt-ana-text);
+
+
+    margin-bottom: 25px;
+
+
+}
+
+
+
+/* List */
+
+
+.cgt-custom-mini-card ul {
+
+
+    list-style: none;
+
+
+    padding: 0;
+
+
+    margin: 0;
+
+
+}
+
+
+.cgt-custom-mini-card li {
+
+
+    display: flex;
+
+
+    justify-content: space-between;
+
+
+    align-items: center;
+
+
+    padding: 16px 0;
+
+
+    border-bottom:
+
+
+        1px solid rgba(226, 232, 240, .6);
+
+
+
+    font-size: .92rem;
+
+
+    color:
+
+        var(--cgt-ana-text-light);
+
+
+    transition: .3s;
+
+
+}
+
+
+
+.cgt-custom-mini-card li:last-child {
+
+
     border: none;
+
+
 }
 
-.mini-card strong {
-    color: var(--accent-purple);
-    font-weight: 600;
+
+
+.cgt-custom-mini-card li:hover {
+
+
+    padding-left: 8px;
+
+
 }
 
-/* Performance Table */
-.performance-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 28px;
-    box-shadow: var(--shadow-flat);
+
+
+.cgt-custom-mini-card strong {
+
+
+    font-size: .95rem;
+
+
+    font-weight: 800;
+
+
+    color:
+
+        var(--cgt-ana-primary);
+
+
+    background:
+
+
+        rgba(99, 102, 241, .1);
+
+
+
+    padding:
+
+        5px 12px;
+
+
+
+    border-radius:
+
+        999px;
+
+
 }
 
-.performance-card table {
+
+
+/*==================================================
+RESPONSIVE TABLET
+==================================================*/
+
+
+@media(max-width:1100px) {
+
+
+    .cgt-custom-analytics-grid {
+
+
+        grid-template-columns: 1fr;
+
+
+    }
+
+
+}
+
+
+
+@media(max-width:768px) {
+
+
+    .cgt-custom-chart-card,
+    .cgt-custom-mini-card {
+
+
+        padding: 22px;
+
+
+    }
+
+
+
+    .cgt-custom-chart-placeholder {
+
+
+        height: 280px;
+
+
+    }
+
+
+}
+
+/* ==========================================================================
+   PREMIUM APPLE + LINEAR GLASSMORPHISM ANALYTICS
+   PART 3 - PERFORMANCE TABLE + FINAL POLISH + RESPONSIVE
+========================================================================== */
+
+
+/*==================================================
+PERFORMANCE CARD
+==================================================*/
+
+
+.cgt-custom-performance-card {
+
+
+    padding: 30px;
+
+
+    margin-bottom: 35px;
+
+
+    transition: .35s cubic-bezier(.4, 0, .2, 1);
+
+
+    position: relative;
+
+
+    z-index: 2;
+
+
+}
+
+
+
+.cgt-custom-performance-card:hover {
+
+
+    transform: translateY(-6px);
+
+
+    box-shadow:
+
+
+        0 30px 70px rgba(99, 102, 241, .14);
+
+
+}
+
+
+
+/*==================================================
+PERFORMANCE HEADER
+==================================================*/
+
+
+.cgt-custom-performance-card h2 {
+
+
+    font-size: 1.35rem;
+
+
+    font-weight: 800;
+
+
+    letter-spacing: -.4px;
+
+
+    color:
+
+        var(--cgt-ana-text);
+
+
+    margin-bottom: 25px;
+
+
+}
+
+
+
+/*==================================================
+TABLE
+==================================================*/
+
+
+.cgt-custom-perf-table {
+
+
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+
+
+    border-collapse: separate;
+
+
+    border-spacing: 0 10px;
+
+
+    margin-top: 10px;
+
+
 }
 
-.performance-card th {
+
+
+.cgt-custom-perf-table thead th {
+
+
     text-align: left;
-    padding: 16px;
-    color: var(--text-muted);
-    font-weight: 600;
-    font-size: 0.8rem;
+
+
+    padding: 15px 18px;
+
+
+    font-size: .78rem;
+
+
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-    background: rgba(255, 255, 255, 0.02);
-    border-bottom: 1px solid var(--border);
+
+
+    letter-spacing: 1px;
+
+
+    font-weight: 700;
+
+
+    color:
+
+        var(--cgt-ana-muted);
+
+
+
+    background:
+
+        rgba(255, 255, 255, .45);
+
+
+
 }
 
-.performance-card td {
-    padding: 16px;
-    color: var(--text);
-    font-size: 0.9rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+
+
+/* Rounded Header */
+
+
+.cgt-custom-perf-table thead th:first-child {
+
+
+    border-radius: 14px 0 0 14px;
+
+
 }
 
-.performance-card tbody tr {
-    transition: background 0.3s ease;
+
+
+.cgt-custom-perf-table thead th:last-child {
+
+
+    border-radius: 0 14px 14px 0;
+
+
 }
 
-.performance-card tbody tr:hover {
-    background: rgba(255, 255, 255, 0.02);
+
+
+
+
+.cgt-custom-perf-table tbody tr {
+
+
+    background:
+
+        rgba(255, 255, 255, .45);
+
+
+
+    transition: .3s;
+
+
+    box-shadow:
+
+        0 5px 20px rgba(15, 23, 42, .03);
+
+
 }
 
-/* Responsive */
-@media (max-width: 1100px) {
-    .analytics-grid {
-        grid-template-columns: 1fr;
+
+
+.cgt-custom-perf-table tbody tr:hover {
+
+
+    background:
+
+        rgba(255, 255, 255, .8);
+
+
+    transform:
+
+        translateY(-3px);
+
+
+    box-shadow:
+
+        0 15px 35px rgba(99, 102, 241, .10);
+
+
+}
+
+
+
+
+.cgt-custom-perf-table td {
+
+
+    padding:
+
+        17px 18px;
+
+
+    font-size: .92rem;
+
+
+    color:
+
+        var(--cgt-ana-text);
+
+
+    border-top:
+
+        1px solid rgba(255, 255, 255, .5);
+
+
+
+    border-bottom:
+
+        1px solid rgba(255, 255, 255, .5);
+
+
+
+}
+
+
+
+.cgt-custom-perf-table td:first-child {
+
+
+    border-radius: 14px 0 0 14px;
+
+
+    font-weight: 700;
+
+
+}
+
+
+
+.cgt-custom-perf-table td:last-child {
+
+
+    border-radius: 0 14px 14px 0;
+
+
+}
+
+
+
+
+
+/*==================================================
+STATUS BADGES
+==================================================*/
+
+
+.cgt-custom-status {
+
+
+    display: inline-flex;
+
+
+    align-items: center;
+
+
+    gap: 7px;
+
+
+    padding:
+
+        6px 14px;
+
+
+    border-radius: 999px;
+
+
+    font-size: .78rem;
+
+
+    font-weight: 700;
+
+
+}
+
+
+
+.cgt-custom-status-success {
+
+
+    color: #059669;
+
+
+    background:
+
+        rgba(16, 185, 129, .12);
+
+
+    border:
+
+        1px solid rgba(16, 185, 129, .22);
+
+
+}
+
+
+
+.cgt-custom-status-warning {
+
+
+    color: #d97706;
+
+
+    background:
+
+        rgba(245, 158, 11, .12);
+
+
+    border:
+
+        1px solid rgba(245, 158, 11, .22);
+
+
+}
+
+
+
+.cgt-custom-status-danger {
+
+
+    color: #dc2626;
+
+
+    background:
+
+        rgba(239, 68, 68, .12);
+
+
+    border:
+
+        1px solid rgba(239, 68, 68, .22);
+
+
+}
+
+
+
+
+
+/*==================================================
+ANIMATION REVEAL
+==================================================*/
+
+
+.cgt-custom-analytics-card,
+.cgt-custom-chart-card,
+.cgt-custom-mini-card,
+.cgt-custom-performance-card {
+
+
+    animation:
+
+        cgtFadeUp .6s ease forwards;
+
+
+    opacity: 0;
+
+
+}
+
+
+
+@keyframes cgtFadeUp {
+
+
+    from {
+
+
+        opacity: 0;
+
+
+        transform:
+
+            translateY(25px);
+
+
     }
+
+
+    to {
+
+
+        opacity: 1;
+
+
+        transform:
+
+            translateY(0);
+
+
+    }
+
+
 }
 
-@media (max-width: 768px) {
-    .analytics-page {
+
+
+/*==================================================
+SCROLLBAR PREMIUM
+==================================================*/
+
+
+.cgt-custom-analytics-page::-webkit-scrollbar {
+
+
+    width: 10px;
+
+
+}
+
+
+
+.cgt-custom-analytics-page::-webkit-scrollbar-track {
+
+
+    background:
+
+        transparent;
+
+
+}
+
+
+
+.cgt-custom-analytics-page::-webkit-scrollbar-thumb {
+
+
+    background:
+
+        linear-gradient(180deg,
+            #6366f1,
+            #06b6d4);
+
+
+    border-radius: 20px;
+
+
+}
+
+
+
+
+
+/*==================================================
+MOBILE HEADER
+==================================================*/
+
+
+@media(max-width:768px) {
+
+
+
+    .cgt-custom-analytics-page {
+
+
         padding: 18px;
+
+
     }
 
-    .analytics-header h1 {
-        font-size: 1.8rem;
+
+
+    .cgt-custom-analytics-header {
+
+
+        flex-direction: column;
+
+
+        align-items: flex-start;
+
+
+        gap: 15px;
+
+
     }
 
-    .analytics-cards {
+
+
+    .cgt-custom-analytics-header h1 {
+
+
+        font-size: 1.9rem;
+
+
+    }
+
+
+
+
+    .cgt-custom-analytics-cards {
+
+
         grid-template-columns: 1fr;
+
+
+        gap: 18px;
+
+
     }
 
-    .performance-card {
+
+
+
+    .cgt-custom-analytics-card {
+
+
+        padding: 20px;
+
+
+    }
+
+
+
+    .cgt-custom-analytics-icon {
+
+
+        width: 55px;
+
+        height: 55px;
+
+
+    }
+
+
+
+    .cgt-custom-analytics-card h2 {
+
+
+        font-size: 1.8rem;
+
+
+    }
+
+
+
+
+
+    .cgt-custom-performance-card {
+
+
         overflow-x: auto;
+
+
     }
 
-    .performance-card table {
-        min-width: 700px;
+
+
+    .cgt-custom-perf-table {
+
+
+        min-width: 720px;
+
+
     }
+
+
+
+}
+
+
+
+/*==================================================
+SMALL MOBILE
+==================================================*/
+
+
+@media(max-width:480px) {
+
+
+
+    .cgt-custom-analytics-card {
+
+
+        flex-direction: column;
+
+
+        align-items: flex-start;
+
+
+    }
+
+
+
+    .cgt-custom-section-header {
+
+
+        flex-direction: column;
+
+
+        align-items: flex-start;
+
+
+        gap: 15px;
+
+
+    }
+
+
+
+    .cgt-custom-chart-placeholder {
+
+
+        height: 240px;
+
+
+    }
+
+
+
+}
+
+/* ==========================================================================
+   PREMIUM APPLE + LINEAR GLASSMORPHISM ANALYTICS
+   PART 4 - FINAL POLISH + MICRO INTERACTIONS
+========================================================================== */
+
+
+/*==================================================
+CARD INNER LIGHT EFFECT
+==================================================*/
+
+.cgt-custom-analytics-card>*,
+.cgt-custom-chart-card>*,
+.cgt-custom-mini-card>*,
+.cgt-custom-performance-card>* {
+
+    position: relative;
+
+    z-index: 2;
+
+}
+
+
+/*==================================================
+SOFT GLASS REFLECTION
+==================================================*/
+
+
+.cgt-custom-analytics-card::selection,
+.cgt-custom-chart-card::selection,
+.cgt-custom-mini-card::selection {
+
+    background: #6366f1;
+
+    color: white;
+
+}
+
+
+/*==================================================
+NUMBER ANIMATION FEEL
+==================================================*/
+
+
+.cgt-custom-analytics-card h2 {
+
+
+    animation:
+
+        cgtNumberPop .8s ease;
+
+
+}
+
+
+
+@keyframes cgtNumberPop {
+
+
+    0% {
+
+
+        opacity: 0;
+
+
+        transform:
+
+            scale(.85);
+
+
+    }
+
+
+    100% {
+
+
+        opacity: 1;
+
+
+        transform:
+
+            scale(1);
+
+
+    }
+
+
+}
+
+
+
+/*==================================================
+GRADIENT TEXT UTILITIES
+==================================================*/
+
+
+.cgt-gradient-primary {
+
+
+    background:
+
+        linear-gradient(135deg,
+            #6366f1,
+            #06b6d4);
+
+
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+
+}
+
+
+
+
+.cgt-gradient-success {
+
+
+    background:
+
+        linear-gradient(135deg,
+            #10b981,
+            #34d399);
+
+
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+
+}
+
+
+
+/*==================================================
+PROGRESS BAR GLASS
+==================================================*/
+
+
+.cgt-custom-progress {
+
+
+    width: 100%;
+
+
+    height: 10px;
+
+
+    background:
+
+
+        rgba(226, 232, 240, .6);
+
+
+
+    border-radius: 999px;
+
+
+    overflow: hidden;
+
+
+    margin-top: 15px;
+
+
+    backdrop-filter: blur(10px);
+
+
+}
+
+
+
+.cgt-custom-progress span {
+
+
+    display: block;
+
+
+    height: 100%;
+
+
+    border-radius: inherit;
+
+
+    background:
+
+
+        linear-gradient(90deg,
+            #6366f1,
+            #06b6d4);
+
+
+
+    box-shadow:
+
+
+        0 0 20px rgba(99, 102, 241, .45);
+
+
+
+    animation:
+
+        cgtProgress 1.5s ease;
+
+
+}
+
+
+
+@keyframes cgtProgress {
+
+
+    from {
+
+
+        width: 0;
+
+
+    }
+
+
+}
+
+
+
+/*==================================================
+GLASS TOOLTIP
+==================================================*/
+
+
+.cgt-glass-tooltip {
+
+
+    position: absolute;
+
+
+    padding:
+
+        8px 14px;
+
+
+    border-radius: 12px;
+
+
+    background:
+
+        rgba(255, 255, 255, .75);
+
+
+
+    backdrop-filter: blur(15px);
+
+
+    border:
+
+        1px solid rgba(255, 255, 255, .7);
+
+
+    box-shadow:
+
+        0 10px 30px rgba(15, 23, 42, .1);
+
+
+    font-size: .8rem;
+
+
+    font-weight: 600;
+
+
+    color:
+
+        var(--cgt-ana-text);
+
+
+    opacity: 0;
+
+
+    transform:
+
+        translateY(10px);
+
+
+    transition: .3s;
+
+
+    pointer-events: none;
+
+
+}
+
+
+
+*:hover>.cgt-glass-tooltip {
+
+
+    opacity: 1;
+
+
+    transform:
+
+        translateY(0);
+
+
+}
+
+
+
+
+
+/*==================================================
+ICON FLOAT ANIMATION
+==================================================*/
+
+
+.cgt-custom-analytics-icon {
+
+
+    animation:
+
+        cgtFloat 5s ease-in-out infinite;
+
+
+}
+
+
+
+@keyframes cgtFloat {
+
+
+    0%,
+    100% {
+
+
+        transform: translateY(0);
+
+
+    }
+
+
+    50% {
+
+
+        transform:
+
+            translateY(-5px);
+
+
+    }
+
+
+}
+
+
+
+/*==================================================
+PREMIUM EMPTY STATE
+==================================================*/
+
+
+.cgt-empty-glass {
+
+
+    height: 300px;
+
+
+    display: flex;
+
+
+    align-items: center;
+
+
+    justify-content: center;
+
+
+    flex-direction: column;
+
+
+    gap: 15px;
+
+
+    border-radius: 24px;
+
+
+    background:
+
+
+        rgba(255, 255, 255, .45);
+
+
+
+    backdrop-filter: blur(20px);
+
+
+
+    border:
+
+        1px dashed rgba(148, 163, 184, .4);
+
+
+}
+
+
+
+.cgt-empty-glass svg {
+
+
+    font-size: 55px;
+
+
+    color: #6366f1;
+
+
+    filter:
+
+        drop-shadow(0 10px 20px rgba(99, 102, 241, .3));
+
+
+}
+
+
+
+
+/*==================================================
+GLASS DIVIDER
+==================================================*/
+
+
+.cgt-glass-divider {
+
+
+    height: 1px;
+
+
+    width: 100%;
+
+
+    background:
+
+
+        linear-gradient(90deg,
+            transparent,
+            rgba(148, 163, 184, .4),
+            transparent);
+
+
+    margin: 20px 0;
+
+
+}
+
+
+
+
+
+/*==================================================
+DARK MODE READY SUPPORT
+==================================================*/
+
+
+@media(prefers-color-scheme:dark) {
+
+
+    .cgt-custom-analytics-page {
+
+
+        --cgt-ana-bg: #020617;
+
+        --cgt-ana-text: #f8fafc;
+
+        --cgt-ana-muted: #94a3b8;
+
+
+    }
+
+
+}
+
+
+
+
+/*==================================================
+ULTRA SMALL DEVICES
+==================================================*/
+
+
+@media(max-width:360px) {
+
+
+    .cgt-custom-analytics-page {
+
+
+        padding: 14px;
+
+
+    }
+
+
+
+    .cgt-custom-analytics-header h1 {
+
+
+        font-size: 1.6rem;
+
+
+    }
+
+
+
+    .cgt-custom-analytics-card h2 {
+
+
+        font-size: 1.5rem;
+
+
+    }
+
+
 }

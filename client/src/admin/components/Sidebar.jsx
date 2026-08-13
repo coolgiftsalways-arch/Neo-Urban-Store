@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+
 import {
   FiHome,
   FiShoppingBag,
   FiBox,
   FiUsers,
   FiBarChart2,
-  FiTag,
-  FiSettings,
   FiLogOut,
   FiMenu,
   FiX,
@@ -19,37 +18,57 @@ export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
-  const toggleSidebar = () => setIsOpen(!isOpen);
-  const closeSidebar = () => setIsOpen(false);
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const closeSidebar = () => {
+    setIsOpen(false);
+  };
 
   const links = [
-    { title: "Dashboard", icon: <FiHome />, path: "/admin/dashboard" },
-    { title: "Products", icon: <FiShoppingBag />, path: "/admin/products" },
-    { title: "Orders", icon: <FiBox />, path: "/admin/orders" },
-    { title: "Customers", icon: <FiUsers />, path: "/admin/customers" },
-    { title: "Analytics", icon: <FiBarChart2 />, path: "/admin/analytics" },
-    { title: "Coupons", icon: <FiTag />, path: "/admin/coupons" },
-    { title: "Settings", icon: <FiSettings />, path: "/admin/settings" },
+    {
+      title: "Dashboard",
+      icon: <FiHome />,
+      path: "/admin/dashboard",
+    },
+    {
+      title: "Products",
+      icon: <FiShoppingBag />,
+      path: "/admin/products",
+    },
+    {
+      title: "Orders",
+      icon: <FiBox />,
+      path: "/admin/orders",
+    },
+    {
+      title: "Customers",
+      icon: <FiUsers />,
+      path: "/admin/customers",
+    },
+    // {
+    //   title: "Analytics",
+    //   icon: <FiBarChart2 />,
+    //   path: "/admin/analytics",
+    // },
   ];
 
   return (
     <>
-      {/* 3-line Hamburger Toggle Button */}
+      {/* Mobile Hamburger Button */}
       <button
-        className={`sidebar-toggle ${isOpen ? "open" : ""}`}
+        className={`sidebar-toggle ${isOpen ? "active" : ""}`}
         onClick={toggleSidebar}
-        aria-label="Toggle Navigation Menu"
       >
         {isOpen ? <FiX /> : <FiMenu />}
       </button>
 
-      {/* Dark Backdrop overlay for mobile screens */}
+      {/* Mobile Overlay */}
       {isOpen && <div className="sidebar-overlay" onClick={closeSidebar}></div>}
 
-      {/* Sidebar Container */}
-      <aside className={`sidebar ${isOpen ? "active" : ""}`}>
-       
-
+      {/* Sidebar */}
+      <aside className={`sidebar ${isOpen ? "show" : ""}`}>
         <nav>
           {links.map((item) => (
             <Link
@@ -59,6 +78,7 @@ export default function Sidebar() {
               className={location.pathname === item.path ? "active" : ""}
             >
               <span className="link-icon">{item.icon}</span>
+
               <span className="link-text">{item.title}</span>
             </Link>
           ))}
@@ -66,6 +86,7 @@ export default function Sidebar() {
 
         <button className="logout-btn">
           <FiLogOut />
+
           <span>Logout</span>
         </button>
       </aside>
