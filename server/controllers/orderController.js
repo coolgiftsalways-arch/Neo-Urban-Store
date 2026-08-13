@@ -620,3 +620,142 @@ export const updateOrderStatus = async (
 
   }
 };
+// =====================================================
+// GET ALL CUSTOMERS
+// GET /api/orders/customers/all
+// =====================================================
+
+export const getCustomers = async (req, res) => {
+  try {
+    console.log("====================================");
+    console.log("👥 GET /api/orders/customers/all");
+    console.log("Fetching customers from orders...");
+    console.log("====================================");
+
+    const orders = await Order.find({})
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const customersMap = new Map();
+
+    for (const order of orders) {
+      const name =
+        order.customerName ||
+        order.fullName ||
+        "Unknown Customer";
+
+      const email =
+        order.email ||
+        order.shippingAddress?.email ||
+        "";
+
+      const phone =
+        order.phone ||
+        order.shippingAddress?.phone ||
+        "";
+
+      // -----------------------------------------
+      // CREATE UNIQUE CUSTOMER KEY
+      // -----------------------------------------
+
+      let customerKey = "";
+
+      if (email.trim()) {
+        customerKey = `email:${email.trim().toLowerCase()}`;
+      } else if (phone.trim()) {
+        customerKey = `phone:${phone.trim()}`;
+      } else {
+        customerKey = `name:${name.trim().toLowerCase()}`;
+      }
+
+      // -----------------------------------------
+      // CHECK IF CUSTOMER ALREADY EXISTS
+      // -----------------------------------------
+
+      if (!customersMap.has(customerKey)) {
+        customersMap.set(customerKey, {
+          _id: customerKey,
+
+          name,
+
+          email:
+            email || "N/A",
+
+          phone:
+            phone || "N/A",
+
+          ordersCount: 0,
+
+          totalSpent: 0,
+
+          address:
+            order.address ||
+            order.shippingAddress?.address ||
+            "",
+
+          landmark:
+            order.landmark ||
+            order.shippingAddress?.landmark ||
+            "",
+
+          city:
+            order.city ||
+            order.shippingAddress?.city ||
+            "",
+
+          state:
+            order.state ||
+            order.shippingAddress?.state ||
+            "",
+
+          pincode:
+            order.pincode ||
+            order.postalCode ||
+            order.shippingAddress?.pincode ||
+            order.shippingAddress?.postalCode ||
+            "",
+
+          lastOrderDate:
+            order.createdAt,
+        });
+      }
+
+      const customer =
+        customersMap.get(customerKey);
+
+      // -----------------------------------------
+      // ADD ORDER
+      // -----------------------------------------
+
+      customer.ordersCount += 1;
+
+      customer.totalSpent += Number(
+        order.total ??
+        order.totalPrice ??
+        0
+      );
+    }
+
+    const customers =
+      Array.from(customersMap.values());
+
+    console.log(
+      `✅ Customers found: ${customers.length}`
+    );
+
+    res.status(200).json(customers);
+
+  } catch (error) {
+
+    console.error(
+      "❌ GET CUSTOMERS ERROR:",
+      error
+    );
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch customers",
+      error: error.message,
+    });
+  }
+};
