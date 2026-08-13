@@ -34,6 +34,23 @@ const productSchema = new mongoose.Schema(
     },
 
     // ==========================================
+    // COLLECTION TYPE
+    // Regulars / Imported / Rare / Collections
+    // ==========================================
+
+    collectionType: {
+      type: String,
+      enum: [
+        "Regulars",
+        "Imported",
+        "Rare",
+        "Collections",
+      ],
+      default: "Regulars",
+      index: true,
+    },
+
+    // ==========================================
     // PRICE
     // ==========================================
 
