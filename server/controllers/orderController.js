@@ -1,653 +1,622 @@
 import Order from "../models/Order.js";
-import Cart from "../models/cart.js";
-import transporter from "../config/mailer.js";
 
-export const placeOrder = async (req, res) => {
+
+// =====================================================
+// GET ALL ORDERS
+// GET /api/orders
+// =====================================================
+
+export const getOrders = async (req, res) => {
   try {
-    // ==========================================
-    // GET CART
-    // ==========================================
+    console.log("====================================");
+    console.log("📦 GET /api/orders");
+    console.log("Fetching all orders...");
+    console.log("====================================");
 
-    const cart = await Cart.find();
+    const orders = await Order.find({})
+      .sort({ createdAt: -1 });
 
-    if (cart.length === 0) {
-      return res.status(400).json({
-        message: "Cart is Empty",
-      });
-    }
+    console.log(`✅ Orders found: ${orders.length}`);
 
-    // ==========================================
-    // CALCULATE TOTAL
-    // ==========================================
+    res.status(200).json(orders);
 
-    const subtotal = cart.reduce(
-      (acc, item) =>
-        acc + Number(item.price) * Number(item.quantity),
-      0
+  } catch (error) {
+
+    console.error("❌ GET ORDERS ERROR:");
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch orders",
+      error: error.message,
+    });
+  }
+};
+
+
+// =====================================================
+// GET SINGLE ORDER
+// GET /api/orders/:id
+// =====================================================
+
+export const getOrderById = async (req, res) => {
+  try {
+
+    console.log(
+      `📦 GET /api/orders/${req.params.id}`
     );
 
-    const shipping = subtotal > 499 ? 0 : 40;
+    const order =
+      await Order.findById(req.params.id);
 
-    const tax = Math.round(subtotal * 0.05);
+    if (!order) {
 
-    const total = subtotal + shipping + tax;
-
-    // ==========================================
-    // PAYMENT METHOD
-    // ==========================================
-
-    const paymentMethod =
-      req.body.paymentMethod || "cod";
-
-    // ==========================================
-    // CREATE ORDER
-    // ==========================================
-
-    const order = await Order.create({
-      ...req.body,
-
-      items: cart,
-
-      subtotal,
-      shipping,
-      tax,
-      total,
-
-      paymentMethod,
-
-      paymentStatus:
-        paymentMethod === "cod"
-          ? "Pending"
-          : "Pending",
-
-      orderStatus: "Placed",
-    });
-
-    // ==========================================
-    // SEND THANK YOU EMAIL
-    // ==========================================
-
-    try {
-      await transporter.sendMail({
-        from: `"Neo Urban Store" <${process.env.SMTP_USER}>`,
-
-        to: req.body.email,
-
-        subject:
-          "⚡ Your Neo Urban Order Has Been Placed!",
-
-        html: `
-<!DOCTYPE html>
-
-<html>
-
-<body style="
-  margin:0;
-  padding:0;
-  background:#060913;
-  font-family:Arial,Helvetica,sans-serif;
-">
-
-<div style="
-  max-width:620px;
-  margin:40px auto;
-  background:#0A0F1D;
-  border:1px solid #1c2638;
-  border-radius:18px;
-  overflow:hidden;
-  color:#ffffff;
-">
-
-  <!-- HEADER -->
-
-  <div style="
-    padding:30px;
-    text-align:center;
-    background:linear-gradient(
-      135deg,
-      #090d18,
-      #111827
-    );
-    border-bottom:1px solid #1c2638;
-  ">
-
-    <h1 style="
-      margin:0;
-      font-size:30px;
-      letter-spacing:2px;
-      font-weight:900;
-    ">
-      NEO
-      <span style="color:#E60026;">
-        URBAN
-      </span>
-      STORE
-    </h1>
-
-    <p style="
-      margin:8px 0 0;
-      color:#8E9BAE;
-      font-size:13px;
-      letter-spacing:2px;
-    ">
-      FUEL YOUR ENERGY
-    </p>
-
-  </div>
-
-
-  <!-- CONTENT -->
-
-  <div style="padding:35px;">
-
-    <h2 style="
-      margin-top:0;
-      font-size:26px;
-    ">
-      Order Placed Successfully ⚡
-    </h2>
-
-    <p style="
-      color:#A8B1C1;
-      font-size:15px;
-      line-height:1.7;
-    ">
-      Hey
-      <strong style="color:#ffffff;">
-        ${req.body.fullName || "there"}
-      </strong>,
-    </p>
-
-    <p style="
-      color:#A8B1C1;
-      font-size:15px;
-      line-height:1.7;
-    ">
-      Thank you for shopping with
-      <strong style="color:#ffffff;">
-        Neo Urban Store
-      </strong>.
-      Your order has been successfully placed
-      and we're getting it ready for you.
-    </p>
-
-
-    <!-- =====================================
-         ORDER DETAILS
-    ====================================== -->
-
-    <div style="
-      margin:25px 0;
-      padding:22px;
-      background:#111827;
-      border-radius:12px;
-      border:1px solid #202c40;
-    ">
-
-      <p style="
-        margin:0 0 12px;
-        color:#8E9BAE;
-        font-size:13px;
-      ">
-        ORDER ID
-      </p>
-
-      <p style="
-        margin:0;
-        font-size:15px;
-        word-break:break-all;
-      ">
-        ${order._id}
-      </p>
-
-      <hr style="
-        border:0;
-        border-top:1px solid #263246;
-        margin:18px 0;
-      ">
-
-      <p style="
-        margin:0 0 8px;
-        color:#A8B1C1;
-      ">
-        Payment Method
-      </p>
-
-      <p style="
-        margin:0;
-        font-weight:bold;
-      ">
-        ${
-          paymentMethod === "cod"
-            ? "Cash on Delivery"
-            : "Online Payment"
-        }
-      </p>
-
-    </div>
-
-
-    <!-- =====================================
-         YOUR ORDER
-    ====================================== -->
-
-    <h3 style="
-      margin:30px 0 15px;
-      font-size:19px;
-      color:#ffffff;
-    ">
-      Your Order
-    </h3>
-
-
-    <div style="
-      background:#111827;
-      border:1px solid #202c40;
-      border-radius:12px;
-      overflow:hidden;
-    ">
-
-      ${
-        cart.map((item) => `
-          
-          <div style="
-            padding:18px;
-            border-bottom:1px solid #202c40;
-          ">
-
-            <table
-              width="100%"
-              cellpadding="0"
-              cellspacing="0"
-              style="border-collapse:collapse;"
-            >
-
-              <tr>
-
-                <!-- PRODUCT IMAGE -->
-
-                <td
-                  width="75"
-                  valign="middle"
-                  style="padding-right:12px;"
-                >
-
-                  ${
-                    item.image
-                      ? `
-                        <img
-                          src="${
-                            item.image.startsWith("http")
-                              ? item.image
-                              : `http://localhost:5000${item.image}`
-                          }"
-                          width="60"
-                          height="60"
-                          style="
-                            width:60px;
-                            height:60px;
-                            object-fit:contain;
-                            border-radius:10px;
-                            background:#080c15;
-                            border:1px solid #263246;
-                            display:block;
-                          "
-                        />
-                      `
-                      : `
-                        <div style="
-                          width:60px;
-                          height:60px;
-                          background:#080c15;
-                          border:1px solid #263246;
-                          border-radius:10px;
-                          text-align:center;
-                          line-height:60px;
-                          color:#53627A;
-                          font-size:10px;
-                        ">
-                          PRODUCT
-                        </div>
-                      `
-                  }
-
-                </td>
-
-
-                <!-- PRODUCT INFO -->
-
-                <td
-                  valign="middle"
-                  style="padding-right:10px;"
-                >
-
-                  <p style="
-                    margin:0 0 7px;
-                    color:#ffffff;
-                    font-size:14px;
-                    font-weight:800;
-                    line-height:1.4;
-                  ">
-                    ${item.name}
-                  </p>
-
-                  <p style="
-                    margin:0;
-                    color:#8E9BAE;
-                    font-size:12px;
-                  ">
-                    Quantity: ${item.quantity}
-                  </p>
-
-                  <p style="
-                    margin:5px 0 0;
-                    color:#68758A;
-                    font-size:11px;
-                  ">
-                    ₹${Number(item.price)} each
-                  </p>
-
-                </td>
-
-
-                <!-- ITEM TOTAL -->
-
-                <td
-                  width="90"
-                  align="right"
-                  valign="middle"
-                >
-
-                  <p style="
-                    margin:0;
-                    color:#ffffff;
-                    font-size:15px;
-                    font-weight:900;
-                  ">
-                    ₹${
-                      Number(item.price) *
-                      Number(item.quantity)
-                    }
-                  </p>
-
-                </td>
-
-              </tr>
-
-            </table>
-
-          </div>
-
-        `).join("")
-      }
-
-    </div>
-
-
-    <!-- =====================================
-         PRICE SUMMARY
-    ====================================== -->
-
-    <div style="
-      margin-top:20px;
-      padding:22px;
-      background:#111827;
-      border:1px solid #202c40;
-      border-radius:12px;
-    ">
-
-      <table
-        width="100%"
-        cellpadding="0"
-        cellspacing="0"
-        style="border-collapse:collapse;"
-      >
-
-        <tr>
-
-          <td style="
-            padding:6px 0;
-            color:#8E9BAE;
-            font-size:14px;
-          ">
-            Subtotal
-          </td>
-
-          <td
-            align="right"
-            style="
-              padding:6px 0;
-              color:#ffffff;
-              font-size:14px;
-            "
-          >
-            ₹${subtotal}
-          </td>
-
-        </tr>
-
-
-        <tr>
-
-          <td style="
-            padding:6px 0;
-            color:#8E9BAE;
-            font-size:14px;
-          ">
-            Shipping
-          </td>
-
-          <td
-            align="right"
-            style="
-              padding:6px 0;
-              color:#ffffff;
-              font-size:14px;
-            "
-          >
-            ${
-              shipping === 0
-                ? "FREE"
-                : `₹${shipping}`
-            }
-          </td>
-
-        </tr>
-
-
-        <tr>
-
-          <td style="
-            padding:6px 0;
-            color:#8E9BAE;
-            font-size:14px;
-          ">
-            Tax
-          </td>
-
-          <td
-            align="right"
-            style="
-              padding:6px 0;
-              color:#ffffff;
-              font-size:14px;
-            "
-          >
-            ₹${tax}
-          </td>
-
-        </tr>
-
-
-        <tr>
-
-          <td colspan="2">
-
-            <hr style="
-              border:0;
-              border-top:1px solid #263246;
-              margin:14px 0;
-            ">
-
-          </td>
-
-        </tr>
-
-
-        <tr>
-
-          <td style="
-            color:#ffffff;
-            font-size:17px;
-            font-weight:900;
-          ">
-            TOTAL
-          </td>
-
-          <td
-            align="right"
-            style="
-              color:#E60026;
-              font-size:24px;
-              font-weight:900;
-            "
-          >
-            ₹${total}
-          </td>
-
-        </tr>
-
-      </table>
-
-    </div>
-
-
-    <!-- =====================================
-         COD MESSAGE
-    ====================================== -->
-
-    ${
-      paymentMethod === "cod"
-        ? `
-          <div style="
-            margin-top:20px;
-            padding:18px;
-            background:#160b0e;
-            border-left:4px solid #E60026;
-            border-radius:8px;
-          ">
-
-            <p style="
-              margin:0;
-              color:#ffffff;
-              font-size:14px;
-              line-height:1.6;
-            ">
-              💵 Please keep
-              <strong>
-                ₹${total}
-              </strong>
-              ready when your order arrives.
-            </p>
-
-          </div>
-        `
-        : ""
-    }
-
-
-    <p style="
-      margin-top:30px;
-      color:#A8B1C1;
-      font-size:14px;
-      line-height:1.7;
-    ">
-      We appreciate your order and can't wait
-      to get your Monster drinks to you. ⚡
-    </p>
-
-    <p style="
-      margin-top:30px;
-      color:#ffffff;
-      font-weight:bold;
-    ">
-      Stay Energized ⚡
-    </p>
-
-    <p style="
-      color:#E60026;
-      font-weight:900;
-    ">
-      Neo Urban Store
-    </p>
-
-  </div>
-
-
-  <!-- FOOTER -->
-
-  <div style="
-    padding:20px 30px;
-    background:#070b14;
-    text-align:center;
-    color:#53627A;
-    font-size:11px;
-  ">
-
-    This is an automated order confirmation email.
-    Please do not reply to this email.
-
-  </div>
-
-</div>
-
-</body>
-
-</html>
-`,
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
       });
 
-      console.log(
-        "✅ Order confirmation email sent to:",
-        req.body.email
-      );
-
-    } catch (emailError) {
-
-      console.error(
-        "⚠️ Email failed:",
-        emailError.message
-      );
     }
 
-    // ==========================================
-    // CLEAR CART
-    // ==========================================
+    res.status(200).json(order);
 
-    await Cart.deleteMany();
-
-    // ==========================================
-    // RESPONSE
-    // ==========================================
-
-    res.status(201).json({
-      success: true,
-      message: "Order placed successfully",
-      orderId: order._id,
-      order,
-    });
-
-  } catch (err) {
+  } catch (error) {
 
     console.error(
-      "❌ PLACE ORDER ERROR:",
-      err
+      "❌ GET ORDER ERROR:",
+      error
     );
 
     res.status(500).json({
       success: false,
-      message: "Failed to place order",
-      error: err.message,
+      message: "Failed to fetch order",
+      error: error.message,
     });
+  }
+};
+
+
+// =====================================================
+// CREATE ORDER
+// POST /api/orders
+// =====================================================
+
+export const addOrderItems = async (req, res) => {
+
+  try {
+
+    console.log("====================================");
+    console.log("🛒 POST /api/orders");
+    console.log("Creating new order...");
+    console.log("====================================");
+
+    console.log(
+      "📥 ORDER BODY:",
+      req.body
+    );
+
+
+    // =================================================
+    // GET DATA FROM REQUEST
+    // =================================================
+
+    const {
+      orderItems,
+      items,
+
+      shippingAddress,
+
+      paymentMethod,
+
+      itemsPrice,
+      subtotal,
+
+      shippingPrice,
+      shipping,
+
+      taxPrice,
+      tax,
+
+      totalPrice,
+      total,
+
+      customerName,
+      fullName,
+
+      email,
+
+      phone,
+      phoneNumber,
+
+      address,
+      landmark,
+      city,
+      state,
+
+      postalCode,
+      pincode,
+
+      country,
+    } = req.body;
+
+
+    // =================================================
+    // CUSTOMER NAME
+    // Accept all possible frontend field names
+    // =================================================
+
+    if (!finalCustomerName.trim()) {
+
+  return res.status(400).json({
+    success: false,
+    message:
+      "Customer name is required. Guest checkout is not allowed.",
+  });
+
+}
+      
+
+
+    // =================================================
+    // CUSTOMER EMAIL
+    // =================================================
+
+    const finalEmail =
+      email ||
+      shippingAddress?.email ||
+      "";
+
+
+    // =================================================
+    // CUSTOMER PHONE
+    // =================================================
+
+    const finalPhone =
+      phone ||
+      phoneNumber ||
+      shippingAddress?.phone ||
+      "";
+
+
+    // =================================================
+    // ADDRESS
+    // =================================================
+
+    const finalAddress =
+      address ||
+      shippingAddress?.address ||
+      "";
+
+
+    // =================================================
+    // LANDMARK
+    // =================================================
+
+    const finalLandmark =
+      landmark ||
+      shippingAddress?.landmark ||
+      "";
+
+
+    // =================================================
+    // CITY
+    // =================================================
+
+    const finalCity =
+      city ||
+      shippingAddress?.city ||
+      "";
+
+
+    // =================================================
+    // STATE
+    // =================================================
+
+    const finalState =
+      state ||
+      shippingAddress?.state ||
+      "";
+
+
+    // =================================================
+    // PINCODE
+    // =================================================
+
+    const finalPincode =
+      postalCode ||
+      pincode ||
+      shippingAddress?.postalCode ||
+      shippingAddress?.pincode ||
+      "";
+
+
+    // =================================================
+    // COUNTRY
+    // =================================================
+
+    const finalCountry =
+      country ||
+      shippingAddress?.country ||
+      "India";
+
+
+    // =================================================
+    // ITEMS
+    // =================================================
+
+    const finalItems =
+      Array.isArray(orderItems)
+        ? orderItems
+        : Array.isArray(items)
+          ? items
+          : [];
+
+
+    // =================================================
+    // VALIDATE ITEMS
+    // =================================================
+
+    if (
+      !Array.isArray(finalItems) ||
+      finalItems.length === 0
+    ) {
+
+      return res.status(400).json({
+        success: false,
+        message: "No order items",
+      });
+
+    }
+
+
+    // =================================================
+    // PRICES
+    // =================================================
+
+    const finalSubtotal =
+      Number(
+        itemsPrice ??
+        subtotal ??
+        0
+      );
+
+
+    const finalShipping =
+      Number(
+        shippingPrice ??
+        shipping ??
+        0
+      );
+
+
+    const finalTax =
+      Number(
+        taxPrice ??
+        tax ??
+        0
+      );
+
+
+    const finalTotal =
+      Number(
+        totalPrice ??
+        total ??
+        0
+      );
+
+
+    // =================================================
+    // PAYMENT
+    // =================================================
+
+    const finalPaymentMethod =
+      paymentMethod ||
+      "COD";
+
+
+    // =================================================
+    // CREATE SHIPPING ADDRESS
+    // =================================================
+
+    const finalShippingAddress = {
+
+      fullName:
+        finalCustomerName,
+
+      email:
+        finalEmail,
+
+      phone:
+        finalPhone,
+
+      address:
+        finalAddress,
+
+      landmark:
+        finalLandmark,
+
+      city:
+        finalCity,
+
+      state:
+        finalState,
+
+      postalCode:
+        finalPincode,
+
+      country:
+        finalCountry,
+    };
+
+
+    // =================================================
+    // CREATE ORDER
+    // =================================================
+
+    const orderData = {
+
+      // -----------------------------------------------
+      // Customer
+      // -----------------------------------------------
+
+      customerName:
+        finalCustomerName,
+
+      fullName:
+        finalCustomerName,
+
+      email:
+        finalEmail,
+
+      phone:
+        finalPhone,
+
+      // -----------------------------------------------
+      // Address
+      // -----------------------------------------------
+
+      address:
+        finalAddress,
+
+      landmark:
+        finalLandmark,
+
+      city:
+        finalCity,
+
+      state:
+        finalState,
+
+      postalCode:
+        finalPincode,
+
+      pincode:
+        finalPincode,
+
+      country:
+        finalCountry,
+
+      shippingAddress:
+        finalShippingAddress,
+
+      // -----------------------------------------------
+      // Payment
+      // -----------------------------------------------
+
+      paymentMethod:
+        finalPaymentMethod,
+
+      // -----------------------------------------------
+      // Items
+      // -----------------------------------------------
+
+      orderItems:
+        finalItems,
+
+      items:
+        finalItems,
+
+      // -----------------------------------------------
+      // Prices
+      // -----------------------------------------------
+
+      itemsPrice:
+        finalSubtotal,
+
+      subtotal:
+        finalSubtotal,
+
+      shippingPrice:
+        finalShipping,
+
+      shipping:
+        finalShipping,
+
+      taxPrice:
+        finalTax,
+
+      tax:
+        finalTax,
+
+      totalPrice:
+        finalTotal,
+
+      total:
+        finalTotal,
+
+      // -----------------------------------------------
+      // Status
+      // -----------------------------------------------
+
+      orderStatus:
+        "Pending",
+
+      status:
+        "Pending",
+
+    };
+
+
+    // =================================================
+    // SAVE ORDER
+    // =================================================
+
+    const order =
+      new Order(orderData);
+
+
+    const createdOrder =
+      await order.save();
+
+
+    console.log("====================================");
+    console.log("✅ ORDER CREATED");
+    console.log("ORDER ID:", createdOrder._id);
+    console.log(
+      "CUSTOMER:",
+      finalCustomerName
+    );
+    console.log(
+      "EMAIL:",
+      finalEmail
+    );
+    console.log(
+      "PHONE:",
+      finalPhone
+    );
+    console.log(
+      "TOTAL:",
+      finalTotal
+    );
+    console.log("====================================");
+
+
+    // =================================================
+    // RESPONSE
+    // =================================================
+
+    res.status(201).json(
+      createdOrder
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "===================================="
+    );
+
+    console.error(
+      "❌ CREATE ORDER ERROR"
+    );
+
+    console.error(error);
+
+    console.error(
+      "===================================="
+    );
+
+
+    res.status(500).json({
+
+      success: false,
+
+      message:
+        "Failed to create order",
+
+      error:
+        error.message,
+
+    });
+
+  }
+};
+
+
+// =====================================================
+// UPDATE ORDER STATUS
+// PUT /api/orders/:id/status
+// =====================================================
+
+export const updateOrderStatus = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const {
+      status
+    } = req.body;
+
+
+    if (!status) {
+
+      return res.status(400).json({
+        success: false,
+        message: "Status is required",
+      });
+
+    }
+
+
+    const order =
+      await Order.findById(
+        req.params.id
+      );
+
+
+    if (!order) {
+
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+
+    }
+
+
+    // Support both fields
+    order.orderStatus =
+      status;
+
+    order.status =
+      status;
+
+
+    const updatedOrder =
+      await order.save();
+
+
+    console.log(
+      `✅ Order ${order._id} status updated to ${status}`
+    );
+
+
+    res.status(200).json(
+      updatedOrder
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "❌ UPDATE ORDER STATUS ERROR:",
+      error
+    );
+
+
+    res.status(500).json({
+
+      success: false,
+
+      message:
+        "Failed to update order status",
+
+      error:
+        error.message,
+
+    });
+
   }
 };

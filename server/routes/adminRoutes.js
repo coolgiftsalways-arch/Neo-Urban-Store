@@ -1,30 +1,30 @@
 import express from "express";
 
 import {
-  registerUser,
-  loginUser,
-} from "../controllers/authController.js";
+  getAllCustomers,
+  getCustomerCount,
+} from "../controllers/adminController.js";
 
 const router = express.Router();
 
 
 /* =========================================================
-   REGISTER
+   CUSTOMERS
 ========================================================= */
 
-router.post(
-  "/register",
-  registerUser
+router.get(
+  "/customers",
+  getAllCustomers
 );
 
 
 /* =========================================================
-   LOGIN
+   CUSTOMER COUNT
 ========================================================= */
 
-router.post(
-  "/login",
-  loginUser
+router.get(
+  "/customers/count",
+  getCustomerCount
 );
 
 

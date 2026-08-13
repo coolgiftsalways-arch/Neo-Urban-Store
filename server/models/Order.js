@@ -1,41 +1,92 @@
 import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
+  {
+    customerName: {
+      type: String,
+      default: "Guest Customer",
+    },
 
-{
-  customerName: String,
-  phone: String,
-  email: String,
+    phone: {
+      type: String,
+      default: "",
+    },
 
-  address: String,
-  landmark: String,
-  city: String,
-  state: String,
-  pincode: String,
+    email: {
+      type: String,
+      default: "",
+    },
 
-  paymentMethod: String,
+    address: {
+      type: String,
+      default: "",
+    },
 
-  items: Array,
+    landmark: {
+      type: String,
+      default: "",
+    },
 
-  subtotal: Number,
-  shipping: Number,
-  tax: Number,
-  total: Number,
+    city: {
+      type: String,
+      default: "",
+    },
 
-  orderStatus: {
-    type: String,
-    default: "Pending",
+    state: {
+      type: String,
+      default: "",
+    },
+
+    pincode: {
+      type: String,
+      default: "",
+    },
+
+    paymentMethod: {
+      type: String,
+      default: "cod",
+    },
+
+    items: {
+      type: Array,
+      default: [],
+    },
+
+    subtotal: {
+      type: Number,
+      default: 0,
+    },
+
+    shipping: {
+      type: Number,
+      default: 0,
+    },
+
+    tax: {
+      type: Number,
+      default: 0,
+    },
+
+    total: {
+      type: Number,
+      default: 0,
+    },
+
+    orderStatus: {
+      type: String,
+      default: "Placed",
+    },
   },
 
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-}
-
+  {
+    timestamps: true,
+  }
 );
 
-export default mongoose.model(
-  "Order",
-  orderSchema
-);
+const Order =
+  mongoose.model(
+    "Order",
+    orderSchema
+  );
+
+export default Order;

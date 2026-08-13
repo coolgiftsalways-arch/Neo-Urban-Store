@@ -2,7 +2,10 @@ import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
   {
-    // Unique product ID used by your frontend
+    // ==========================================
+    // UNIQUE PRODUCT ID
+    // ==========================================
+
     id: {
       type: String,
       required: true,
@@ -10,46 +13,67 @@ const productSchema = new mongoose.Schema(
       index: true,
     },
 
-    // Product name
+    // ==========================================
+    // PRODUCT NAME
+    // ==========================================
+
     name: {
       type: String,
       required: true,
       trim: true,
     },
 
-    // Energy, Soft Drinks, Juice, Water, etc.
+    // ==========================================
+    // CATEGORY
+    // ==========================================
+
     category: {
       type: String,
       default: "Energy Drink",
       trim: true,
     },
 
-    // Price imported from the product data
+    // ==========================================
+    // PRICE
+    // ==========================================
+
     price: {
       type: Number,
       default: null,
     },
 
-    // Main product image
+    // ==========================================
+    // MAIN PRODUCT IMAGE
+    // ==========================================
+
     image: {
       type: String,
       required: true,
     },
 
-    // All images belonging to this product
+    // ==========================================
+    // ALL PRODUCT IMAGES
+    // ==========================================
+
     images: {
       type: [String],
       default: [],
     },
 
-    // Product description
+    // ==========================================
+    // DESCRIPTION
+    // ==========================================
+
     description: {
       type: String,
       default: "",
       trim: true,
     },
 
-    // Product rating
+    // ==========================================
+    // RATING
+    // ==========================================
+
     rating: {
       type: Number,
       default: 4.9,
@@ -57,21 +81,30 @@ const productSchema = new mongoose.Schema(
       max: 5,
     },
 
-    // Number of reviews
+    // ==========================================
+    // REVIEWS
+    // ==========================================
+
     reviews: {
       type: Number,
       default: 0,
       min: 0,
     },
 
-    // Available stock
+    // ==========================================
+    // STOCK
+    // ==========================================
+
     stock: {
       type: Number,
       default: 100,
       min: 0,
     },
 
-    // Original folder name from the ZIP
+    // ==========================================
+    // ORIGINAL SOURCE FOLDER
+    // ==========================================
+
     sourceFolder: {
       type: String,
       default: "",
