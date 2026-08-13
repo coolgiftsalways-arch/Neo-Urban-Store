@@ -1,6 +1,17 @@
 import Order from "../models/Order.js";
 
 // =====================================================
+// PLACEHOLDER NAMES WE NEVER WANT TO DISPLAY
+// =====================================================
+
+const invalidNames = [
+  "guest customer",
+  "unknown customer",
+  "customer",
+  "guest",
+];
+
+// =====================================================
 // GET ALL CUSTOMERS
 // GET /api/orders/customers/all
 // =====================================================
@@ -12,139 +23,316 @@ export const getCustomers = async (req, res) => {
     console.log("Fetching customers from orders...");
     console.log("====================================");
 
-    // Get all orders
+    // ===================================================
+    // GET ALL ORDERS
+    // ===================================================
+
     const orders = await Order.find({})
       .sort({ createdAt: -1 })
       .lean();
 
     console.log(`📦 Orders found: ${orders.length}`);
 
-    // =====================================================
+    // ===================================================
     // GROUP ORDERS BY CUSTOMER
-    // =====================================================
+    // ===================================================
 
     const customersMap = new Map();
 
     for (const order of orders) {
-      // ---------------------------------------------------
-      // CUSTOMER NAME
-      // ---------------------------------------------------
 
-      const name =
+      // =================================================
+      // CUSTOMER NAME
+      // =================================================
+
+      let name =
         order.customerName ||
         order.fullName ||
         order.shippingAddress?.fullName ||
-        "Unknown Customer";
+        "";
 
-      // ---------------------------------------------------
+      name = String(name).trim();
+
+      // =================================================
+      // REMOVE PLACEHOLDER CUSTOMER NAMES
+      // =================================================
+
+      if (
+        !name ||
+        invalidNames.includes(
+          name.toLowerCase()
+        )
+      ) {
+        name = "";
+      }
+
+      // =================================================
       // EMAIL
-      // ---------------------------------------------------
+      // =================================================
 
-      const email =
+      let email =
         order.email ||
         order.shippingAddress?.email ||
         "";
 
-      // ---------------------------------------------------
-      // PHONE
-      // ---------------------------------------------------
+      email = String(email).trim();
 
-      const phone =
+      // =================================================
+      // PHONE
+      // =================================================
+
+      let phone =
         order.phone ||
         order.phoneNumber ||
         order.shippingAddress?.phone ||
         "";
 
-      // ---------------------------------------------------
-      // CREATE UNIQUE CUSTOMER KEY
-      // ---------------------------------------------------
+      phone = String(phone).trim();
 
-      let customerKey;
+      // =================================================
+      // ADDRESS
+      // =================================================
 
-      if (email.trim()) {
-        customerKey = `email:${email
-          .trim()
-          .toLowerCase()}`;
-      } else if (phone.trim()) {
-        customerKey = `phone:${phone.trim()}`;
+      const address =
+        order.address ||
+        order.shippingAddress?.address ||
+        "";
+
+      // =================================================
+      // LANDMARK
+      // =================================================
+
+      const landmark =
+        order.landmark ||
+        order.shippingAddress?.landmark ||
+        "";
+
+      // =================================================
+      // CITY
+      // =================================================
+
+      const city =
+        order.city ||
+        order.shippingAddress?.city ||
+        "";
+
+      // =================================================
+      // STATE
+      // =================================================
+
+      const state =
+        order.state ||
+        order.shippingAddress?.state ||
+        "";
+
+      // =================================================
+      // PINCODE
+      // =================================================
+
+      const pincode =
+        order.pincode ||
+        order.postalCode ||
+        order.shippingAddress?.pincode ||
+        order.shippingAddress?.postalCode ||
+        "";
+
+      // =================================================
+      // COUNTRY
+      // =================================================
+
+      const country =
+        order.country ||
+        order.shippingAddress?.country ||
+        "India";
+
+      // =================================================
+      // CREATE CUSTOMER KEY
+      // =================================================
+
+      let customerKey = "";
+
+      if (email) {
+
+        customerKey =
+          `email:${email.toLowerCase()}`;
+
+      } else if (phone) {
+
+        customerKey =
+          `phone:${phone}`;
+
+      } else if (name) {
+
+        customerKey =
+          `name:${name.toLowerCase()}`;
+
       } else {
-        customerKey = `name:${name
-          .trim()
-          .toLowerCase()}`;
+
+        // No usable customer information
+        continue;
       }
 
-      // =====================================================
+      // =================================================
       // CREATE CUSTOMER IF NOT EXISTS
-      // =====================================================
+      // =================================================
 
       if (!customersMap.has(customerKey)) {
-        customersMap.set(customerKey, {
-          _id: customerKey,
 
-          name: name,
+        customersMap.set(
+          customerKey,
+          {
+            _id: customerKey,
 
-          email: email || "N/A",
+            name: name,
 
-          phone: phone || "N/A",
+            email:
+              email || "N/A",
 
-          ordersCount: 0,
+            phone:
+              phone || "N/A",
 
-          totalSpent: 0,
+            ordersCount: 0,
 
-          // Address information
-          address:
-            order.address ||
-            order.shippingAddress?.address ||
-            "",
+            totalSpent: 0,
 
-          landmark:
-            order.landmark ||
-            order.shippingAddress?.landmark ||
-            "",
+            address: address,
 
-          city:
-            order.city ||
-            order.shippingAddress?.city ||
-            "",
+            landmark: landmark,
 
-          state:
-            order.state ||
-            order.shippingAddress?.state ||
-            "",
+            city: city,
 
-          pincode:
-            order.pincode ||
-            order.postalCode ||
-            order.shippingAddress?.pincode ||
-            order.shippingAddress?.postalCode ||
-            "",
+            state: state,
 
-          country:
-            order.country ||
-            order.shippingAddress?.country ||
-            "India",
+            pincode: pincode,
 
-          lastOrderDate:
-            order.createdAt || null,
-        });
+            country: country,
+
+            lastOrderDate:
+              order.createdAt || null,
+          }
+        );
       }
 
-      // =====================================================
-      // GET EXISTING CUSTOMER
-      // =====================================================
+      // =================================================
+      // GET CUSTOMER
+      // =================================================
 
       const customer =
         customersMap.get(customerKey);
 
-      // =====================================================
-      // ADD THIS ORDER TO CUSTOMER
-      // =====================================================
+      // =================================================
+      // IMPORTANT:
+      // IF CURRENT CUSTOMER HAS NO REAL NAME,
+      // BUT THIS ORDER HAS ONE,
+      // USE THE REAL NAME.
+      // =================================================
+
+      if (
+        !customer.name &&
+        name
+      ) {
+        customer.name = name;
+      }
+
+      // =================================================
+      // PHONE
+      // =================================================
+
+      if (
+        (!customer.phone ||
+          customer.phone === "N/A") &&
+        phone
+      ) {
+        customer.phone = phone;
+      }
+
+      // =================================================
+      // EMAIL
+      // =================================================
+
+      if (
+        (!customer.email ||
+          customer.email === "N/A") &&
+        email
+      ) {
+        customer.email = email;
+      }
+
+      // =================================================
+      // ADDRESS
+      // =================================================
+
+      if (
+        !customer.address &&
+        address
+      ) {
+        customer.address = address;
+      }
+
+      // =================================================
+      // LANDMARK
+      // =================================================
+
+      if (
+        !customer.landmark &&
+        landmark
+      ) {
+        customer.landmark = landmark;
+      }
+
+      // =================================================
+      // CITY
+      // =================================================
+
+      if (
+        !customer.city &&
+        city
+      ) {
+        customer.city = city;
+      }
+
+      // =================================================
+      // STATE
+      // =================================================
+
+      if (
+        !customer.state &&
+        state
+      ) {
+        customer.state = state;
+      }
+
+      // =================================================
+      // PINCODE
+      // =================================================
+
+      if (
+        !customer.pincode &&
+        pincode
+      ) {
+        customer.pincode = pincode;
+      }
+
+      // =================================================
+      // COUNTRY
+      // =================================================
+
+      if (
+        !customer.country &&
+        country
+      ) {
+        customer.country = country;
+      }
+
+      // =================================================
+      // ADD ORDER COUNT
+      // =================================================
 
       customer.ordersCount += 1;
 
-      // ---------------------------------------------------
+      // =================================================
       // ADD ORDER TOTAL
-      // ---------------------------------------------------
+      // =================================================
 
       const orderTotal = Number(
         order.total ??
@@ -154,15 +342,17 @@ export const getCustomers = async (req, res) => {
 
       customer.totalSpent += orderTotal;
 
-      // ---------------------------------------------------
+      // =================================================
       // UPDATE LAST ORDER DATE
-      // ---------------------------------------------------
+      // =================================================
 
       if (
         order.createdAt &&
-        (!customer.lastOrderDate ||
+        (
+          !customer.lastOrderDate ||
           new Date(order.createdAt) >
-            new Date(customer.lastOrderDate))
+            new Date(customer.lastOrderDate)
+        )
       ) {
         customer.lastOrderDate =
           order.createdAt;
@@ -179,43 +369,104 @@ export const getCustomers = async (req, res) => {
       );
 
     // =====================================================
-    // SORT CUSTOMERS
-    // Latest customers first
+    // FINAL CLEANUP
+    // =====================================================
+
+    customers.forEach((customer) => {
+
+      // Never return placeholder names
+
+      if (
+        !customer.name ||
+        invalidNames.includes(
+          String(customer.name)
+            .trim()
+            .toLowerCase()
+        )
+      ) {
+
+        customer.name = "N/A";
+      }
+
+    });
+
+    // =====================================================
+    // SORT BY LATEST ORDER
     // =====================================================
 
     customers.sort((a, b) => {
+
       return (
-        new Date(b.lastOrderDate || 0) -
-        new Date(a.lastOrderDate || 0)
+        new Date(
+          b.lastOrderDate || 0
+        ) -
+        new Date(
+          a.lastOrderDate || 0
+        )
       );
+
     });
+
+    // =====================================================
+    // DEBUG
+    // =====================================================
 
     console.log(
       `👥 Customers found: ${customers.length}`
     );
 
     console.log(
-      "Customer data:",
-      customers
+      "===================================="
+    );
+
+    console.log(
+      "CUSTOMERS:"
+    );
+
+    console.log(
+      JSON.stringify(
+        customers,
+        null,
+        2
+      )
+    );
+
+    console.log(
+      "===================================="
     );
 
     // =====================================================
-    // RESPONSE
+    // SEND RESPONSE
     // =====================================================
 
-    res.status(200).json(customers);
+    res.status(200).json(
+      customers
+    );
 
   } catch (error) {
+
+    // =====================================================
+    // ERROR
+    // =====================================================
+
     console.error(
       "❌ GET CUSTOMERS ERROR:"
     );
 
-    console.error(error);
+    console.error(
+      error
+    );
 
     res.status(500).json({
+
       success: false,
-      message: "Failed to fetch customers",
-      error: error.message,
+
+      message:
+        "Failed to fetch customers",
+
+      error:
+        error.message,
+
     });
   }
 };
