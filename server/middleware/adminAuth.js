@@ -7,7 +7,7 @@ const adminAuth = (req, res, next) => {
     if (!authHeader) {
       return res.status(401).json({
         success: false,
-        message: "Admin authentication required",
+        message: "Access denied. Please login as admin.",
       });
     }
 
@@ -18,7 +18,7 @@ const adminAuth = (req, res, next) => {
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "No authentication token provided",
+        message: "No authentication token provided.",
       });
     }
 
@@ -30,7 +30,7 @@ const adminAuth = (req, res, next) => {
     if (decoded.role !== "admin") {
       return res.status(403).json({
         success: false,
-        message: "Admin access denied",
+        message: "Admin access required.",
       });
     }
 
@@ -38,11 +38,11 @@ const adminAuth = (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error("Admin auth error:", error);
+    console.error("❌ Admin authentication error:", error);
 
     return res.status(401).json({
       success: false,
-      message: "Invalid or expired admin token",
+      message: "Invalid or expired admin token.",
     });
   }
 };
