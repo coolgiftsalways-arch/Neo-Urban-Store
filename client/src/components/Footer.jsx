@@ -1,9 +1,6 @@
 import {
   Mail,
   Phone,
-  MapPin,
-  MessageCircle,
-  Send,
 } from "lucide-react";
 
 import "../styles/Footer.css";
@@ -24,6 +21,7 @@ export default function Footer() {
       ===================================================== */}
 
       <div className="footer-container">
+
 
         {/* ===================================================
             BRAND
@@ -49,7 +47,9 @@ export default function Footer() {
 
         <div className="footer-links">
 
-          <h3>Shop</h3>
+          <h3>
+            Shop
+          </h3>
 
           <a href="/shop">
             Energy Drinks
@@ -59,49 +59,40 @@ export default function Footer() {
             Soft Drinks
           </a>
 
-         
-
-          
-
         </div>
 
 
         {/* ===================================================
-            COMPANY
+            PAGE
         =================================================== */}
 
         <div className="footer-links">
 
-          <h3>page</h3>
+          <h3>
+            Page
+          </h3>
 
-          <a href="#">
-            home
+          <a href="/">
+            Home
           </a>
 
-          <a href="#">
-            shop
+          <a href="/shop">
+            Shop
           </a>
 
-          <a href="#">
+          <a href="/#bestSellers">
             Best Seller
           </a>
 
-          <a href="#">
-            about
+          <a href="/#about">
+            About
           </a>
 
-          <a href="#">
+          <a href="/track-order">
             Track Order
           </a>
 
         </div>
-
-
-        {/* ===================================================
-            SUPPORT
-        =================================================== */}
-
-        
 
 
         {/* ===================================================
@@ -110,16 +101,18 @@ export default function Footer() {
 
         <div className="footer-contact">
 
-          <h3>Contact Us</h3>
+          <h3>
+            Contact Us
+          </h3>
 
           <p>
             Have questions? We're here to help.
           </p>
 
 
-          <div className="contact-icons">
+          {/* EMAIL + PHONE */}
 
-            {/* EMAIL */}
+          <div className="contact-icons">
 
             <a
               href="mailto:admin@neourbanstore.in"
@@ -130,8 +123,6 @@ export default function Footer() {
             </a>
 
 
-            {/* PHONE */}
-
             <a
               href="tel:+919999999999"
               className="contact-icon"
@@ -140,40 +131,32 @@ export default function Footer() {
               <Phone />
             </a>
 
-
-            {/* LOCATION */}
-
-            <a
-              href="#"
-              className="contact-icon"
-              title="Our Location"
-            >
-              <MapPin />
-            </a>
-
-
-            {/* WHATSAPP / CHAT */}
-
-            <a
-              href="#"
-              className="contact-icon"
-              title="Chat With Us"
-            >
-              <MessageCircle />
-            </a>
-
           </div>
 
         </div>
 
+
+        {/* ===================================================
+            ADDRESS
+        =================================================== */}
+
+        <div className="footer-address">
+
+          <h3>
+            Address
+          </h3>
+
+          <p>
+            Mumbai,
+            <br />
+            Maharashtra,
+            <br />
+            India
+          </p>
+
+        </div>
+
       </div>
-
-
-      {/* =====================================================
-          NEWSLETTER
-      ===================================================== */}
-
-     
 
 
       {/* =====================================================

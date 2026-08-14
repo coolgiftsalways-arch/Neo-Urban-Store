@@ -1,13 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { State, City } from "country-state-city";
 
 import {
   FaCreditCard,
   FaMoneyBillWave,
   FaCheckCircle,
-  FaChevronDown,
-  FaSearch,
   FaMapMarkerAlt,
 } from "react-icons/fa";
 
@@ -40,127 +37,7 @@ export default function Check() {
   });
 
   // =====================================================
-  // LOCATION SEARCH
-  // =====================================================
-
-  const [stateSearch, setStateSearch] = useState("");
-  const [citySearch, setCitySearch] = useState("");
-
-  const [selectedStateCode, setSelectedStateCode] =
-    useState("");
-
-  const [showStateDropdown, setShowStateDropdown] =
-    useState(false);
-
-  const [showCityDropdown, setShowCityDropdown] =
-    useState(false);
-
-  // =====================================================
-  // REFS
-  // =====================================================
-
-  const stateRef = useRef(null);
-  const cityRef = useRef(null);
-
-  // =====================================================
-  // ALL INDIAN STATES + UNION TERRITORIES
-  // =====================================================
-
-  const indianStates = useMemo(() => {
-    return State.getStatesOfCountry("IN");
-  }, []);
-
-  // =====================================================
-  // CITIES FOR SELECTED STATE
-  // =====================================================
-
-  const indianCities = useMemo(() => {
-    if (!selectedStateCode) {
-      return [];
-    }
-
-    return City.getCitiesOfState(
-      "IN",
-      selectedStateCode
-    );
-  }, [selectedStateCode]);
-
-  // =====================================================
-  // FILTER STATES
-  // =====================================================
-
-  const filteredStates = useMemo(() => {
-    const search = stateSearch
-      .toLowerCase()
-      .trim();
-
-    if (!search) {
-      return indianStates;
-    }
-
-    return indianStates.filter((state) =>
-      state.name
-        .toLowerCase()
-        .includes(search)
-    );
-  }, [indianStates, stateSearch]);
-
-  // =====================================================
-  // FILTER CITIES
-  // =====================================================
-
-  const filteredCities = useMemo(() => {
-    const search = citySearch
-      .toLowerCase()
-      .trim();
-
-    if (!search) {
-      return indianCities;
-    }
-
-    return indianCities.filter((city) =>
-      city.name
-        .toLowerCase()
-        .includes(search)
-    );
-  }, [indianCities, citySearch]);
-
-  // =====================================================
-  // CLOSE DROPDOWNS WHEN CLICKING OUTSIDE
-  // =====================================================
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        stateRef.current &&
-        !stateRef.current.contains(event.target)
-      ) {
-        setShowStateDropdown(false);
-      }
-
-      if (
-        cityRef.current &&
-        !cityRef.current.contains(event.target)
-      ) {
-        setShowCityDropdown(false);
-      }
-    };
-
-    document.addEventListener(
-      "mousedown",
-      handleClickOutside
-    );
-
-    return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside
-      );
-    };
-  }, []);
-
-  // =====================================================
-  // NORMAL INPUT CHANGE
+  // INPUT CHANGE
   // =====================================================
 
   const handleChange = (e) => {
@@ -170,86 +47,6 @@ export default function Check() {
       ...prev,
       [name]: value,
     }));
-  };
-
-  // =====================================================
-  // STATE SEARCH
-  // =====================================================
-
-  const handleStateChange = (e) => {
-    const value = e.target.value;
-
-    setStateSearch(value);
-
-    // Reset selected state because user is typing again
-    setSelectedStateCode("");
-
-    // State changed → city must reset
-    setCitySearch("");
-
-    setFormData((prev) => ({
-      ...prev,
-      state: value,
-      city: "",
-    }));
-
-    setShowStateDropdown(true);
-    setShowCityDropdown(false);
-  };
-
-  // =====================================================
-  // STATE SELECT
-  // =====================================================
-
-  const handleStateSelect = (state) => {
-    setStateSearch(state.name);
-
-    setSelectedStateCode(state.isoCode);
-
-    setFormData((prev) => ({
-      ...prev,
-      state: state.name,
-      city: "",
-    }));
-
-    setCitySearch("");
-
-    setShowStateDropdown(false);
-
-    // Automatically allow city selection
-    setShowCityDropdown(true);
-  };
-
-  // =====================================================
-  // CITY SEARCH
-  // =====================================================
-
-  const handleCityChange = (e) => {
-    const value = e.target.value;
-
-    setCitySearch(value);
-
-    setFormData((prev) => ({
-      ...prev,
-      city: value,
-    }));
-
-    setShowCityDropdown(true);
-  };
-
-  // =====================================================
-  // CITY SELECT
-  // =====================================================
-
-  const handleCitySelect = (city) => {
-    setCitySearch(city.name);
-
-    setFormData((prev) => ({
-      ...prev,
-      city: city.name,
-    }));
-
-    setShowCityDropdown(false);
   };
 
   // =====================================================
@@ -277,7 +74,6 @@ export default function Check() {
     const requiredFields = [
       "fullName",
       "phoneNumber",
-      // "altPhoneNumber",
       "email",
       "address",
       "landmark",
@@ -293,36 +89,7 @@ export default function Check() {
     );
 
     if (hasEmptyField) {
-      alert("Please fill all fields.");
-      return;
-    }
-
-    // ===================================================
-    // STATE VALIDATION
-    // ===================================================
-
-    if (!selectedStateCode) {
-      alert(
-        "Please select your state from the suggestions."
-      );
-      return;
-    }
-
-    // ===================================================
-    // CITY VALIDATION
-    // ===================================================
-
-    const selectedCityExists =
-      indianCities.some(
-        (city) =>
-          city.name.toLowerCase() ===
-          formData.city.toLowerCase()
-      );
-
-    if (!selectedCityExists) {
-      alert(
-        "Please select your city from the suggestions."
-      );
+      alert("Please fill all required fields.");
       return;
     }
 
@@ -351,9 +118,7 @@ export default function Check() {
       // CASH ON DELIVERY
       // =================================================
 
-      if (
-        formData.paymentMethod === "cod"
-      ) {
+      if (formData.paymentMethod === "cod") {
         const response = await fetch(
           "http://localhost:5000/api/orders",
           {
@@ -372,7 +137,7 @@ export default function Check() {
         if (!response.ok) {
           throw new Error(
             data.message ||
-              "Failed to place order"
+              "Failed to place order."
           );
         }
 
@@ -388,7 +153,7 @@ export default function Check() {
         }
 
         // =================================================
-        // GO TO SUCCESS PAGE
+        // SUCCESS
         // =================================================
 
         navigate("/order-success");
@@ -400,24 +165,20 @@ export default function Check() {
       // RAZORPAY
       // =================================================
 
-      if (
-        formData.paymentMethod ===
-        "razorpay"
-      ) {
+      if (formData.paymentMethod === "razorpay") {
         navigate("/payment");
-
         return;
       }
 
     } catch (error) {
       console.error(
-        "Order placement error:",
+        "❌ Order error:",
         error
       );
 
       alert(
         error.message ||
-          "Something went wrong while placing your order."
+          "Something went wrong."
       );
 
     } finally {
@@ -440,7 +201,9 @@ export default function Check() {
 
         <div className="checkin-header">
 
-          <h2>GUEST CHECKOUT</h2>
+          <h2>
+            GUEST CHECKOUT
+          </h2>
 
           <p>
             Please enter your delivery details
@@ -454,8 +217,8 @@ export default function Check() {
         ================================================= */}
 
         <form
-          onSubmit={handleSubmit}
           className="checkin-form"
+          onSubmit={handleSubmit}
         >
 
           {/* =================================================
@@ -473,7 +236,7 @@ export default function Check() {
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
-              placeholder="John Doe"
+              placeholder="Enter your name"
               autoComplete="name"
             />
 
@@ -495,8 +258,9 @@ export default function Check() {
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleChange}
-              placeholder="+91 9876543210"
+              placeholder="Enter your phone number"
               autoComplete="tel"
+              inputMode="tel"
             />
 
           </div>
@@ -509,7 +273,7 @@ export default function Check() {
           <div className="form-group">
 
             <label>
-              Alternate Phone 
+              Alternate Phone
             </label>
 
             <input
@@ -517,7 +281,8 @@ export default function Check() {
               name="altPhoneNumber"
               value={formData.altPhoneNumber}
               onChange={handleChange}
-              placeholder="Alternate Number"
+              placeholder="Enter alternate number"
+              inputMode="tel"
             />
 
           </div>
@@ -538,7 +303,7 @@ export default function Check() {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="example@gmail.com"
+              placeholder="Enter your email"
               autoComplete="email"
             />
 
@@ -560,7 +325,7 @@ export default function Check() {
               name="address"
               value={formData.address}
               onChange={handleChange}
-              placeholder="House No, Street, Area"
+              placeholder="Enter your full address"
               autoComplete="street-address"
             />
 
@@ -582,7 +347,7 @@ export default function Check() {
               name="landmark"
               value={formData.landmark}
               onChange={handleChange}
-              placeholder="Near Metro / Park"
+              placeholder="Enter nearby landmark"
             />
 
           </div>
@@ -590,227 +355,60 @@ export default function Check() {
 
           {/* =================================================
               STATE
+              NORMAL INPUT
+              NO DROPDOWN
           ================================================= */}
 
-          <div
-            className="form-group location-group"
-            ref={stateRef}
-          >
+          <div className="form-group">
 
             <label>
               State *
             </label>
 
-            <div className="location-input-wrapper">
+            <div className="normal-location-input">
 
-              <FaMapMarkerAlt className="location-icon" />
+              <FaMapMarkerAlt />
 
               <input
                 type="text"
                 name="state"
-                value={stateSearch}
-                onChange={handleStateChange}
-                onFocus={() =>
-                  setShowStateDropdown(true)
-                }
-                placeholder="Search your state"
-                autoComplete="off"
-              />
-
-              <FaChevronDown
-                className={`dropdown-arrow ${
-                  showStateDropdown
-                    ? "rotate"
-                    : ""
-                }`}
+                value={formData.state}
+                onChange={handleChange}
+                placeholder="Enter your state"
+                autoComplete="address-level1"
               />
 
             </div>
-
-
-            {/* =================================================
-                STATE DROPDOWN
-            ================================================= */}
-
-            {showStateDropdown && (
-              <div className="location-dropdown">
-
-                <div className="dropdown-header">
-                  <FaSearch />
-
-                  <span>
-                    Select your state
-                  </span>
-                </div>
-
-                <div className="dropdown-list">
-
-                  {filteredStates.length > 0 ? (
-
-                    filteredStates.map(
-                      (state) => (
-                        <button
-                          type="button"
-                          className={`location-option ${
-                            formData.state ===
-                            state.name
-                              ? "selected"
-                              : ""
-                          }`}
-                          key={state.isoCode}
-                          onClick={() =>
-                            handleStateSelect(
-                              state
-                            )
-                          }
-                        >
-                          <span>
-                            {state.name}
-                          </span>
-
-                          {formData.state ===
-                            state.name && (
-                            <FaCheckCircle />
-                          )}
-                        </button>
-                      )
-                    )
-
-                  ) : (
-
-                    <div className="location-empty">
-                      No state found
-                    </div>
-
-                  )}
-
-                </div>
-
-              </div>
-            )}
 
           </div>
 
 
           {/* =================================================
               CITY
+              NORMAL INPUT
+              NO DROPDOWN
           ================================================= */}
 
-          <div
-            className="form-group location-group"
-            ref={cityRef}
-          >
+          <div className="form-group">
 
             <label>
               City *
             </label>
 
-            <div
-              className={`location-input-wrapper ${
-                !selectedStateCode
-                  ? "disabled"
-                  : ""
-              }`}
-            >
+            <div className="normal-location-input">
 
-              <FaMapMarkerAlt className="location-icon" />
+              <FaMapMarkerAlt />
 
               <input
                 type="text"
                 name="city"
-                value={citySearch}
-                onChange={handleCityChange}
-                onFocus={() => {
-                  if (selectedStateCode) {
-                    setShowCityDropdown(true);
-                  }
-                }}
-                placeholder={
-                  selectedStateCode
-                    ? "Search your city"
-                    : "Select state first"
-                }
-                autoComplete="off"
-                disabled={
-                  !selectedStateCode
-                }
-              />
-
-              <FaChevronDown
-                className={`dropdown-arrow ${
-                  showCityDropdown
-                    ? "rotate"
-                    : ""
-                }`}
+                value={formData.city}
+                onChange={handleChange}
+                placeholder="Enter your city"
+                autoComplete="address-level2"
               />
 
             </div>
-
-
-            {/* =================================================
-                CITY DROPDOWN
-            ================================================= */}
-
-            {showCityDropdown &&
-              selectedStateCode && (
-                <div className="location-dropdown">
-
-                  <div className="dropdown-header">
-                    <FaSearch />
-
-                    <span>
-                      Select your city
-                    </span>
-                  </div>
-
-                  <div className="dropdown-list">
-
-                    {filteredCities.length >
-                    0 ? (
-
-                      filteredCities.map(
-                        (city) => (
-                          <button
-                            type="button"
-                            className={`location-option ${
-                              formData.city ===
-                              city.name
-                                ? "selected"
-                                : ""
-                            }`}
-                            key={`${city.id}-${city.name}`}
-                            onClick={() =>
-                              handleCitySelect(
-                                city
-                              )
-                            }
-                          >
-
-                            <span>
-                              {city.name}
-                            </span>
-
-                            {formData.city ===
-                              city.name && (
-                              <FaCheckCircle />
-                            )}
-
-                          </button>
-                        )
-                      )
-
-                    ) : (
-
-                      <div className="location-empty">
-                        No city found
-                      </div>
-
-                    )}
-
-                  </div>
-
-                </div>
-              )}
 
           </div>
 
@@ -830,8 +428,8 @@ export default function Check() {
               name="pincode"
               value={formData.pincode}
               onChange={handleChange}
-              placeholder="400001"
-              maxLength="6"
+              placeholder="Enter your pincode"
+              maxLength={6}
               inputMode="numeric"
               autoComplete="postal-code"
             />
@@ -880,8 +478,11 @@ export default function Check() {
               >
 
                 <div className="payment-icon">
+
                   <FaCreditCard />
+
                 </div>
+
 
                 <div className="payment-info">
 
@@ -890,11 +491,12 @@ export default function Check() {
                   </strong>
 
                   <span>
-                    UPI, Cards, Net Banking &
-                    Wallets
+                    UPI, Cards, Net Banking
+                    & Wallets
                   </span>
 
                 </div>
+
 
                 <div className="payment-check">
 
@@ -928,8 +530,11 @@ export default function Check() {
               >
 
                 <div className="payment-icon cod-icon">
+
                   <FaMoneyBillWave />
+
                 </div>
+
 
                 <div className="payment-info">
 
@@ -942,6 +547,7 @@ export default function Check() {
                   </span>
 
                 </div>
+
 
                 <div className="payment-check">
 
