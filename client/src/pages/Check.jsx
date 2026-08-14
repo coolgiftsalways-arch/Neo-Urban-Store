@@ -20,26 +20,21 @@ const API_URL =
   import.meta.env.VITE_API_URL ||
   "http://localhost:5000";
 
-
 // =====================================================
 // CHECKOUT
 // =====================================================
 
 export default function Check() {
-
   const navigate = useNavigate();
-
 
   // =====================================================
   // LOADING
   // =====================================================
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [cartLoading, setCartLoading] =
     useState(true);
-
 
   // =====================================================
   // CART
@@ -48,47 +43,31 @@ export default function Check() {
   const [cartItems, setCartItems] =
     useState([]);
 
-
   // =====================================================
   // FORM DATA
   // =====================================================
 
   const [formData, setFormData] =
     useState({
-
       fullName: "",
-
       phoneNumber: "",
-
       altPhoneNumber: "",
-
       email: "",
-
       address: "",
-
       landmark: "",
-
       city: "",
-
       state: "",
-
       pincode: "",
-
       paymentMethod: "razorpay",
-
     });
-
 
   // =====================================================
   // FETCH CART
   // =====================================================
 
   useEffect(() => {
-
     const fetchCart = async () => {
-
       try {
-
         setCartLoading(true);
 
         const response =
@@ -96,89 +75,49 @@ export default function Check() {
             `${API_URL}/api/cart`
           );
 
-
         const items =
           Array.isArray(response.data)
             ? response.data
             : [];
 
-
         console.log(
-          "CHECKOUT CART:",
+          "🛒 CHECKOUT CART:",
           items
         );
 
-
-        // =================================================
-        // DEBUG PRODUCT IDs
-        // =================================================
-
-        items.forEach((item, index) => {
-
-          console.log(
-            `🛒 CART ITEM ${index + 1}:`,
-            {
-              id: item.id,
-              productId: item.productId,
-              _id: item._id,
-              name: item.name,
-              quantity: item.quantity,
-            }
-          );
-
-        });
-
-
         setCartItems(items);
 
-
       } catch (error) {
-
         console.error(
           "❌ CHECKOUT CART ERROR:",
           error
         );
 
-
         setCartItems([]);
 
-
       } finally {
-
         setCartLoading(false);
-
       }
-
     };
 
-
     fetchCart();
-
   }, []);
-
 
   // =====================================================
   // INPUT CHANGE
   // =====================================================
 
   const handleChange = (e) => {
-
     const {
       name,
       value,
     } = e.target;
 
-
     setFormData((prev) => ({
-
       ...prev,
-
       [name]: value,
-
     }));
-
   };
-
 
   // =====================================================
   // PAYMENT METHOD
@@ -186,17 +125,11 @@ export default function Check() {
 
   const handlePaymentChange =
     (method) => {
-
       setFormData((prev) => ({
-
         ...prev,
-
         paymentMethod: method,
-
       }));
-
     };
-
 
   // =====================================================
   // CART CALCULATIONS
@@ -205,137 +138,140 @@ export default function Check() {
   const subtotal =
     cartItems.reduce(
       (total, item) =>
-
         total +
         Number(item.price || 0) *
-        Number(item.quantity || 0),
-
+          Number(item.quantity || 0),
       0
     );
-
 
   const shipping =
     subtotal > 499
       ? 0
       : 40;
 
-
   const tax =
     Math.round(
       subtotal * 0.05
     );
-
 
   const total =
     subtotal +
     shipping +
     tax;
 
+  // =====================================================
+  // CLEAR CART
+  // =====================================================
+
+  const clearCart = async () => {
+    try {
+      console.log(
+        "🧹 Clearing entire cart..."
+      );
+
+      const response =
+        await axios.delete(
+          `${API_URL}/api/cart/clear`
+        );
+
+      console.log(
+        "✅ CART CLEARED:",
+        response.data
+      );
+
+      // Clear React state immediately
+      setCartItems([]);
+
+      return true;
+
+    } catch (error) {
+      console.error(
+        "❌ CLEAR CART ERROR:",
+        error
+      );
+
+      console.error(
+        "SERVER RESPONSE:",
+        error.response?.data
+      );
+
+      return false;
+    }
+  };
 
   // =====================================================
   // SUBMIT
   // =====================================================
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
-
 
     // ===================================================
     // CHECK CART
     // ===================================================
 
     if (cartLoading) {
-
       alert(
         "Please wait while your cart is loading."
       );
 
       return;
-
     }
 
-
     if (!cartItems.length) {
-
       alert(
         "Your cart is empty."
       );
 
       return;
-
     }
-
 
     // ===================================================
     // REQUIRED FIELDS
     // ===================================================
 
     const requiredFields = [
-
       "fullName",
-
       "phoneNumber",
-
       "email",
-
       "address",
-
       "landmark",
-
       "city",
-
       "state",
-
       "pincode",
-
     ];
-
 
     const hasEmptyField =
       requiredFields.some(
         (field) =>
-
           !formData[field] ||
           formData[field]
             .trim() === ""
-
       );
 
-
     if (hasEmptyField) {
-
       alert(
         "Please fill all required fields."
       );
 
       return;
-
     }
-
 
     // ===================================================
     // PAYMENT VALIDATION
     // ===================================================
 
-    if (
-      !formData.paymentMethod
-    ) {
-
+    if (!formData.paymentMethod) {
       alert(
         "Please select a payment method."
       );
 
       return;
-
     }
-
 
     setLoading(true);
 
-
     try {
-
 
       // =================================================
       // SAVE CHECKOUT DATA
@@ -346,113 +282,37 @@ export default function Check() {
         JSON.stringify(formData)
       );
 
-
       // =================================================
       // CREATE ORDER ITEMS
-      //
-      // IMPORTANT:
-      // productId is now included so the backend
-      // knows which MongoDB product to reduce.
       // =================================================
 
       const orderItems =
         cartItems.map(
-          (item) => {
+          (item) => ({
+            name:
+              item.name,
 
-            // ---------------------------------------------
-            // GET PRODUCT ID
-            // ---------------------------------------------
+            qty:
+              Number(
+                item.quantity || 1
+              ),
 
-            const productId =
-              item.productId ||
-              item.id ||
-              item._id;
-
-
-            // ---------------------------------------------
-            // DEBUG
-            // ---------------------------------------------
-
-            console.log(
-              "📦 PRODUCT ID:",
-              productId
-            );
-
-
-            // ---------------------------------------------
-            // RETURN ORDER ITEM
-            // ---------------------------------------------
-
-            return {
-
-              productId:
-                String(productId),
-
-              name:
-                item.name,
-
-              qty:
-                Number(
-                  item.quantity || 1
-                ),
-
-              price:
-                Number(
-                  item.price || 0
-                ),
-
-            };
-
-          }
+            price:
+              Number(
+                item.price || 0
+              ),
+          })
         );
-
-
-      // =================================================
-      // CHECK PRODUCT IDS
-      // =================================================
-
-      const missingProductId =
-        orderItems.some(
-          (item) =>
-            !item.productId ||
-            item.productId ===
-              "undefined" ||
-            item.productId ===
-              "null"
-        );
-
-
-      if (
-        missingProductId
-      ) {
-
-        console.error(
-          "❌ PRODUCT ID MISSING:",
-          orderItems
-        );
-
-
-        throw new Error(
-          "Product ID is missing from your cart. Please refresh your cart and try again."
-        );
-
-      }
-
 
       // =================================================
       // SAFETY CHECK
       // =================================================
 
-      if (
-        !orderItems.length
-      ) {
-
+      if (!orderItems.length) {
         throw new Error(
           "No products found in your cart."
         );
-
       }
-
 
       // =================================================
       // ORDER DATA
@@ -475,7 +335,6 @@ export default function Check() {
 
         phone:
           formData.phoneNumber,
-
 
         // -----------------------------------------------
         // ADDRESS
@@ -502,13 +361,11 @@ export default function Check() {
         country:
           "India",
 
-
         // -----------------------------------------------
         // SHIPPING ADDRESS
         // -----------------------------------------------
 
         shippingAddress: {
-
           fullName:
             formData.fullName,
 
@@ -533,14 +390,9 @@ export default function Check() {
           postalCode:
             formData.pincode,
 
-          pincode:
-            formData.pincode,
-
           country:
             "India",
-
         },
-
 
         // -----------------------------------------------
         // PRODUCTS
@@ -552,14 +404,12 @@ export default function Check() {
         items:
           orderItems,
 
-
         // -----------------------------------------------
         // PAYMENT
         // -----------------------------------------------
 
         paymentMethod:
           formData.paymentMethod,
-
 
         // -----------------------------------------------
         // PRICE
@@ -588,38 +438,25 @@ export default function Check() {
 
         total:
           total,
-
       };
-
-
-      // =================================================
-      // DEBUG ORDER DATA
-      // =================================================
 
       console.log(
         "================================"
       );
 
       console.log(
-        "📦 ORDER DATA:"
-      );
-
-      console.log(
+        "📦 ORDER DATA:",
         orderData
       );
 
       console.log(
-        "📦 ORDER ITEMS:"
-      );
-
-      console.log(
+        "📦 ORDER ITEMS:",
         orderItems
       );
 
       console.log(
         "================================"
       );
-
 
       // =================================================
       // CASH ON DELIVERY
@@ -630,48 +467,85 @@ export default function Check() {
         "cod"
       ) {
 
+        console.log(
+          "💵 COD ORDER STARTED..."
+        );
+
+        // -----------------------------------------------
+        // CREATE ORDER
+        // -----------------------------------------------
+
         const response =
           await axios.post(
             `${API_URL}/api/orders`,
             orderData
           );
 
-
         console.log(
           "✅ ORDER CREATED:",
           response.data
         );
 
-
-        // =================================================
+        // -----------------------------------------------
         // SAVE ORDER ID
-        // =================================================
+        // -----------------------------------------------
 
         if (
           response.data?._id
         ) {
-
           localStorage.setItem(
             "orderId",
             response.data._id
           );
-
         }
 
+        // -----------------------------------------------
+        // CLEAR CART FROM DATABASE
+        // -----------------------------------------------
 
-        // =================================================
+        console.log(
+          "🧹 NOW CLEARING CART..."
+        );
+
+        const cartCleared =
+          await clearCart();
+
+        if (cartCleared) {
+          console.log(
+            "✅ CART COMPLETELY CLEARED"
+          );
+        } else {
+          console.warn(
+            "⚠️ ORDER CREATED BUT CART CLEAR FAILED"
+          );
+        }
+
+        // -----------------------------------------------
+        // CLEAR CHECKOUT DATA
+        // -----------------------------------------------
+
+        localStorage.removeItem(
+          "checkoutData"
+        );
+
+        localStorage.removeItem(
+          "pendingOrder"
+        );
+
+        // -----------------------------------------------
         // SUCCESS
-        // =================================================
+        // -----------------------------------------------
+
+        alert(
+          "Order placed successfully! 🎉"
+        );
 
         navigate(
           "/order-success"
         );
 
-
         return;
-
       }
-
 
       // =================================================
       // RAZORPAY
@@ -682,10 +556,8 @@ export default function Check() {
         "razorpay"
       ) {
 
-        // -----------------------------------------------
         // Save order information
         // so Payment.jsx can use it.
-        // -----------------------------------------------
 
         localStorage.setItem(
           "pendingOrder",
@@ -694,16 +566,12 @@ export default function Check() {
           )
         );
 
-
         navigate(
           "/payment"
         );
 
-
         return;
-
       }
-
 
     } catch (error) {
 
@@ -712,12 +580,10 @@ export default function Check() {
         error
       );
 
-
       console.error(
         "SERVER RESPONSE:",
         error.response?.data
       );
-
 
       alert(
         error.response?.data?.message ||
@@ -725,24 +591,18 @@ export default function Check() {
         "Something went wrong while placing your order."
       );
 
-
     } finally {
 
       setLoading(false);
-
     }
-
   };
-
 
   // =====================================================
   // CART LOADING
   // =====================================================
 
   if (cartLoading) {
-
     return (
-
       <div className="checkin-container">
 
         <div className="checkin-card">
@@ -755,30 +615,23 @@ export default function Check() {
               fontSize: "20px",
             }}
           >
-
             Loading your cart...
-
           </div>
 
         </div>
 
       </div>
-
     );
-
   }
-
 
   // =====================================================
   // JSX
   // =====================================================
 
   return (
-
     <div className="checkin-container">
 
       <div className="checkin-card">
-
 
         {/* =================================================
             HEADER
@@ -795,7 +648,6 @@ export default function Check() {
           </p>
 
         </div>
-
 
         {/* =================================================
             CART STATUS
@@ -826,7 +678,6 @@ export default function Check() {
             : ""}
 
           {" "}
-
           in your cart
 
           <span
@@ -834,13 +685,10 @@ export default function Check() {
               float: "right",
             }}
           >
-
             ₹{total}
-
           </span>
 
         </div>
-
 
         {/* =================================================
             FORM
@@ -850,7 +698,6 @@ export default function Check() {
           className="checkin-form"
           onSubmit={handleSubmit}
         >
-
 
           {/* =================================================
               FULL NAME
@@ -876,7 +723,6 @@ export default function Check() {
             />
 
           </div>
-
 
           {/* =================================================
               PHONE
@@ -904,7 +750,6 @@ export default function Check() {
 
           </div>
 
-
           {/* =================================================
               ALTERNATE PHONE
           ================================================= */}
@@ -929,7 +774,6 @@ export default function Check() {
             />
 
           </div>
-
 
           {/* =================================================
               EMAIL
@@ -956,7 +800,6 @@ export default function Check() {
 
           </div>
 
-
           {/* =================================================
               ADDRESS
           ================================================= */}
@@ -982,7 +825,6 @@ export default function Check() {
 
           </div>
 
-
           {/* =================================================
               LANDMARK
           ================================================= */}
@@ -1006,7 +848,6 @@ export default function Check() {
             />
 
           </div>
-
 
           {/* =================================================
               STATE
@@ -1039,7 +880,6 @@ export default function Check() {
 
           </div>
 
-
           {/* =================================================
               CITY
           ================================================= */}
@@ -1071,7 +911,6 @@ export default function Check() {
 
           </div>
 
-
           {/* =================================================
               PINCODE
           ================================================= */}
@@ -1099,7 +938,6 @@ export default function Check() {
 
           </div>
 
-
           {/* =================================================
               PAYMENT
           ================================================= */}
@@ -1118,9 +956,7 @@ export default function Check() {
 
             </div>
 
-
             <div className="payment-options">
-
 
               {/* =================================================
                   ONLINE PAYMENT
@@ -1142,11 +978,8 @@ export default function Check() {
               >
 
                 <div className="payment-icon">
-
                   <FaCreditCard />
-
                 </div>
-
 
                 <div className="payment-info">
 
@@ -1161,20 +994,16 @@ export default function Check() {
 
                 </div>
 
-
                 <div className="payment-check">
 
                   {formData.paymentMethod ===
                     "razorpay" && (
-
                     <FaCheckCircle />
-
                   )}
 
                 </div>
 
               </button>
-
 
               {/* =================================================
                   CASH ON DELIVERY
@@ -1196,11 +1025,8 @@ export default function Check() {
               >
 
                 <div className="payment-icon cod-icon">
-
                   <FaMoneyBillWave />
-
                 </div>
-
 
                 <div className="payment-info">
 
@@ -1214,14 +1040,11 @@ export default function Check() {
 
                 </div>
 
-
                 <div className="payment-check">
 
                   {formData.paymentMethod ===
                     "cod" && (
-
                     <FaCheckCircle />
-
                   )}
 
                 </div>
@@ -1231,7 +1054,6 @@ export default function Check() {
             </div>
 
           </div>
-
 
           {/* =================================================
               SUBMIT
@@ -1249,29 +1071,20 @@ export default function Check() {
             >
 
               {loading
-
                 ? "LOADING..."
-
                 : formData.paymentMethod ===
                   "cod"
-
                 ? "PLACE ORDER →"
-
-                : "CONTINUE TO PAYMENT →"
-
-              }
+                : "CONTINUE TO PAYMENT →"}
 
             </button>
 
           </div>
-
 
         </form>
 
       </div>
 
     </div>
-
   );
-
 }

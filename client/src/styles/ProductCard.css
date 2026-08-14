@@ -741,3 +741,65 @@
   }
 
 }
+/* =====================================================
+   PRODUCT STOCK
+===================================================== */
+
+.product-stock {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  margin-top: 8px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  color: #7cff8a;
+}
+
+
+/* =====================================================
+   STOCK DOT
+===================================================== */
+
+.stock-dot {
+  width: 7px;
+  height: 7px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #7cff8a;
+
+  box-shadow:
+    0 0 6px #7cff8a,
+    0 0 12px rgba(124, 255, 138, 0.5);
+}
+
+
+/* =====================================================
+   OUT OF STOCK
+===================================================== */
+
+.product-stock.out-of-stock {
+  color: #ff3b3b;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.5px;
+}
+
+
+/* =====================================================
+   DISABLED PLUS BUTTON
+===================================================== */
+
+.quantity-btn:disabled {
+  opacity: 0.35;
+
+  cursor: not-allowed;
+
+  transform: none !important;
+}
