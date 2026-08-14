@@ -1,4 +1,6 @@
 import Order from "../models/Order.js";
+import Product from "../models/Product.js";
+
 
 /* =====================================================
    GET ALL ORDERS
@@ -6,21 +8,26 @@ import Order from "../models/Order.js";
 ===================================================== */
 
 export const getOrders = async (req, res) => {
+
   try {
+
     console.log("====================================");
     console.log("📦 GET /api/orders");
     console.log("Fetching all orders...");
     console.log("====================================");
 
-    // =====================================================
-    // GET ALL ORDERS
-    // =====================================================
 
     const orders = await Order.find({})
-      .sort({ createdAt: -1 })
+      .sort({
+        createdAt: -1,
+      })
       .lean();
 
-    console.log(`✅ Orders found: ${orders.length}`);
+
+    console.log(
+      `✅ Orders found: ${orders.length}`
+    );
+
 
     // =====================================================
     // BUILD CUSTOMER NAME MAP
@@ -28,19 +35,23 @@ export const getOrders = async (req, res) => {
 
     const customerNameMap = new Map();
 
+
     // =====================================================
-    // BUILD CUSTOMER PHONE MAP ⭐
+    // BUILD CUSTOMER PHONE MAP
     // =====================================================
 
     const customerPhoneMap = new Map();
 
+
     for (const order of orders) {
+
       const email =
         order.email?.trim().toLowerCase() ||
         order.shippingAddress?.email
           ?.trim()
           .toLowerCase() ||
         "";
+
 
       // ===================================================
       // CUSTOMER NAME
@@ -52,6 +63,7 @@ export const getOrders = async (req, res) => {
         order.shippingAddress?.fullName?.trim() ||
         "";
 
+
       const invalidNames = [
         "",
         "guest customer",
@@ -60,6 +72,7 @@ export const getOrders = async (req, res) => {
         "customer",
       ];
 
+
       if (
         email &&
         possibleName &&
@@ -67,14 +80,17 @@ export const getOrders = async (req, res) => {
           possibleName.toLowerCase()
         )
       ) {
+
         customerNameMap.set(
           email,
           possibleName
         );
+
       }
 
+
       // ===================================================
-      // CUSTOMER PHONE ⭐
+      // CUSTOMER PHONE
       // ===================================================
 
       const possiblePhone =
@@ -85,210 +101,225 @@ export const getOrders = async (req, res) => {
         order.billingAddress?.phone?.trim() ||
         "";
 
-      /*
-        If this customer already has a valid phone
-        in another order, remember it by email.
-      */
 
       if (
         email &&
         possiblePhone &&
         !customerPhoneMap.has(email)
       ) {
+
         customerPhoneMap.set(
           email,
           possiblePhone
         );
+
       }
+
     }
+
 
     console.log(
       "👤 Customer name map:",
       customerNameMap
     );
 
+
     console.log(
       "📱 Customer phone map:",
       customerPhoneMap
     );
 
+
     // =====================================================
     // FORMAT ORDERS
     // =====================================================
 
-    const formattedOrders = orders.map(
-      (order) => {
+    const formattedOrders =
+      orders.map(
+        (order) => {
 
-        // =================================================
-        // CUSTOMER EMAIL
-        // =================================================
+          // =================================================
+          // CUSTOMER EMAIL
+          // =================================================
 
-        const email =
-          order.email?.trim().toLowerCase() ||
-          order.shippingAddress?.email
-            ?.trim()
-            .toLowerCase() ||
-          "";
+          const email =
+            order.email?.trim().toLowerCase() ||
+            order.shippingAddress?.email
+              ?.trim()
+              .toLowerCase() ||
+            "";
 
-        // =================================================
-        // CUSTOMER NAME
-        // =================================================
 
-        let customerName =
-          order.customerName?.trim() ||
-          order.fullName?.trim() ||
-          order.shippingAddress?.fullName?.trim() ||
-          "";
+          // =================================================
+          // CUSTOMER NAME
+          // =================================================
 
-        const invalidNames = [
-          "",
-          "guest customer",
-          "unknown customer",
-          "n/a",
-          "customer",
-        ];
+          let customerName =
+            order.customerName?.trim() ||
+            order.fullName?.trim() ||
+            order.shippingAddress?.fullName?.trim() ||
+            "";
 
-        // -------------------------------------------------
-        // GET REAL CUSTOMER NAME FROM ANOTHER ORDER
-        // -------------------------------------------------
 
-        if (
-          invalidNames.includes(
-            customerName.toLowerCase()
-          ) &&
-          email &&
-          customerNameMap.has(email)
-        ) {
-          customerName =
-            customerNameMap.get(email);
-        }
-
-        // -------------------------------------------------
-        // FINAL NAME FALLBACK
-        // -------------------------------------------------
-
-        if (!customerName) {
-          customerName = "Customer";
-        }
-
-        // =================================================
-        // CUSTOMER PHONE ⭐
-        // =================================================
-
-        // First try the current order
-        const directPhone =
-          order.phone?.trim() ||
-          order.phoneNumber?.trim() ||
-          order.shippingAddress?.phone?.trim() ||
-          order.shippingAddress?.phoneNumber?.trim() ||
-          order.billingAddress?.phone?.trim() ||
-          "";
-
-        // If current order has no phone,
-        // get it from another order with same email
-        const customerPhone =
-          directPhone ||
-          (
-            email &&
-            customerPhoneMap.has(email)
-              ? customerPhoneMap.get(email)
-              : ""
-          );
-
-        // =================================================
-        // ADDRESS
-        // =================================================
-
-        const address =
-          order.address ||
-          order.shippingAddress?.address ||
-          "";
-
-        // =================================================
-        // LANDMARK
-        // =================================================
-
-        const landmark =
-          order.landmark ||
-          order.shippingAddress?.landmark ||
-          "";
-
-        // =================================================
-        // CITY
-        // =================================================
-
-        const city =
-          order.city ||
-          order.shippingAddress?.city ||
-          "";
-
-        // =================================================
-        // STATE
-        // =================================================
-
-        const state =
-          order.state ||
-          order.shippingAddress?.state ||
-          "";
-
-        // =================================================
-        // PINCODE
-        // =================================================
-
-        const pincode =
-          order.pincode ||
-          order.postalCode ||
-          order.shippingAddress?.pincode ||
-          order.shippingAddress?.postalCode ||
-          "";
-
-        // =================================================
-        // COUNTRY
-        // =================================================
-
-        const country =
-          order.country ||
-          order.shippingAddress?.country ||
-          "India";
-
-        // =================================================
-        // RETURN FORMATTED ORDER
-        // =================================================
-
-        return {
-          ...order,
-
-          // -----------------------------------------------
-          // CUSTOMER
-          // -----------------------------------------------
-
-          customerName,
-
-          email:
-            order.email ||
-            order.shippingAddress?.email ||
+          const invalidNames = [
             "",
+            "guest customer",
+            "unknown customer",
+            "n/a",
+            "customer",
+          ];
 
-          phone: customerPhone,
 
-          // -----------------------------------------------
+          // =================================================
+          // GET REAL CUSTOMER NAME
+          // =================================================
+
+          if (
+            invalidNames.includes(
+              customerName.toLowerCase()
+            ) &&
+            email &&
+            customerNameMap.has(email)
+          ) {
+
+            customerName =
+              customerNameMap.get(email);
+
+          }
+
+
+          // =================================================
+          // FINAL NAME FALLBACK
+          // =================================================
+
+          if (!customerName) {
+
+            customerName =
+              "Customer";
+
+          }
+
+
+          // =================================================
+          // CUSTOMER PHONE
+          // =================================================
+
+          const directPhone =
+            order.phone?.trim() ||
+            order.phoneNumber?.trim() ||
+            order.shippingAddress?.phone?.trim() ||
+            order.shippingAddress?.phoneNumber?.trim() ||
+            order.billingAddress?.phone?.trim() ||
+            "";
+
+
+          const customerPhone =
+            directPhone ||
+            (
+              email &&
+              customerPhoneMap.has(email)
+                ? customerPhoneMap.get(email)
+                : ""
+            );
+
+
+          // =================================================
           // ADDRESS
-          // -----------------------------------------------
+          // =================================================
 
-          address,
+          const address =
+            order.address ||
+            order.shippingAddress?.address ||
+            "";
 
-          landmark,
 
-          city,
+          // =================================================
+          // LANDMARK
+          // =================================================
 
-          state,
+          const landmark =
+            order.landmark ||
+            order.shippingAddress?.landmark ||
+            "";
 
-          pincode,
 
-          country,
-        };
-      }
-    );
+          // =================================================
+          // CITY
+          // =================================================
+
+          const city =
+            order.city ||
+            order.shippingAddress?.city ||
+            "";
+
+
+          // =================================================
+          // STATE
+          // =================================================
+
+          const state =
+            order.state ||
+            order.shippingAddress?.state ||
+            "";
+
+
+          // =================================================
+          // PINCODE
+          // =================================================
+
+          const pincode =
+            order.pincode ||
+            order.postalCode ||
+            order.shippingAddress?.pincode ||
+            order.shippingAddress?.postalCode ||
+            "";
+
+
+          // =================================================
+          // COUNTRY
+          // =================================================
+
+          const country =
+            order.country ||
+            order.shippingAddress?.country ||
+            "India";
+
+
+          // =================================================
+          // RETURN FORMATTED ORDER
+          // =================================================
+
+          return {
+
+            ...order,
+
+            customerName,
+
+            email:
+              order.email ||
+              order.shippingAddress?.email ||
+              "",
+
+            phone:
+              customerPhone,
+
+            address,
+
+            landmark,
+
+            city,
+
+            state,
+
+            pincode,
+
+            country,
+
+          };
+
+        }
+      );
+
 
     // =====================================================
     // DEBUG
@@ -306,6 +337,7 @@ export const getOrders = async (req, res) => {
       "===================================="
     );
 
+
     // =====================================================
     // RESPONSE
     // =====================================================
@@ -313,6 +345,7 @@ export const getOrders = async (req, res) => {
     res.status(200).json(
       formattedOrders
     );
+
 
   } catch (error) {
 
@@ -322,13 +355,23 @@ export const getOrders = async (req, res) => {
 
     console.error(error);
 
+
     res.status(500).json({
+
       success: false,
-      message: "Failed to fetch orders",
-      error: error.message,
+
+      message:
+        "Failed to fetch orders",
+
+      error:
+        error.message,
+
     });
+
   }
+
 };
+
 
 
 /* =====================================================
@@ -340,27 +383,38 @@ export const getOrderById = async (
   req,
   res
 ) => {
+
   try {
 
     console.log(
       `📦 GET /api/orders/${req.params.id}`
     );
 
+
     const order =
       await Order.findById(
         req.params.id
       );
 
+
     if (!order) {
 
       return res.status(404).json({
+
         success: false,
-        message: "Order not found",
+
+        message:
+          "Order not found",
+
       });
 
     }
 
-    res.status(200).json(order);
+
+    res.status(200).json(
+      order
+    );
+
 
   } catch (error) {
 
@@ -369,18 +423,32 @@ export const getOrderById = async (
       error
     );
 
+
     res.status(500).json({
+
       success: false,
-      message: "Failed to fetch order",
-      error: error.message,
+
+      message:
+        "Failed to fetch order",
+
+      error:
+        error.message,
+
     });
+
   }
+
 };
+
 
 
 /* =====================================================
    CREATE ORDER
    POST /api/orders
+
+   INVENTORY:
+   Product stock decreases ONLY when
+   order is successfully created.
 ===================================================== */
 
 export const addOrderItems = async (
@@ -390,33 +458,26 @@ export const addOrderItems = async (
 
   try {
 
-    console.log(
-      "===================================="
-    );
+    console.log("====================================");
+    console.log("🛒 POST /api/orders");
+    console.log("Creating new order...");
+    console.log("====================================");
 
-    console.log(
-      "🛒 POST /api/orders"
-    );
-
-    console.log(
-      "Creating new order..."
-    );
-
-    console.log(
-      "===================================="
-    );
 
     console.log(
       "📥 ORDER BODY:",
       req.body
     );
 
+
     // =================================================
     // GET DATA FROM REQUEST
     // =================================================
 
     const {
+
       orderItems,
+
       items,
 
       shippingAddress,
@@ -456,6 +517,7 @@ export const addOrderItems = async (
     } = req.body;
 
 
+
     // =================================================
     // CUSTOMER NAME
     // =================================================
@@ -467,19 +529,19 @@ export const addOrderItems = async (
       "";
 
 
-    // =================================================
-    // CUSTOMER NAME IS REQUIRED
-    // =================================================
-
     if (!finalCustomerName) {
 
       return res.status(400).json({
+
         success: false,
+
         message:
           "Customer name is required. Guest checkout is not allowed.",
+
       });
 
     }
+
 
 
     // =================================================
@@ -490,6 +552,7 @@ export const addOrderItems = async (
       email?.trim() ||
       shippingAddress?.email?.trim() ||
       "";
+
 
 
     // =================================================
@@ -503,6 +566,7 @@ export const addOrderItems = async (
       "";
 
 
+
     // =================================================
     // ADDRESS
     // =================================================
@@ -511,6 +575,7 @@ export const addOrderItems = async (
       address?.trim() ||
       shippingAddress?.address?.trim() ||
       "";
+
 
 
     // =================================================
@@ -523,6 +588,7 @@ export const addOrderItems = async (
       "";
 
 
+
     // =================================================
     // CITY
     // =================================================
@@ -533,6 +599,7 @@ export const addOrderItems = async (
       "";
 
 
+
     // =================================================
     // STATE
     // =================================================
@@ -541,6 +608,7 @@ export const addOrderItems = async (
       state?.trim() ||
       shippingAddress?.state?.trim() ||
       "";
+
 
 
     // =================================================
@@ -555,6 +623,7 @@ export const addOrderItems = async (
       "";
 
 
+
     // =================================================
     // COUNTRY
     // =================================================
@@ -565,6 +634,7 @@ export const addOrderItems = async (
       "India";
 
 
+
     // =================================================
     // ITEMS
     // =================================================
@@ -573,13 +643,9 @@ export const addOrderItems = async (
       Array.isArray(orderItems)
         ? orderItems
         : Array.isArray(items)
-          ? items
-          : [];
+        ? items
+        : [];
 
-
-    // =================================================
-    // VALIDATE ITEMS
-    // =================================================
 
     if (
       !Array.isArray(finalItems) ||
@@ -587,11 +653,26 @@ export const addOrderItems = async (
     ) {
 
       return res.status(400).json({
+
         success: false,
-        message: "No order items",
+
+        message:
+          "No order items",
+
       });
 
     }
+
+
+
+    // =================================================
+    // PAYMENT
+    // =================================================
+
+    const finalPaymentMethod =
+      paymentMethod ||
+      "COD";
+
 
 
     // =================================================
@@ -630,17 +711,9 @@ export const addOrderItems = async (
       );
 
 
-    // =================================================
-    // PAYMENT
-    // =================================================
-
-    const finalPaymentMethod =
-      paymentMethod ||
-      "COD";
-
 
     // =================================================
-    // CREATE SHIPPING ADDRESS
+    // SHIPPING ADDRESS
     // =================================================
 
     const finalShippingAddress = {
@@ -671,20 +744,294 @@ export const addOrderItems = async (
 
       country:
         finalCountry,
+
     };
 
 
+
     // =================================================
-    // CREATE ORDER
+    // INVENTORY
+    //
+    // We first CHECK every product.
+    //
+    // We DON'T reduce anything until
+    // every product has enough stock.
+    //
+    // This prevents:
+    //
+    // Product A → reduced
+    // Product B → out of stock
+    //
+    // which would leave Product A incorrectly reduced.
+    // =================================================
+
+    const inventoryProducts = [];
+
+
+    for (
+      const item of finalItems
+    ) {
+
+      // =================================================
+      // PRODUCT ID
+      // =================================================
+
+      const productId =
+        item.productId;
+
+
+      if (!productId) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            `Product ID missing for ${
+              item.name ||
+              "product"
+            }.`,
+
+        });
+
+      }
+
+
+      // =================================================
+      // QUANTITY
+      // =================================================
+
+      const quantity =
+        Number(
+          item.qty ??
+          item.quantity ??
+          0
+        );
+
+
+      if (
+        !Number.isInteger(quantity) ||
+        quantity <= 0
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            `Invalid quantity for ${
+              item.name ||
+              "product"
+            }.`,
+        });
+
+      }
+
+
+      // =================================================
+      // FIND PRODUCT
+      // =================================================
+
+      const product =
+        await Product.findOne({
+          id: String(productId),
+        });
+
+
+      if (!product) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            `${
+              item.name ||
+              "Product"
+            } was not found in the database.`,
+
+        });
+
+      }
+
+
+      // =================================================
+      // CHECK STOCK
+      // =================================================
+
+      const currentStock =
+        Number(
+          product.stock ?? 0
+        );
+
+
+      console.log(
+        "------------------------------------"
+      );
+
+      console.log(
+        "📦 PRODUCT:",
+        product.name
+      );
+
+      console.log(
+        "🆔 PRODUCT ID:",
+        product.id
+      );
+
+      console.log(
+        "📊 CURRENT STOCK:",
+        currentStock
+      );
+
+      console.log(
+        "🛒 REQUESTED:",
+        quantity
+      );
+
+
+      if (
+        currentStock < quantity
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            `${product.name} has only ${currentStock} item${
+              currentStock === 1
+                ? ""
+                : "s"
+            } available.`,
+
+          productId:
+            product.id,
+
+          availableStock:
+            currentStock,
+
+        });
+
+      }
+
+
+      // =================================================
+      // STORE PRODUCT FOR LATER UPDATE
+      // =================================================
+
+      inventoryProducts.push({
+
+        product,
+
+        quantity,
+
+      });
+
+    }
+
+
+
+    // =================================================
+    // ALL PRODUCTS HAVE ENOUGH STOCK
+    //
+    // NOW REDUCE STOCK
+    // =================================================
+
+    const updatedOrderItems = [];
+
+
+    for (
+      const inventoryItem
+      of inventoryProducts
+    ) {
+
+      const product =
+        inventoryItem.product;
+
+
+      const quantity =
+        inventoryItem.quantity;
+
+
+      // =================================================
+      // REDUCE STOCK
+      // =================================================
+
+      product.stock =
+        Number(
+          product.stock
+        ) -
+        quantity;
+
+
+      // Safety check
+      if (
+        product.stock < 0
+      ) {
+
+        product.stock = 0;
+
+      }
+
+
+      await product.save();
+
+
+      console.log(
+        `✅ ${product.name}`
+      );
+
+      console.log(
+        `🛒 Purchased: ${quantity}`
+      );
+
+      console.log(
+        `📊 Remaining stock: ${product.stock}`
+      );
+
+
+      // =================================================
+      // ORDER ITEM
+      // =================================================
+
+      updatedOrderItems.push({
+
+        productId:
+          String(product.id),
+
+        name:
+          product.name,
+
+        qty:
+          quantity,
+
+        price:
+          Number(
+            product.price ??
+            0
+          ),
+
+      });
+
+    }
+
+
+
+    // =================================================
+    // CREATE ORDER DATA
     // =================================================
 
     const orderData = {
 
-      // -----------------------------------------------
+      // =================================================
       // CUSTOMER
-      // -----------------------------------------------
+      // =================================================
 
       customerName:
+        finalCustomerName,
+
+      fullName:
         finalCustomerName,
 
       email:
@@ -694,9 +1041,9 @@ export const addOrderItems = async (
         finalPhone,
 
 
-      // -----------------------------------------------
+      // =================================================
       // ADDRESS
-      // -----------------------------------------------
+      // =================================================
 
       address:
         finalAddress,
@@ -713,65 +1060,100 @@ export const addOrderItems = async (
       pincode:
         finalPincode,
 
+      postalCode:
+        finalPincode,
+
       country:
         finalCountry,
 
 
-      // -----------------------------------------------
+      // =================================================
+      // SHIPPING ADDRESS
+      // =================================================
+
+      shippingAddress:
+        finalShippingAddress,
+
+
+      // =================================================
       // PAYMENT
-      // -----------------------------------------------
+      // =================================================
 
       paymentMethod:
         finalPaymentMethod,
 
 
-      // -----------------------------------------------
+      // =================================================
       // ITEMS
-      // -----------------------------------------------
+      // =================================================
 
       items:
-        finalItems,
+        updatedOrderItems,
+
+      orderItems:
+        updatedOrderItems,
 
 
-      // -----------------------------------------------
+      // =================================================
       // PRICES
-      // -----------------------------------------------
+      // =================================================
+
+      itemsPrice:
+        finalSubtotal,
 
       subtotal:
         finalSubtotal,
 
+      shippingPrice:
+        finalShipping,
+
       shipping:
         finalShipping,
 
+      taxPrice:
+        finalTax,
+
       tax:
         finalTax,
+
+      totalPrice:
+        finalTotal,
 
       total:
         finalTotal,
 
 
-      // -----------------------------------------------
+      // =================================================
       // STATUS
-      // -----------------------------------------------
+      // =================================================
 
       orderStatus:
         "Pending",
+
+      status:
+        "Pending",
+
     };
 
 
+
     // =================================================
-    // SAVE ORDER
+    // CREATE ORDER
     // =================================================
 
     const order =
-      new Order(orderData);
+      new Order(
+        orderData
+      );
+
 
     const createdOrder =
       await order.save();
 
 
+
     // =================================================
-    // LOG
+    // SUCCESS LOG
     // =================================================
 
     console.log(
@@ -793,23 +1175,18 @@ export const addOrderItems = async (
     );
 
     console.log(
-      "EMAIL:",
-      finalEmail
-    );
-
-    console.log(
-      "PHONE:",
-      finalPhone
-    );
-
-    console.log(
       "TOTAL:",
       finalTotal
     );
 
     console.log(
+      "📦 PRODUCT STOCK UPDATED"
+    );
+
+    console.log(
       "===================================="
     );
+
 
 
     // =================================================
@@ -837,6 +1214,7 @@ export const addOrderItems = async (
       "===================================="
     );
 
+
     res.status(500).json({
 
       success: false,
@@ -850,7 +1228,9 @@ export const addOrderItems = async (
     });
 
   }
+
 };
+
 
 
 /* =====================================================
@@ -873,8 +1253,12 @@ export const updateOrderStatus = async (
     if (!status) {
 
       return res.status(400).json({
+
         success: false,
-        message: "Status is required",
+
+        message:
+          "Status is required",
+
       });
 
     }
@@ -889,18 +1273,29 @@ export const updateOrderStatus = async (
     if (!order) {
 
       return res.status(404).json({
+
         success: false,
-        message: "Order not found",
+
+        message:
+          "Order not found",
+
       });
 
     }
 
 
     // =================================================
-    // UPDATE ORDER STATUS
+    // UPDATE STATUS
     // =================================================
 
     order.orderStatus =
+      status;
+
+
+    // Keep your old `status` field
+    // synchronized too.
+
+    order.status =
       status;
 
 
@@ -925,6 +1320,7 @@ export const updateOrderStatus = async (
       error
     );
 
+
     res.status(500).json({
 
       success: false,
@@ -938,7 +1334,9 @@ export const updateOrderStatus = async (
     });
 
   }
+
 };
+
 
 
 /* =====================================================
@@ -977,9 +1375,10 @@ export const getCustomers = async (
     const orders =
       await Order.find({})
         .sort({
-          createdAt: -1
+          createdAt: -1,
         })
         .lean();
+
 
 
     // =================================================
@@ -990,16 +1389,25 @@ export const getCustomers = async (
       new Map();
 
 
-    for (const order of orders) {
+    for (
+      const order
+      of orders
+    ) {
 
       const email =
-        order.email?.trim().toLowerCase();
+        order.email
+          ?.trim()
+          .toLowerCase();
 
 
       const name =
-        order.customerName?.trim() ||
-        order.fullName?.trim() ||
-        order.shippingAddress?.fullName?.trim() ||
+        order.customerName
+          ?.trim() ||
+        order.fullName
+          ?.trim() ||
+        order.shippingAddress
+          ?.fullName
+          ?.trim() ||
         "";
 
 
@@ -1024,6 +1432,7 @@ export const getCustomers = async (
     }
 
 
+
     // =================================================
     // BUILD CUSTOMER PHONE MAP
     // =================================================
@@ -1032,23 +1441,32 @@ export const getCustomers = async (
       new Map();
 
 
-    for (const order of orders) {
+    for (
+      const order
+      of orders
+    ) {
 
       const email =
-        order.email?.trim().toLowerCase();
+        order.email
+          ?.trim()
+          .toLowerCase();
 
 
       const phone =
         order.phone?.trim() ||
         order.phoneNumber?.trim() ||
-        order.shippingAddress?.phone?.trim() ||
+        order.shippingAddress
+          ?.phone
+          ?.trim() ||
         "";
 
 
       if (
         email &&
         phone &&
-        !customerPhoneMap.has(email)
+        !customerPhoneMap.has(
+          email
+        )
       ) {
 
         customerPhoneMap.set(
@@ -1061,6 +1479,7 @@ export const getCustomers = async (
     }
 
 
+
     // =================================================
     // GROUP CUSTOMERS
     // =================================================
@@ -1069,18 +1488,28 @@ export const getCustomers = async (
       new Map();
 
 
-    for (const order of orders) {
+    for (
+      const order
+      of orders
+    ) {
 
       const email =
-        order.email?.trim().toLowerCase() ||
-        order.shippingAddress?.email?.trim().toLowerCase() ||
+        order.email
+          ?.trim()
+          .toLowerCase() ||
+        order.shippingAddress
+          ?.email
+          ?.trim()
+          .toLowerCase() ||
         "";
 
 
       const directPhone =
         order.phone?.trim() ||
         order.phoneNumber?.trim() ||
-        order.shippingAddress?.phone?.trim() ||
+        order.shippingAddress
+          ?.phone
+          ?.trim() ||
         "";
 
 
@@ -1088,21 +1517,29 @@ export const getCustomers = async (
         directPhone ||
         (
           email &&
-          customerPhoneMap.has(email)
-            ? customerPhoneMap.get(email)
+          customerPhoneMap.has(
+            email
+          )
+            ? customerPhoneMap.get(
+                email
+              )
             : ""
         );
 
 
       let name =
-        order.customerName?.trim() ||
-        order.fullName?.trim() ||
-        order.shippingAddress?.fullName?.trim() ||
+        order.customerName
+          ?.trim() ||
+        order.fullName
+          ?.trim() ||
+        order.shippingAddress
+          ?.fullName
+          ?.trim() ||
         "";
 
 
       // =================================================
-      // GET REAL NAME FROM NAME MAP
+      // GET REAL NAME
       // =================================================
 
       if (
@@ -1116,11 +1553,15 @@ export const getCustomers = async (
             "n/a"
         ) &&
         email &&
-        customerNameMap.has(email)
+        customerNameMap.has(
+          email
+        )
       ) {
 
         name =
-          customerNameMap.get(email);
+          customerNameMap.get(
+            email
+          );
 
       }
 
@@ -1130,7 +1571,10 @@ export const getCustomers = async (
       // =================================================
 
       if (!name) {
-        name = "Customer";
+
+        name =
+          "Customer";
+
       }
 
 
@@ -1197,34 +1641,41 @@ export const getCustomers = async (
 
             address:
               order.address ||
-              order.shippingAddress?.address ||
+              order.shippingAddress
+                ?.address ||
               "",
 
             landmark:
               order.landmark ||
-              order.shippingAddress?.landmark ||
+              order.shippingAddress
+                ?.landmark ||
               "",
 
             city:
               order.city ||
-              order.shippingAddress?.city ||
+              order.shippingAddress
+                ?.city ||
               "",
 
             state:
               order.state ||
-              order.shippingAddress?.state ||
+              order.shippingAddress
+                ?.state ||
               "",
 
             pincode:
               order.pincode ||
               order.postalCode ||
-              order.shippingAddress?.pincode ||
-              order.shippingAddress?.postalCode ||
+              order.shippingAddress
+                ?.pincode ||
+              order.shippingAddress
+                ?.postalCode ||
               "",
 
             country:
               order.country ||
-              order.shippingAddress?.country ||
+              order.shippingAddress
+                ?.country ||
               "India",
 
             lastOrderDate:
@@ -1310,7 +1761,8 @@ export const getCustomers = async (
 
         customer.address =
           order.address ||
-          order.shippingAddress?.address ||
+          order.shippingAddress
+            ?.address ||
           "";
 
       }
@@ -1322,7 +1774,8 @@ export const getCustomers = async (
 
         customer.landmark =
           order.landmark ||
-          order.shippingAddress?.landmark ||
+          order.shippingAddress
+            ?.landmark ||
           "";
 
       }
@@ -1334,7 +1787,8 @@ export const getCustomers = async (
 
         customer.city =
           order.city ||
-          order.shippingAddress?.city ||
+          order.shippingAddress
+            ?.city ||
           "";
 
       }
@@ -1346,7 +1800,8 @@ export const getCustomers = async (
 
         customer.state =
           order.state ||
-          order.shippingAddress?.state ||
+          order.shippingAddress
+            ?.state ||
           "";
 
       }
@@ -1359,8 +1814,10 @@ export const getCustomers = async (
         customer.pincode =
           order.pincode ||
           order.postalCode ||
-          order.shippingAddress?.pincode ||
-          order.shippingAddress?.postalCode ||
+          order.shippingAddress
+            ?.pincode ||
+          order.shippingAddress
+            ?.postalCode ||
           "";
 
       }
@@ -1389,6 +1846,7 @@ export const getCustomers = async (
       }
 
     }
+
 
 
     // =================================================
@@ -1429,6 +1887,7 @@ export const getCustomers = async (
       `👥 Customers found: ${customers.length}`
     );
 
+
     console.log(
       "Customer data:",
       customers
@@ -1451,6 +1910,7 @@ export const getCustomers = async (
       error
     );
 
+
     res.status(500).json({
 
       success: false,
@@ -1464,4 +1924,5 @@ export const getCustomers = async (
     });
 
   }
+
 };

@@ -96,17 +96,41 @@ export default function Check() {
             `${API_URL}/api/cart`
           );
 
+
         const items =
           Array.isArray(response.data)
             ? response.data
             : [];
+
 
         console.log(
           "CHECKOUT CART:",
           items
         );
 
+
+        // =================================================
+        // DEBUG PRODUCT IDs
+        // =================================================
+
+        items.forEach((item, index) => {
+
+          console.log(
+            `🛒 CART ITEM ${index + 1}:`,
+            {
+              id: item.id,
+              productId: item.productId,
+              _id: item._id,
+              name: item.name,
+              quantity: item.quantity,
+            }
+          );
+
+        });
+
+
         setCartItems(items);
+
 
       } catch (error) {
 
@@ -115,7 +139,9 @@ export default function Check() {
           error
         );
 
+
         setCartItems([]);
+
 
       } finally {
 
@@ -124,6 +150,7 @@ export default function Check() {
       }
 
     };
+
 
     fetchCart();
 
@@ -141,9 +168,13 @@ export default function Check() {
       value,
     } = e.target;
 
+
     setFormData((prev) => ({
+
       ...prev,
+
       [name]: value,
+
     }));
 
   };
@@ -157,8 +188,11 @@ export default function Check() {
     (method) => {
 
       setFormData((prev) => ({
+
         ...prev,
+
         paymentMethod: method,
+
       }));
 
     };
@@ -171,9 +205,11 @@ export default function Check() {
   const subtotal =
     cartItems.reduce(
       (total, item) =>
+
         total +
         Number(item.price || 0) *
-          Number(item.quantity || 0),
+        Number(item.quantity || 0),
+
       0
     );
 
@@ -209,9 +245,7 @@ export default function Check() {
     // CHECK CART
     // ===================================================
 
-    if (
-      cartLoading
-    ) {
+    if (cartLoading) {
 
       alert(
         "Please wait while your cart is loading."
@@ -222,9 +256,7 @@ export default function Check() {
     }
 
 
-    if (
-      !cartItems.length
-    ) {
+    if (!cartItems.length) {
 
       alert(
         "Your cart is empty."
@@ -263,9 +295,11 @@ export default function Check() {
     const hasEmptyField =
       requiredFields.some(
         (field) =>
+
           !formData[field] ||
           formData[field]
             .trim() === ""
+
       );
 
 
@@ -302,6 +336,7 @@ export default function Check() {
 
     try {
 
+
       // =================================================
       // SAVE CHECKOUT DATA
       // =================================================
@@ -314,39 +349,94 @@ export default function Check() {
 
       // =================================================
       // CREATE ORDER ITEMS
-      // =================================================
       //
-      // Backend expects:
-      //
-      // orderItems: [
-      //   {
-      //     name,
-      //     qty,
-      //     price
-      //   }
-      // ]
-      //
+      // IMPORTANT:
+      // productId is now included so the backend
+      // knows which MongoDB product to reduce.
       // =================================================
 
       const orderItems =
         cartItems.map(
-          (item) => ({
+          (item) => {
 
-            name:
-              item.name,
+            // ---------------------------------------------
+            // GET PRODUCT ID
+            // ---------------------------------------------
 
-            qty:
-              Number(
-                item.quantity || 1
-              ),
+            const productId =
+              item.productId ||
+              item.id ||
+              item._id;
 
-            price:
-              Number(
-                item.price || 0
-              ),
 
-          })
+            // ---------------------------------------------
+            // DEBUG
+            // ---------------------------------------------
+
+            console.log(
+              "📦 PRODUCT ID:",
+              productId
+            );
+
+
+            // ---------------------------------------------
+            // RETURN ORDER ITEM
+            // ---------------------------------------------
+
+            return {
+
+              productId:
+                String(productId),
+
+              name:
+                item.name,
+
+              qty:
+                Number(
+                  item.quantity || 1
+                ),
+
+              price:
+                Number(
+                  item.price || 0
+                ),
+
+            };
+
+          }
         );
+
+
+      // =================================================
+      // CHECK PRODUCT IDS
+      // =================================================
+
+      const missingProductId =
+        orderItems.some(
+          (item) =>
+            !item.productId ||
+            item.productId ===
+              "undefined" ||
+            item.productId ===
+              "null"
+        );
+
+
+      if (
+        missingProductId
+      ) {
+
+        console.error(
+          "❌ PRODUCT ID MISSING:",
+          orderItems
+        );
+
+
+        throw new Error(
+          "Product ID is missing from your cart. Please refresh your cart and try again."
+        );
+
+      }
 
 
       // =================================================
@@ -443,6 +533,9 @@ export default function Check() {
           postalCode:
             formData.pincode,
 
+          pincode:
+            formData.pincode,
+
           country:
             "India",
 
@@ -498,6 +591,10 @@ export default function Check() {
 
       };
 
+
+      // =================================================
+      // DEBUG ORDER DATA
+      // =================================================
 
       console.log(
         "================================"
@@ -570,6 +667,7 @@ export default function Check() {
           "/order-success"
         );
 
+
         return;
 
       }
@@ -584,8 +682,10 @@ export default function Check() {
         "razorpay"
       ) {
 
+        // -----------------------------------------------
         // Save order information
         // so Payment.jsx can use it.
+        // -----------------------------------------------
 
         localStorage.setItem(
           "pendingOrder",
@@ -599,9 +699,11 @@ export default function Check() {
           "/payment"
         );
 
+
         return;
 
       }
+
 
     } catch (error) {
 
@@ -622,6 +724,7 @@ export default function Check() {
         error.message ||
         "Something went wrong while placing your order."
       );
+
 
     } finally {
 
@@ -716,12 +819,14 @@ export default function Check() {
           </strong>
 
           {" "}
+
           product
           {cartItems.length !== 1
             ? "s"
             : ""}
 
           {" "}
+
           in your cart
 
           <span
@@ -729,7 +834,9 @@ export default function Check() {
               float: "right",
             }}
           >
+
             ₹{total}
+
           </span>
 
         </div>
@@ -1059,7 +1166,9 @@ export default function Check() {
 
                   {formData.paymentMethod ===
                     "razorpay" && (
+
                     <FaCheckCircle />
+
                   )}
 
                 </div>
@@ -1110,7 +1219,9 @@ export default function Check() {
 
                   {formData.paymentMethod ===
                     "cod" && (
+
                     <FaCheckCircle />
+
                   )}
 
                 </div>
@@ -1138,11 +1249,17 @@ export default function Check() {
             >
 
               {loading
+
                 ? "LOADING..."
+
                 : formData.paymentMethod ===
                   "cod"
+
                 ? "PLACE ORDER →"
-                : "CONTINUE TO PAYMENT →"}
+
+                : "CONTINUE TO PAYMENT →"
+
+              }
 
             </button>
 
