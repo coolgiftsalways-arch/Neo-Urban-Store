@@ -1,7 +1,7 @@
 import {
-  Mail,
-  Phone,
-} from "lucide-react";
+  FaGoogle,
+  FaWhatsapp,
+} from "react-icons/fa";
 
 import "../styles/Footer.css";
 
@@ -110,28 +110,36 @@ export default function Footer() {
           </p>
 
 
-          {/* EMAIL + PHONE */}
+          {/* =================================================
+              GMAIL + WHATSAPP
+          ================================================= */}
 
-          <div className="contact-icons">
+        <div className="contact-icons">
 
-            <a
-              href="mailto:admin@neourbanstore.in"
-              className="contact-icon"
-              title="Email Us"
-            >
-              <Mail />
-            </a>
+  {/* GMAIL / EMAIL */}
+
+  <a
+    href="mailto:info@neourbanstore.in"
+    className="contact-icon"
+    title="Email Us"
+  >
+    <FaGoogle />
+  </a>
 
 
-            <a
-              href="tel:+919999999999"
-              className="contact-icon"
-              title="Call Us"
-            >
-              <Phone />
-            </a>
+  {/* WHATSAPP */}
 
-          </div>
+  <a
+    href="https://wa.me/message/XH2PJBMO2RHZL1"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="contact-icon"
+    title="Chat on WhatsApp"
+  >
+    <FaWhatsapp />
+  </a>
+
+</div>
 
         </div>
 

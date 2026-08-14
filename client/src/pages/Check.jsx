@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -8,103 +8,300 @@ import {
   FaMapMarkerAlt,
 } from "react-icons/fa";
 
+import axios from "axios";
+
 import "../styles/Check.css";
 
+// =====================================================
+// API
+// =====================================================
+
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:5000";
+
+
+// =====================================================
+// CHECKOUT
+// =====================================================
+
 export default function Check() {
+
   const navigate = useNavigate();
+
 
   // =====================================================
   // LOADING
   // =====================================================
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
+
+  const [cartLoading, setCartLoading] =
+    useState(true);
+
+
+  // =====================================================
+  // CART
+  // =====================================================
+
+  const [cartItems, setCartItems] =
+    useState([]);
+
 
   // =====================================================
   // FORM DATA
   // =====================================================
 
-  const [formData, setFormData] = useState({
-    fullName: "",
-    phoneNumber: "",
-    altPhoneNumber: "",
-    email: "",
-    address: "",
-    landmark: "",
-    city: "",
-    state: "",
-    pincode: "",
-    paymentMethod: "razorpay",
-  });
+  const [formData, setFormData] =
+    useState({
+
+      fullName: "",
+
+      phoneNumber: "",
+
+      altPhoneNumber: "",
+
+      email: "",
+
+      address: "",
+
+      landmark: "",
+
+      city: "",
+
+      state: "",
+
+      pincode: "",
+
+      paymentMethod: "razorpay",
+
+    });
+
+
+  // =====================================================
+  // FETCH CART
+  // =====================================================
+
+  useEffect(() => {
+
+    const fetchCart = async () => {
+
+      try {
+
+        setCartLoading(true);
+
+        const response =
+          await axios.get(
+            `${API_URL}/api/cart`
+          );
+
+        const items =
+          Array.isArray(response.data)
+            ? response.data
+            : [];
+
+        console.log(
+          "CHECKOUT CART:",
+          items
+        );
+
+        setCartItems(items);
+
+      } catch (error) {
+
+        console.error(
+          "❌ CHECKOUT CART ERROR:",
+          error
+        );
+
+        setCartItems([]);
+
+      } finally {
+
+        setCartLoading(false);
+
+      }
+
+    };
+
+    fetchCart();
+
+  }, []);
+
 
   // =====================================================
   // INPUT CHANGE
   // =====================================================
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+
+    const {
+      name,
+      value,
+    } = e.target;
 
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+
   };
+
 
   // =====================================================
   // PAYMENT METHOD
   // =====================================================
 
-  const handlePaymentChange = (method) => {
-    setFormData((prev) => ({
-      ...prev,
-      paymentMethod: method,
-    }));
-  };
+  const handlePaymentChange =
+    (method) => {
+
+      setFormData((prev) => ({
+        ...prev,
+        paymentMethod: method,
+      }));
+
+    };
+
+
+  // =====================================================
+  // CART CALCULATIONS
+  // =====================================================
+
+  const subtotal =
+    cartItems.reduce(
+      (total, item) =>
+        total +
+        Number(item.price || 0) *
+          Number(item.quantity || 0),
+      0
+    );
+
+
+  const shipping =
+    subtotal > 499
+      ? 0
+      : 40;
+
+
+  const tax =
+    Math.round(
+      subtotal * 0.05
+    );
+
+
+  const total =
+    subtotal +
+    shipping +
+    tax;
+
 
   // =====================================================
   // SUBMIT
   // =====================================================
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
+
+
+    // ===================================================
+    // CHECK CART
+    // ===================================================
+
+    if (
+      cartLoading
+    ) {
+
+      alert(
+        "Please wait while your cart is loading."
+      );
+
+      return;
+
+    }
+
+
+    if (
+      !cartItems.length
+    ) {
+
+      alert(
+        "Your cart is empty."
+      );
+
+      return;
+
+    }
+
 
     // ===================================================
     // REQUIRED FIELDS
     // ===================================================
 
     const requiredFields = [
+
       "fullName",
+
       "phoneNumber",
+
       "email",
+
       "address",
+
       "landmark",
+
       "city",
+
       "state",
+
       "pincode",
+
     ];
 
-    const hasEmptyField = requiredFields.some(
-      (field) =>
-        !formData[field] ||
-        formData[field].trim() === ""
-    );
+
+    const hasEmptyField =
+      requiredFields.some(
+        (field) =>
+          !formData[field] ||
+          formData[field]
+            .trim() === ""
+      );
+
 
     if (hasEmptyField) {
-      alert("Please fill all required fields.");
+
+      alert(
+        "Please fill all required fields."
+      );
+
       return;
+
     }
+
 
     // ===================================================
     // PAYMENT VALIDATION
     // ===================================================
 
-    if (!formData.paymentMethod) {
-      alert("Please select a payment method.");
+    if (
+      !formData.paymentMethod
+    ) {
+
+      alert(
+        "Please select a payment method."
+      );
+
       return;
+
     }
+
 
     setLoading(true);
 
+
     try {
+
       // =================================================
       // SAVE CHECKOUT DATA
       // =================================================
@@ -114,86 +311,371 @@ export default function Check() {
         JSON.stringify(formData)
       );
 
+
+      // =================================================
+      // CREATE ORDER ITEMS
+      // =================================================
+      //
+      // Backend expects:
+      //
+      // orderItems: [
+      //   {
+      //     name,
+      //     qty,
+      //     price
+      //   }
+      // ]
+      //
+      // =================================================
+
+      const orderItems =
+        cartItems.map(
+          (item) => ({
+
+            name:
+              item.name,
+
+            qty:
+              Number(
+                item.quantity || 1
+              ),
+
+            price:
+              Number(
+                item.price || 0
+              ),
+
+          })
+        );
+
+
+      // =================================================
+      // SAFETY CHECK
+      // =================================================
+
+      if (
+        !orderItems.length
+      ) {
+
+        throw new Error(
+          "No products found in your cart."
+        );
+
+      }
+
+
+      // =================================================
+      // ORDER DATA
+      // =================================================
+
+      const orderData = {
+
+        // -----------------------------------------------
+        // CUSTOMER
+        // -----------------------------------------------
+
+        customerName:
+          formData.fullName,
+
+        fullName:
+          formData.fullName,
+
+        email:
+          formData.email,
+
+        phone:
+          formData.phoneNumber,
+
+
+        // -----------------------------------------------
+        // ADDRESS
+        // -----------------------------------------------
+
+        address:
+          formData.address,
+
+        landmark:
+          formData.landmark,
+
+        city:
+          formData.city,
+
+        state:
+          formData.state,
+
+        postalCode:
+          formData.pincode,
+
+        pincode:
+          formData.pincode,
+
+        country:
+          "India",
+
+
+        // -----------------------------------------------
+        // SHIPPING ADDRESS
+        // -----------------------------------------------
+
+        shippingAddress: {
+
+          fullName:
+            formData.fullName,
+
+          email:
+            formData.email,
+
+          phone:
+            formData.phoneNumber,
+
+          address:
+            formData.address,
+
+          landmark:
+            formData.landmark,
+
+          city:
+            formData.city,
+
+          state:
+            formData.state,
+
+          postalCode:
+            formData.pincode,
+
+          country:
+            "India",
+
+        },
+
+
+        // -----------------------------------------------
+        // PRODUCTS
+        // -----------------------------------------------
+
+        orderItems:
+          orderItems,
+
+        items:
+          orderItems,
+
+
+        // -----------------------------------------------
+        // PAYMENT
+        // -----------------------------------------------
+
+        paymentMethod:
+          formData.paymentMethod,
+
+
+        // -----------------------------------------------
+        // PRICE
+        // -----------------------------------------------
+
+        itemsPrice:
+          subtotal,
+
+        subtotal:
+          subtotal,
+
+        shippingPrice:
+          shipping,
+
+        shipping:
+          shipping,
+
+        taxPrice:
+          tax,
+
+        tax:
+          tax,
+
+        totalPrice:
+          total,
+
+        total:
+          total,
+
+      };
+
+
+      console.log(
+        "================================"
+      );
+
+      console.log(
+        "📦 ORDER DATA:"
+      );
+
+      console.log(
+        orderData
+      );
+
+      console.log(
+        "📦 ORDER ITEMS:"
+      );
+
+      console.log(
+        orderItems
+      );
+
+      console.log(
+        "================================"
+      );
+
+
       // =================================================
       // CASH ON DELIVERY
       // =================================================
 
-      if (formData.paymentMethod === "cod") {
-        const response = await fetch(
-          "http://localhost:5000/api/orders",
-          {
-            method: "POST",
+      if (
+        formData.paymentMethod ===
+        "cod"
+      ) {
 
-            headers: {
-              "Content-Type": "application/json",
-            },
+        const response =
+          await axios.post(
+            `${API_URL}/api/orders`,
+            orderData
+          );
 
-            body: JSON.stringify(formData),
-          }
+
+        console.log(
+          "✅ ORDER CREATED:",
+          response.data
         );
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.message ||
-              "Failed to place order."
-          );
-        }
 
         // =================================================
         // SAVE ORDER ID
         // =================================================
 
-        if (data._id) {
+        if (
+          response.data?._id
+        ) {
+
           localStorage.setItem(
             "orderId",
-            data._id
+            response.data._id
           );
+
         }
+
 
         // =================================================
         // SUCCESS
         // =================================================
 
-        navigate("/order-success");
+        navigate(
+          "/order-success"
+        );
 
         return;
+
       }
+
 
       // =================================================
       // RAZORPAY
       // =================================================
 
-      if (formData.paymentMethod === "razorpay") {
-        navigate("/payment");
+      if (
+        formData.paymentMethod ===
+        "razorpay"
+      ) {
+
+        // Save order information
+        // so Payment.jsx can use it.
+
+        localStorage.setItem(
+          "pendingOrder",
+          JSON.stringify(
+            orderData
+          )
+        );
+
+
+        navigate(
+          "/payment"
+        );
+
         return;
+
       }
 
     } catch (error) {
+
       console.error(
-        "❌ Order error:",
+        "❌ ORDER PLACEMENT ERROR:",
         error
       );
 
+
+      console.error(
+        "SERVER RESPONSE:",
+        error.response?.data
+      );
+
+
       alert(
+        error.response?.data?.message ||
         error.message ||
-          "Something went wrong."
+        "Something went wrong while placing your order."
       );
 
     } finally {
+
       setLoading(false);
+
     }
+
   };
+
+
+  // =====================================================
+  // CART LOADING
+  // =====================================================
+
+  if (cartLoading) {
+
+    return (
+
+      <div className="checkin-container">
+
+        <div className="checkin-card">
+
+          <div
+            style={{
+              padding: "60px",
+              textAlign: "center",
+              color: "white",
+              fontSize: "20px",
+            }}
+          >
+
+            Loading your cart...
+
+          </div>
+
+        </div>
+
+      </div>
+
+    );
+
+  }
+
 
   // =====================================================
   // JSX
   // =====================================================
 
   return (
+
     <div className="checkin-container">
 
       <div className="checkin-card">
+
 
         {/* =================================================
             HEADER
@@ -213,6 +695,47 @@ export default function Check() {
 
 
         {/* =================================================
+            CART STATUS
+        ================================================= */}
+
+        <div
+          style={{
+            marginBottom: "20px",
+            padding: "14px 18px",
+            borderRadius: "12px",
+            background:
+              "rgba(0, 212, 255, 0.08)",
+            border:
+              "1px solid rgba(0, 212, 255, 0.2)",
+            color: "#fff",
+          }}
+        >
+
+          <strong>
+            {cartItems.length}
+          </strong>
+
+          {" "}
+          product
+          {cartItems.length !== 1
+            ? "s"
+            : ""}
+
+          {" "}
+          in your cart
+
+          <span
+            style={{
+              float: "right",
+            }}
+          >
+            ₹{total}
+          </span>
+
+        </div>
+
+
+        {/* =================================================
             FORM
         ================================================= */}
 
@@ -220,6 +743,7 @@ export default function Check() {
           className="checkin-form"
           onSubmit={handleSubmit}
         >
+
 
           {/* =================================================
               FULL NAME
@@ -234,8 +758,12 @@ export default function Check() {
             <input
               type="text"
               name="fullName"
-              value={formData.fullName}
-              onChange={handleChange}
+              value={
+                formData.fullName
+              }
+              onChange={
+                handleChange
+              }
               placeholder="Enter your name"
               autoComplete="name"
             />
@@ -256,8 +784,12 @@ export default function Check() {
             <input
               type="tel"
               name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
+              value={
+                formData.phoneNumber
+              }
+              onChange={
+                handleChange
+              }
               placeholder="Enter your phone number"
               autoComplete="tel"
               inputMode="tel"
@@ -279,8 +811,12 @@ export default function Check() {
             <input
               type="tel"
               name="altPhoneNumber"
-              value={formData.altPhoneNumber}
-              onChange={handleChange}
+              value={
+                formData.altPhoneNumber
+              }
+              onChange={
+                handleChange
+              }
               placeholder="Enter alternate number"
               inputMode="tel"
             />
@@ -301,8 +837,12 @@ export default function Check() {
             <input
               type="email"
               name="email"
-              value={formData.email}
-              onChange={handleChange}
+              value={
+                formData.email
+              }
+              onChange={
+                handleChange
+              }
               placeholder="Enter your email"
               autoComplete="email"
             />
@@ -323,8 +863,12 @@ export default function Check() {
             <input
               type="text"
               name="address"
-              value={formData.address}
-              onChange={handleChange}
+              value={
+                formData.address
+              }
+              onChange={
+                handleChange
+              }
               placeholder="Enter your full address"
               autoComplete="street-address"
             />
@@ -345,8 +889,12 @@ export default function Check() {
             <input
               type="text"
               name="landmark"
-              value={formData.landmark}
-              onChange={handleChange}
+              value={
+                formData.landmark
+              }
+              onChange={
+                handleChange
+              }
               placeholder="Enter nearby landmark"
             />
 
@@ -355,8 +903,6 @@ export default function Check() {
 
           {/* =================================================
               STATE
-              NORMAL INPUT
-              NO DROPDOWN
           ================================================= */}
 
           <div className="form-group">
@@ -372,8 +918,12 @@ export default function Check() {
               <input
                 type="text"
                 name="state"
-                value={formData.state}
-                onChange={handleChange}
+                value={
+                  formData.state
+                }
+                onChange={
+                  handleChange
+                }
                 placeholder="Enter your state"
                 autoComplete="address-level1"
               />
@@ -385,8 +935,6 @@ export default function Check() {
 
           {/* =================================================
               CITY
-              NORMAL INPUT
-              NO DROPDOWN
           ================================================= */}
 
           <div className="form-group">
@@ -402,8 +950,12 @@ export default function Check() {
               <input
                 type="text"
                 name="city"
-                value={formData.city}
-                onChange={handleChange}
+                value={
+                  formData.city
+                }
+                onChange={
+                  handleChange
+                }
                 placeholder="Enter your city"
                 autoComplete="address-level2"
               />
@@ -426,8 +978,12 @@ export default function Check() {
             <input
               type="text"
               name="pincode"
-              value={formData.pincode}
-              onChange={handleChange}
+              value={
+                formData.pincode
+              }
+              onChange={
+                handleChange
+              }
               placeholder="Enter your pincode"
               maxLength={6}
               inputMode="numeric"
@@ -457,6 +1013,7 @@ export default function Check() {
 
 
             <div className="payment-options">
+
 
               {/* =================================================
                   ONLINE PAYMENT
@@ -574,7 +1131,10 @@ export default function Check() {
             <button
               className="submit-btn"
               type="submit"
-              disabled={loading}
+              disabled={
+                loading ||
+                cartItems.length === 0
+              }
             >
 
               {loading
@@ -588,10 +1148,13 @@ export default function Check() {
 
           </div>
 
+
         </form>
 
       </div>
 
     </div>
+
   );
+
 }
