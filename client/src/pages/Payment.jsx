@@ -19,29 +19,167 @@ export default function Payment() {
 
   const navigate = useNavigate();
 
-  // ==========================================
+  // =========================================================
+  // API URL
+  // =========================================================
+
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:5000";
+
+  // =========================================================
+  // IMAGE URL HELPER
+  // =========================================================
+
+  const getImageUrl = (item) => {
+    /*
+      Your cart/product data may contain the image in
+      different properties.
+
+      We check all common possibilities.
+    */
+
+    let image =
+      item?.image ||
+      item?.imageUrl ||
+      item?.images?.[0] ||
+      item?.product?.image ||
+      item?.product?.imageUrl ||
+      item?.product?.images?.[0] ||
+      "";
+
+    // -------------------------------------------------------
+    // No image
+    // -------------------------------------------------------
+
+    if (!image) {
+      return "/placeholder-product.png";
+    }
+
+    // -------------------------------------------------------
+    // Already a complete URL
+    // Example:
+    // https://example.com/image.jpg
+    // http://localhost:5000/uploads/image.jpg
+    // -------------------------------------------------------
+
+    if (
+      image.startsWith("http://") ||
+      image.startsWith("https://") ||
+      image.startsWith("data:")
+    ) {
+      return image;
+    }
+
+    // -------------------------------------------------------
+    // Remove accidental spaces
+    // -------------------------------------------------------
+
+    image = image.trim();
+
+    // -------------------------------------------------------
+    // If image starts with "/"
+    //
+    // Example:
+    // /uploads/monster.jpg
+    //
+    // Convert to:
+    // http://localhost:5000/uploads/monster.jpg
+    // -------------------------------------------------------
+
+    if (image.startsWith("/")) {
+      return `${API_URL}${image}`;
+    }
+
+    // -------------------------------------------------------
+    // If backend stores:
+    //
+    // uploads/monster.jpg
+    //
+    // Convert to:
+    // http://localhost:5000/uploads/monster.jpg
+    // -------------------------------------------------------
+
+    if (
+      image.startsWith("uploads/") ||
+      image.startsWith("upload/")
+    ) {
+      return `${API_URL}/${image}`;
+    }
+
+    // -------------------------------------------------------
+    // If only filename is stored:
+    //
+    // monster.jpg
+    //
+    // Assume it exists inside /uploads
+    // -------------------------------------------------------
+
+    return `${API_URL}/uploads/${image}`;
+  };
+
+  // =========================================================
+  // IMAGE FALLBACK
+  // =========================================================
+
+  const handleImageError = (e) => {
+    /*
+      Prevent infinite loop if placeholder itself fails.
+    */
+
+    if (
+      e.currentTarget.dataset.fallback === "true"
+    ) {
+      return;
+    }
+
+    e.currentTarget.dataset.fallback = "true";
+
+    e.currentTarget.src =
+      "/placeholder-product.png";
+  };
+
+  // =========================================================
   // FETCH CART
-  // ==========================================
+  // =========================================================
 
   const fetchCart = async () => {
     try {
-     const res = await axios.get(
-  `${import.meta.env.VITE_API_URL}/api/cart`
-);
+      const res = await axios.get(
+        `${API_URL}/api/cart`
+      );
 
-      setCartItems(res.data);
+      console.log(
+        "🛒 PAYMENT CART DATA:",
+        res.data
+      );
+
+      setCartItems(
+        Array.isArray(res.data)
+          ? res.data
+          : []
+      );
     } catch (err) {
-      console.error(err);
+      console.error(
+        "❌ Failed to fetch cart:",
+        err
+      );
+
+      setCartItems([]);
     }
   };
+
+  // =========================================================
+  // LOAD CART
+  // =========================================================
 
   useEffect(() => {
     fetchCart();
   }, []);
 
-  // ==========================================
+  // =========================================================
   // LOAD RAZORPAY
-  // ==========================================
+  // =========================================================
 
   const loadRazorpay = () => {
     return new Promise((resolve) => {
@@ -50,44 +188,63 @@ export default function Payment() {
         return;
       }
 
-      const script = document.createElement("script");
+      const script =
+        document.createElement("script");
 
       script.src =
         "https://checkout.razorpay.com/v1/checkout.js";
 
-      script.onload = () => resolve(true);
+      script.onload = () => {
+        resolve(true);
+      };
 
-      script.onerror = () => resolve(false);
+      script.onerror = () => {
+        resolve(false);
+      };
 
       document.body.appendChild(script);
     });
   };
 
-  // ==========================================
+  // =========================================================
   // CALCULATIONS
-  // ==========================================
+  // =========================================================
 
   const subtotal = cartItems.reduce(
-    (total, item) =>
-      total + item.price * item.quantity,
+    (total, item) => {
+      const price =
+        Number(item?.price) || 0;
+
+      const quantity =
+        Number(item?.quantity) || 0;
+
+      return total + price * quantity;
+    },
     0
   );
 
-  const shipping = subtotal > 499 ? 0 : 40;
+  const shipping =
+    subtotal > 499 ? 0 : 40;
 
-  const tax = Math.round(subtotal * 0.05);
+  const tax =
+    Math.round(subtotal * 0.05);
 
-  const total = subtotal + shipping + tax;
+  const total =
+    subtotal + shipping + tax;
 
   const totalItems = cartItems.reduce(
-    (total, item) =>
-      total + Number(item.quantity),
+    (total, item) => {
+      return (
+        total +
+        (Number(item?.quantity) || 0)
+      );
+    },
     0
   );
 
-  // ==========================================
+  // =========================================================
   // PAYMENT
-  // ==========================================
+  // =========================================================
 
   const handlePayment = async () => {
     if (cartItems.length === 0) {
@@ -95,50 +252,81 @@ export default function Payment() {
       return;
     }
 
-    const loaded = await loadRazorpay();
+    const loaded =
+      await loadRazorpay();
 
     if (!loaded) {
-      alert("Failed to load Razorpay.");
+      alert(
+        "Failed to load Razorpay."
+      );
       return;
     }
 
     setLoading(true);
 
     try {
-      const { data } = await axios.post(
-  `${import.meta.env.VITE_API_URL}/api/payment/create`,
-        {
-          amount: total,
-          customerName: "Nikita",
-          email: "niki@gmail.com",
-        }
-      );
+      // -----------------------------------------------------
+      // CREATE RAZORPAY ORDER
+      // -----------------------------------------------------
+
+      const { data } =
+        await axios.post(
+          `${API_URL}/api/payment/create`,
+          {
+            amount: total,
+            customerName: "Nikita",
+            email: "niki@gmail.com",
+          }
+        );
+
+      // -----------------------------------------------------
+      // RAZORPAY OPTIONS
+      // -----------------------------------------------------
 
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        key:
+          import.meta.env
+            .VITE_RAZORPAY_KEY_ID,
 
-        amount: data.order.amount,
+        amount:
+          data.order.amount,
 
         currency: "INR",
 
-        name: "Neo Urban Store",
+        name:
+          "Neo Urban Store",
 
-        description: "Drink Order Payment",
+        description:
+          "Drink Order Payment",
 
-        order_id: data.order.id,
+        order_id:
+          data.order.id,
 
-        handler: async function (response) {
+        // ---------------------------------------------------
+        // PAYMENT SUCCESS
+        // ---------------------------------------------------
+
+        handler: async function (
+          response
+        ) {
           try {
             await axios.post(
-  `${import.meta.env.VITE_API_URL}/api/payment/verify`,
+              `${API_URL}/api/payment/verify`,
               response
             );
 
-            alert("Payment Successful 🎉");
+            alert(
+              "Payment Successful 🎉"
+            );
 
-            navigate("/payment-success");
+            navigate(
+              "/payment-success"
+            );
           } catch (err) {
-            console.error(err);
+            console.error(
+              "❌ Payment verification error:",
+              err
+            );
 
             alert(
               "Payment Verification Failed"
@@ -146,33 +334,64 @@ export default function Payment() {
           }
         },
 
+        // ---------------------------------------------------
+        // PREFILL
+        // ---------------------------------------------------
+
         prefill: {
           name: "Nikita",
           email: "niki@gmail.com",
-          contact: "9876543210",
+          contact:
+            "9876543210",
         },
+
+        // ---------------------------------------------------
+        // THEME
+        // ---------------------------------------------------
 
         theme: {
           color: "#e60026",
         },
+
+        // ---------------------------------------------------
+        // MODAL
+        // ---------------------------------------------------
+
+        modal: {
+          ondismiss: function () {
+            setLoading(false);
+          },
+        },
       };
 
+      // -----------------------------------------------------
+      // OPEN RAZORPAY
+      // -----------------------------------------------------
+
       const razorpay =
-        new window.Razorpay(options);
+        new window.Razorpay(
+          options
+        );
 
       razorpay.open();
-    } catch (err) {
-      console.error(err);
 
-      alert("Payment Failed");
-    } finally {
+    } catch (err) {
+      console.error(
+        "❌ Payment error:",
+        err
+      );
+
+      alert(
+        "Payment Failed"
+      );
+
       setLoading(false);
     }
   };
 
-  // ==========================================
+  // =========================================================
   // ANIMATION
-  // ==========================================
+  // =========================================================
 
   const cardAnimation = {
     initial: {
@@ -187,35 +406,55 @@ export default function Payment() {
 
     transition: {
       duration: 0.7,
-      ease: [0.22, 1, 0.36, 1],
+      ease: [
+        0.22,
+        1,
+        0.36,
+        1,
+      ],
     },
   };
+
+  // =========================================================
+  // JSX
+  // =========================================================
 
   return (
     <main className="payment-page">
 
-      {/* =====================================
+      {/* =====================================================
           BACKGROUND EFFECTS
-      ===================================== */}
+      ===================================================== */}
 
       <div className="payment-grid"></div>
 
-      <div className="payment-glow payment-glow-blue"></div>
+      <div
+        className="
+          payment-glow
+          payment-glow-blue
+        "
+      ></div>
 
-      <div className="payment-glow payment-glow-red"></div>
+      <div
+        className="
+          payment-glow
+          payment-glow-red
+        "
+      ></div>
 
       <div className="payment-scanline"></div>
 
 
-      {/* =====================================
+      {/* =====================================================
           MAIN PAYMENT CONTAINER
-      ===================================== */}
+      ===================================================== */}
 
       <div className="payment-container">
 
-        {/* =================================
+
+        {/* ===================================================
             LEFT PAYMENT TERMINAL
-        ================================= */}
+        =================================================== */}
 
         <motion.section
           className="payment-left"
@@ -264,15 +503,32 @@ export default function Payment() {
           </p>
 
 
-          {/* REACTOR */}
+          {/* =================================================
+              REACTOR
+          ================================================= */}
 
           <div className="reactor-wrapper">
 
-            <div className="reactor-ring ring-one"></div>
+            <div
+              className="
+                reactor-ring
+                ring-one
+              "
+            ></div>
 
-            <div className="reactor-ring ring-two"></div>
+            <div
+              className="
+                reactor-ring
+                ring-two
+              "
+            ></div>
 
-            <div className="reactor-ring ring-three"></div>
+            <div
+              className="
+                reactor-ring
+                ring-three
+              "
+            ></div>
 
             <div className="reactor-core">
 
@@ -283,17 +539,27 @@ export default function Payment() {
           </div>
 
 
-          {/* SECURITY FEATURES */}
+          {/* =================================================
+              SECURITY FEATURES
+          ================================================= */}
 
           <div className="security-features">
+
 
             <div className="security-item">
 
               <FaLock />
 
               <div>
-                <strong>ENCRYPTED</strong>
-                <span>Secure transaction</span>
+
+                <strong>
+                  ENCRYPTED
+                </strong>
+
+                <span>
+                  Secure transaction
+                </span>
+
               </div>
 
             </div>
@@ -304,8 +570,15 @@ export default function Payment() {
               <FaShieldAlt />
 
               <div>
-                <strong>PROTECTED</strong>
-                <span>Payment verified</span>
+
+                <strong>
+                  PROTECTED
+                </strong>
+
+                <span>
+                  Payment verified
+                </span>
+
               </div>
 
             </div>
@@ -316,39 +589,58 @@ export default function Payment() {
               <FaCheckCircle />
 
               <div>
-                <strong>VERIFIED</strong>
-                <span>Trusted checkout</span>
+
+                <strong>
+                  VERIFIED
+                </strong>
+
+                <span>
+                  Trusted checkout
+                </span>
+
               </div>
 
             </div>
+
 
           </div>
 
         </motion.section>
 
 
-        {/* =================================
+        {/* ===================================================
             RIGHT ORDER SUMMARY
-        ================================= */}
+        =================================================== */}
 
         <motion.section
           className="payment-right"
+
           initial={{
             opacity: 0,
             y: 50,
           }}
+
           animate={{
             opacity: 1,
             y: 0,
           }}
+
           transition={{
             duration: 0.7,
             delay: 0.15,
-            ease: [0.22, 1, 0.36, 1],
+            ease: [
+              0.22,
+              1,
+              0.36,
+              1,
+            ],
           }}
         >
 
-          {/* HEADER */}
+
+          {/* =================================================
+              HEADER
+          ================================================= */}
 
           <div className="order-header">
 
@@ -380,81 +672,146 @@ export default function Payment() {
           </div>
 
 
-          {/* PRODUCTS */}
+          {/* =================================================
+              PRODUCTS
+          ================================================= */}
 
           <div className="payment-items">
 
             {cartItems.length > 0 ? (
 
-              cartItems.map((item, index) => (
+              cartItems.map(
+                (item, index) => {
 
-                <motion.div
-                  className="payment-item"
-                  key={item._id}
-                  initial={{
-                    opacity: 0,
-                    x: 30,
-                  }}
-                  animate={{
-                    opacity: 1,
-                    x: 0,
-                  }}
-                  transition={{
-                    delay:
-                      0.25 + index * 0.08,
-                    duration: 0.5,
-                  }}
-                >
+                  // -----------------------------------------
+                  // GET PRODUCT IMAGE
+                  // -----------------------------------------
 
-                  {/* IMAGE */}
+                  const imageUrl =
+                    getImageUrl(item);
 
-                  <div className="payment-item-image">
+                  console.log(
+                    `🖼️ ${item?.name} image:`,
+                    imageUrl
+                  );
 
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                    />
+                  return (
 
-                  </div>
+                    <motion.div
+                      className="payment-item"
+                      key={
+                        item?._id ||
+                        item?.id ||
+                        index
+                      }
 
+                      initial={{
+                        opacity: 0,
+                        x: 30,
+                      }}
 
-                  {/* INFO */}
+                      animate={{
+                        opacity: 1,
+                        x: 0,
+                      }}
 
-                  <div className="payment-info">
+                      transition={{
+                        delay:
+                          0.25 +
+                          index * 0.08,
 
-                    <span>
-                      {item.category}
-                    </span>
-
-                    <h4>
-                      {item.name}
-                    </h4>
-
-                    <p>
-                      QUANTITY :{" "}
-                      <strong>
-                        {item.quantity}
-                      </strong>
-                    </p>
-
-                  </div>
+                        duration: 0.5,
+                      }}
+                    >
 
 
-                  {/* PRICE */}
+                      {/* =====================================
+                          IMAGE
+                      ===================================== */}
 
-                  <div className="payment-item-price">
+                      <div className="payment-item-image">
 
-                    ₹
-                    {item.price *
-                      item.quantity}
+                        <img
+                          src={imageUrl}
+                          alt={
+                            item?.name ||
+                            "Product"
+                          }
 
-                  </div>
+                          onError={
+                            handleImageError
+                          }
 
-                </motion.div>
+                          loading="lazy"
+                        />
 
-              ))
+                      </div>
+
+
+                      {/* =====================================
+                          PRODUCT INFO
+                      ===================================== */}
+
+                      <div className="payment-info">
+
+                        <span>
+                          {item?.category ||
+                            "ENERGY"}
+                        </span>
+
+                        <h4>
+                          {item?.name ||
+                            "Product"}
+                        </h4>
+
+                        <p>
+
+                          QUANTITY :{" "}
+
+                          <strong>
+                            {item?.quantity ||
+                              1}
+                          </strong>
+
+                        </p>
+
+                      </div>
+
+
+                      {/* =====================================
+                          PRICE
+                      ===================================== */}
+
+                      <div className="payment-item-price">
+
+                        ₹
+                        {(
+                          (Number(
+                            item?.price
+                          ) || 0) *
+                          (Number(
+                            item?.quantity
+                          ) || 0)
+                        ).toLocaleString(
+                          "en-IN"
+                        )}
+
+                      </div>
+
+
+                    </motion.div>
+
+                  );
+
+                }
+
+              )
 
             ) : (
+
+              /* ===========================================
+                 EMPTY CART
+              =========================================== */
 
               <div className="empty-payment">
 
@@ -466,7 +823,9 @@ export default function Payment() {
 
                 <button
                   onClick={() =>
-                    navigate("/shop")
+                    navigate(
+                      "/shop"
+                    )
                   }
                 >
                   Continue Shopping
@@ -479,28 +838,59 @@ export default function Payment() {
           </div>
 
 
-          {/* TOTALS */}
+          {/* =================================================
+              TOTALS
+          ================================================= */}
 
           <div className="payment-total">
 
-            <div>
-              <span>Subtotal</span>
-              <span>₹{subtotal}</span>
-            </div>
 
             <div>
-              <span>Shipping</span>
 
               <span>
+                Subtotal
+              </span>
+
+              <span>
+                ₹
+                {subtotal.toLocaleString(
+                  "en-IN"
+                )}
+              </span>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Shipping
+              </span>
+
+              <span>
+
                 {shipping === 0
                   ? "FREE"
                   : `₹${shipping}`}
+
               </span>
+
             </div>
 
+
             <div>
-              <span>GST (5%)</span>
-              <span>₹{tax}</span>
+
+              <span>
+                GST (5%)
+              </span>
+
+              <span>
+                ₹
+                {tax.toLocaleString(
+                  "en-IN"
+                )}
+              </span>
+
             </div>
 
 
@@ -511,29 +901,42 @@ export default function Payment() {
               </span>
 
               <span>
-                ₹{total}
+                ₹
+                {total.toLocaleString(
+                  "en-IN"
+                )}
               </span>
 
             </div>
 
+
           </div>
 
 
-          {/* PAY BUTTON */}
+          {/* =================================================
+              PAY BUTTON
+          ================================================= */}
 
           <motion.button
+
             className="pay-btn"
-            onClick={handlePayment}
+
+            onClick={
+              handlePayment
+            }
+
             disabled={
               loading ||
               cartItems.length === 0
             }
+
             whileHover={{
               scale:
                 cartItems.length > 0
                   ? 1.02
                   : 1,
             }}
+
             whileTap={{
               scale:
                 cartItems.length > 0
@@ -546,9 +949,12 @@ export default function Payment() {
 
               {loading
                 ? "PROCESSING..."
-                : `PAY SECURELY ₹${total}`}
+                : `PAY SECURELY ₹${total.toLocaleString(
+                    "en-IN"
+                  )}`}
 
             </span>
+
 
             {!loading && (
               <FaLock />
@@ -557,7 +963,9 @@ export default function Payment() {
           </motion.button>
 
 
-          {/* RAZORPAY TEXT */}
+          {/* =================================================
+              RAZORPAY TEXT
+          ================================================= */}
 
           <div className="razorpay-note">
 
@@ -568,6 +976,7 @@ export default function Payment() {
             </span>
 
           </div>
+
 
         </motion.section>
 
