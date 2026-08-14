@@ -1,10 +1,10 @@
 import {
-  FaInstagram,
-  FaFacebookF,
-  FaLinkedinIn,
-  FaGithub,
-  FaPaperPlane,
-} from "react-icons/fa";
+  Mail,
+  Phone,
+  MapPin,
+  MessageCircle,
+  Send,
+} from "lucide-react";
 
 import "../styles/Footer.css";
 
@@ -12,11 +12,22 @@ export default function Footer() {
   return (
     <footer className="footer">
 
+      {/* =====================================================
+          BACKGROUND GLOW
+      ===================================================== */}
+
       <div className="footer-glow"></div>
+
+
+      {/* =====================================================
+          MAIN FOOTER
+      ===================================================== */}
 
       <div className="footer-container">
 
-        {/* LEFT */}
+        {/* ===================================================
+            BRAND
+        =================================================== */}
 
         <div className="footer-brand">
 
@@ -29,117 +40,151 @@ export default function Footer() {
             Discover energy, refreshment and hydration in one place.
           </p>
 
-          <div className="social-icons">
+        </div>
 
-            <a href="#">
-              <FaInstagram />
+
+        {/* ===================================================
+            SHOP
+        =================================================== */}
+
+        <div className="footer-links">
+
+          <h3>Shop</h3>
+
+          <a href="/shop">
+            Energy Drinks
+          </a>
+
+          <a href="/shop">
+            Soft Drinks
+          </a>
+
+         
+
+          
+
+        </div>
+
+
+        {/* ===================================================
+            COMPANY
+        =================================================== */}
+
+        <div className="footer-links">
+
+          <h3>page</h3>
+
+          <a href="#">
+            home
+          </a>
+
+          <a href="#">
+            shop
+          </a>
+
+          <a href="#">
+            Best Seller
+          </a>
+
+          <a href="#">
+            about
+          </a>
+
+          <a href="#">
+            Track Order
+          </a>
+
+        </div>
+
+
+        {/* ===================================================
+            SUPPORT
+        =================================================== */}
+
+        
+
+
+        {/* ===================================================
+            CONTACT US
+        =================================================== */}
+
+        <div className="footer-contact">
+
+          <h3>Contact Us</h3>
+
+          <p>
+            Have questions? We're here to help.
+          </p>
+
+
+          <div className="contact-icons">
+
+            {/* EMAIL */}
+
+            <a
+              href="mailto:admin@neourbanstore.in"
+              className="contact-icon"
+              title="Email Us"
+            >
+              <Mail />
             </a>
 
-            <a href="#">
-              <FaFacebookF />
+
+            {/* PHONE */}
+
+            <a
+              href="tel:+919999999999"
+              className="contact-icon"
+              title="Call Us"
+            >
+              <Phone />
             </a>
 
-            <a href="#">
-              <FaLinkedinIn />
+
+            {/* LOCATION */}
+
+            <a
+              href="#"
+              className="contact-icon"
+              title="Our Location"
+            >
+              <MapPin />
             </a>
 
-            <a href="#">
-              <FaGithub />
+
+            {/* WHATSAPP / CHAT */}
+
+            <a
+              href="#"
+              className="contact-icon"
+              title="Chat With Us"
+            >
+              <MessageCircle />
             </a>
 
           </div>
 
         </div>
 
-        {/* SHOP */}
-
-        <div className="footer-links">
-
-          <h3>Shop</h3>
-
-          <a href="#">Energy Drinks</a>
-
-          <a href="#">Soft Drinks</a>
-
-          <a href="#">Juices</a>
-
-          <a href="#">Water</a>
-
-        </div>
-
-        {/* COMPANY */}
-
-        <div className="footer-links">
-
-          <h3>Company</h3>
-
-          <a href="#">About Us</a>
-
-          <a href="#">Careers</a>
-
-          <a href="#">Blog</a>
-
-          <a href="#">Privacy Policy</a>
-
-        </div>
-
-        {/* SUPPORT */}
-
-        <div className="footer-links">
-
-          <h3>Support</h3>
-
-          <a href="#">Contact</a>
-
-          <a href="#">Shipping</a>
-
-          <a href="#">Returns</a>
-
-          <a href="#">FAQ</a>
-
-        </div>
-
       </div>
 
-      {/* NEWSLETTER */}
 
-      <div className="newsletter">
+      {/* =====================================================
+          NEWSLETTER
+      ===================================================== */}
 
-        <h2>Join Our Newsletter</h2>
+     
 
-        <p>
-          Get exclusive offers, new arrivals and special discounts.
-        </p>
 
-        <div className="newsletter-box">
-
-          <input
-            type="email"
-            placeholder="Enter your email..."
-          />
-
-          <button>
-
-            Subscribe
-
-            <FaPaperPlane />
-
-          </button>
-
-        </div>
-
-      </div>
-
-      {/* BOTTOM */}
+      {/* =====================================================
+          BOTTOM
+      ===================================================== */}
 
       <div className="footer-bottom">
 
         <p>
-
           © 2026 NEO Urban Store.
-
           All Rights Reserved.
-
         </p>
 
       </div>

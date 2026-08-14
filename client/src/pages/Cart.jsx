@@ -315,8 +315,8 @@ export default function Cart() {
                   {/* IMAGE */}
 
                   <div className="cart-image">
-  <img
-    src={getImageUrl(item.image)}
+                    <img
+                    src={getImageUrl(item.image)}
     alt={item.name}
     onError={(e) => {
       console.error("CART IMAGE FAILED:", item.image);

@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "../styles/About.css";
+import Image from "../assets/images/about.jpeg"
 
 // --- INLINE SVG ICONS (Themed with Electric Cyan/Blue) ---
 const Zap = () => (
@@ -195,7 +196,7 @@ export default function About() {
           <div className="about-image-column">
             <div ref={imageRef} className="about-image-wrapper">
               <img
-                src="https://images.unsplash.com/photo-1622483767028-3f66f32aef97?q=80&w=1000&auto=format&fit=crop"
+                src={Image}
                 alt="Cold Drink Bottle Visual"
                 className="about-img"
               />

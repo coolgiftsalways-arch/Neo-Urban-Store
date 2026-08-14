@@ -25,8 +25,8 @@ const FLAVORS = [
     description:
       "Raw high-octane energy fuel engineered for night owls, gamers, and extreme performers. Zero crash guaranteed.",
     flavorName: "CRIMSON RAGE",
-    accentColor: "#E60026",
-    glowColor: "rgba(230, 0, 38, 0.30)",
+    accentColor: "#fff",
+    glowColor: "#ffff",
     canImage: HEROONE,
   },
 
@@ -38,8 +38,8 @@ const FLAVORS = [
   description:
     "Precision focus matrix crafted to unlock hyper-cognitive reflexes and zero-lag mental stamina. 100% output, zero sugar.",
   flavorName: "CRIMSON SILVER",
-  accentColor: "#FF6B81",
-  glowColor: "rgba(255, 107, 129, 0.30)",
+  accentColor: "#Ffff",
+  glowColor: "#ffff",
   canImage: HEROTWO,
 },
 
@@ -51,8 +51,8 @@ const FLAVORS = [
     description:
       "Deep-space berry synthesis designed for midnight coders and relentless dark-mode warriors.",
     flavorName: "NEON PINK",
-    accentColor: "#FF2DAA",
-    glowColor: "rgba(255, 45, 170, 0.32)",
+    accentColor: "#FFf",
+    glowColor: "#ffff",
     canImage: HEROTHREE,
   },
 
@@ -64,8 +64,8 @@ const FLAVORS = [
     description:
       "Explosive tropical citrus power boost designed to shatter fatigue barriers and hit maximum velocity.",
     flavorName: "TOXIC GREEN",
-    accentColor: "#7CFF00",
-    glowColor: "rgba(124, 255, 0, 0.30)",
+    accentColor: "#ffff",
+    glowColor: "#ffff",
     canImage: HEROFOUR,
   },
 
@@ -90,8 +90,8 @@ const FLAVORS = [
     description:
       "A brutal fusion of heat, caffeine and raw energy built for people who refuse to slow down.",
     flavorName: "VENOM GREEN",
-    accentColor: "#22FF66",
-    glowColor: "rgba(34, 255, 102, 0.30)",
+    accentColor: "#ffff",
+    glowColor: "#ffff",
     canImage: HEROSIX,
   },
 
@@ -103,8 +103,8 @@ const FLAVORS = [
     description:
       "Cold, calculated and intensely focused. Designed for deep work, late nights and maximum output.",
     flavorName: "ELECTRIC YELLOW",
-    accentColor: "#FFD400",
-    glowColor: "rgba(255, 212, 0, 0.32)",
+    accentColor: "#FFf",
+    glowColor: "#fff",
     canImage: HEROSEVEN,
   },
 
@@ -116,8 +116,8 @@ const FLAVORS = [
     description:
       "The final evolution. An explosive energy experience designed to push your limits beyond the ordinary.",
     flavorName: "HYPER NOVA",
-    accentColor: "#FF3B5C",
-    glowColor: "rgba(255, 59, 92, 0.30)",
+    accentColor: "#FFf",
+    glowColor: "#ffff",
     canImage: HEROEIGHT,
   },
 ];
@@ -417,20 +417,18 @@ export default function Hero() {
               --------------------------------------------- */}
 
           <div className="danger-cta-group anim-text">
+<button
+  className="btn-danger-fire"
+  style={{
+    backgroundColor: "#000",
 
-            <button
-              className="btn-danger-fire"
-              style={{
-                backgroundColor:
-                  current.accentColor,
-
-                boxShadow:
-                  `0 0 25px ${current.glowColor},
-                   0 0 55px ${current.glowColor}`,
-              }}
-            >
-              UNLEASH THE CAN ⚡
-            </button>
+    boxShadow:
+      `0 0 25px #fff,
+       0 0 55px #fff`,
+  }}
+>
+  UNLEASH THE CAN ⚡
+</button>
 
             {/* -------------------------------------------
                 8 SLIDE DOTS
