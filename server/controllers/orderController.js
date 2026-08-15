@@ -937,44 +937,58 @@ export const addOrderItems = async (
 
 
     // =================================================
-    // CREATE ORDER INSIDE SAME TRANSACTION
-    // =================================================
+// CREATE ORDER INSIDE SAME TRANSACTION
+// =================================================
 
-    const order =
-      new Order(orderData);
+const order =
+  new Order(orderData);
+
+const createdOrder =
+  await order.save({
+    session,
+  });
 
 
-    const createdOrder =
-      await order.save({
-        session,
-      });
+// =================================================
+// CLEAR CART INSIDE SAME TRANSACTION
+// =================================================
+//
+// IMPORTANT:
+// Cart is deleted BEFORE commit.
+// Therefore order creation, stock reduction,
+// and cart clearing all succeed or all rollback.
+//
 
+console.log(
+  "🧹 CLEARING CART INSIDE TRANSACTION..."
+);
 
-    // =================================================
-    // COMMIT
-    // =================================================
-
-    await session.commitTransaction();
-
-    // =================================================
-    // CLEAR CART AFTER SUCCESSFUL ORDER
-    // =================================================
-    // The order and stock update are committed first.
-    // Only after that succeeds do we remove the cart.
-    // =================================================
-    try {
-      console.log("🧹 CLEARING CART AFTER SUCCESSFUL ORDER...");
-
-      const cartResult = await Cart.deleteMany({});
-
-      console.log(
-        `✅ CART CLEARED — ${cartResult.deletedCount} item(s) deleted`
-      );
-    } catch (cartError) {
-      console.error("❌ CART CLEAR ERROR:", cartError);
-      // Do not fail an already-created order because cart cleanup failed.
+const cartResult =
+  await Cart.deleteMany(
+    {},
+    {
+      session,
     }
+  );
 
+console.log(
+  `🧹 CART ITEMS TO DELETE: ${cartResult.deletedCount}`
+);
+
+
+// =================================================
+// COMMIT EVERYTHING
+// =================================================
+
+await session.commitTransaction();
+
+console.log(
+  "✅ TRANSACTION COMMITTED"
+);
+
+console.log(
+  `✅ CART CLEARED — ${cartResult.deletedCount} item(s) deleted`
+);
 
     console.log("====================================");
     console.log("✅ ORDER CREATED");
