@@ -41,6 +41,14 @@ export default function Dashboard() {
     useState([]);
 
 
+  // ===================================================
+  // PRODUCTS
+  // ===================================================
+
+  const [products, setProducts] =
+    useState([]);
+
+
   const [customers, setCustomers] =
     useState([]);
 
@@ -233,6 +241,15 @@ export default function Dashboard() {
           productsResponse.data.products;
 
       }
+
+
+      // =================================================
+      // SAVE PRODUCTS
+      // =================================================
+
+      setProducts(
+        productsData
+      );
 
 
       // =================================================
@@ -577,6 +594,30 @@ export default function Dashboard() {
 
       }
     );
+
+
+  // ===================================================
+  // LOW STOCK PRODUCTS
+  // ===================================================
+  // Products at 10 or below are shown in the admin
+  // dashboard so you know when inventory needs attention.
+  // ===================================================
+
+  const lowStockProducts =
+    products
+      .filter((product) => {
+        const stock = Number(
+          product?.stock ?? 0
+        );
+
+        return stock <= 10;
+      })
+      .sort((a, b) => {
+        return (
+          Number(a?.stock ?? 0) -
+          Number(b?.stock ?? 0)
+        );
+      });
 
 
   // ===================================================
@@ -1101,6 +1142,207 @@ export default function Dashboard() {
 
 
      
+
+      {/* ================================================
+          LOW STOCK ALERTS
+      ================================================= */}
+
+      <div
+        className="cgt-dash-x9-table-box"
+        style={{
+          marginBottom: "25px",
+          border: lowStockProducts.length > 0
+            ? "1px solid rgba(255, 179, 71, 0.35)"
+            : "1px solid rgba(255,255,255,0.08)",
+          background: lowStockProducts.length > 0
+            ? "rgba(255,179,71,0.04)"
+            : undefined,
+        }}
+      >
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "15px",
+            marginBottom: "20px",
+            flexWrap: "wrap",
+          }}
+        >
+
+          <div>
+
+            <h2
+              className="cgt-dash-x9-table-title"
+              style={{ marginBottom: 0 }}
+            >
+              ⚠️ Low Stock Alerts
+            </h2>
+
+            <p
+              style={{
+                margin: "6px 0 0",
+                color: "#7d8490",
+                fontSize: "13px",
+              }}
+            >
+              Products with 10 or fewer units remaining
+            </p>
+
+          </div>
+
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minWidth: "34px",
+              height: "30px",
+              padding: "0 10px",
+              borderRadius: "999px",
+              background: lowStockProducts.length > 0
+                ? "rgba(255,179,71,0.14)"
+                : "rgba(110,231,183,0.12)",
+              color: lowStockProducts.length > 0
+                ? "#ffb347"
+                : "#6ee7b7",
+              fontWeight: "800",
+              fontSize: "13px",
+            }}
+          >
+            {lowStockProducts.length}
+          </span>
+
+        </div>
+
+
+        {lowStockProducts.length === 0 ? (
+
+          <div
+            style={{
+              padding: "24px",
+              borderRadius: "10px",
+              background: "rgba(110,231,183,0.05)",
+              border: "1px solid rgba(110,231,183,0.12)",
+              color: "#6ee7b7",
+              textAlign: "center",
+              fontWeight: "600",
+            }}
+          >
+            ✅ All products have more than 10 units in stock.
+          </div>
+
+        ) : (
+
+          <div
+            className="cgt-dash-x9-table-scroll"
+          >
+
+            <table
+              className="cgt-dash-x9-core-table"
+            >
+
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Product ID</th>
+                  <th>Current Stock</th>
+                  <th>Alert</th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                {lowStockProducts.map((product) => {
+
+                  const stock = Number(
+                    product?.stock ?? 0
+                  );
+
+                  const isOutOfStock = stock <= 0;
+                  const isCritical = stock > 0 && stock <= 5;
+
+                  return (
+
+                    <tr key={product?._id || product?.id || product?.name}>
+
+                      <td>
+                        <strong>
+                          {product?.name || "Unnamed Product"}
+                        </strong>
+                      </td>
+
+                      <td>
+                        <span
+                          style={{
+                            color: "#888",
+                            fontSize: "12px",
+                          }}
+                        >
+                          {product?.id || product?._id || "—"}
+                        </span>
+                      </td>
+
+                      <td>
+                        <strong
+                          style={{
+                            color: isOutOfStock
+                              ? "#ff5c70"
+                              : isCritical
+                                ? "#ff6b7d"
+                                : "#ffb347",
+                            fontSize: "16px",
+                          }}
+                        >
+                          {stock}
+                        </strong>
+                      </td>
+
+                      <td>
+                        <span
+                          style={{
+                            display: "inline-block",
+                            padding: "6px 10px",
+                            borderRadius: "999px",
+                            background: isOutOfStock
+                              ? "rgba(230,0,38,0.15)"
+                              : isCritical
+                                ? "rgba(255,107,125,0.12)"
+                                : "rgba(255,179,71,0.12)",
+                            color: isOutOfStock
+                              ? "#ff5c70"
+                              : isCritical
+                                ? "#ff6b7d"
+                                : "#ffb347",
+                            fontWeight: "700",
+                            fontSize: "12px",
+                          }}
+                        >
+                          {isOutOfStock
+                            ? "🚨 OUT OF STOCK"
+                            : isCritical
+                              ? "🔴 CRITICAL"
+                              : "⚠️ LOW STOCK"}
+                        </span>
+                      </td>
+
+                    </tr>
+
+                  );
+
+                })}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        )}
+
+      </div>
+
 
       {/* ================================================
           CUSTOMERS

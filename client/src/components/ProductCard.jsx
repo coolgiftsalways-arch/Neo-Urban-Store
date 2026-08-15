@@ -277,27 +277,32 @@ export default function ProductCard({ product }) {
 
 
       const newItem =
-        res.data?.item ||
-        res.data;
+  res.data?.item ||
+  res.data;
 
+if (newItem?._id) {
+  setCartItemId(newItem._id);
+}
 
-      if (
-        newItem?._id
-      ) {
+setQuantity(1);
 
-        setCartItemId(
-          newItem._id
-        );
+// =====================================================
+// 🔔 TELL NAVBAR CART WAS UPDATED
+// =====================================================
 
-      }
+window.dispatchEvent(
+  new CustomEvent("cartUpdated", {
+    detail: {
+      added: true,
+    },
+  })
+);
 
+console.log(
+  "🛒 CART UPDATED EVENT SENT FROM PRODUCT CARD"
+);
 
-      setQuantity(1);
-
-
-      alert(
-        "Added to Cart 🛒"
-      );
+alert("Added to Cart 🛒");
 
 
     } catch (err) {
@@ -446,6 +451,13 @@ export default function ProductCard({ product }) {
       setQuantity(
         newQuantity
       );
+      window.dispatchEvent(
+  new CustomEvent("cartUpdated", {
+    detail: {
+      updated: true,
+    },
+  })
+);
 
 
     } catch (err) {

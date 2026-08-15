@@ -70,10 +70,9 @@ export default function Check() {
       try {
         setCartLoading(true);
 
-        const response =
-          await axios.get(
-            `${API_URL}/api/cart`
-          );
+        const response = await axios.get(
+          `${API_URL}/api/cart`
+        );
 
         const items =
           Array.isArray(response.data)
@@ -158,46 +157,6 @@ export default function Check() {
     subtotal +
     shipping +
     tax;
-
-  // =====================================================
-  // CLEAR CART
-  // =====================================================
-
-  const clearCart = async () => {
-    try {
-      console.log(
-        "🧹 Clearing entire cart..."
-      );
-
-      const response =
-        await axios.delete(
-          `${API_URL}/api/cart/clear`
-        );
-
-      console.log(
-        "✅ CART CLEARED:",
-        response.data
-      );
-
-      // Clear React state immediately
-      setCartItems([]);
-
-      return true;
-
-    } catch (error) {
-      console.error(
-        "❌ CLEAR CART ERROR:",
-        error
-      );
-
-      console.error(
-        "SERVER RESPONSE:",
-        error.response?.data
-      );
-
-      return false;
-    }
-  };
 
   // =====================================================
   // SUBMIT
@@ -289,6 +248,13 @@ export default function Check() {
       const orderItems =
         cartItems.map(
           (item) => ({
+            productId:
+              String(
+                item.productId ||
+                item.id ||
+                ""
+              ),
+
             name:
               item.name,
 
@@ -311,6 +277,21 @@ export default function Check() {
       if (!orderItems.length) {
         throw new Error(
           "No products found in your cart."
+        );
+      }
+
+      const missingProductId =
+        orderItems.find(
+          (item) =>
+            !item.productId
+        );
+
+      if (missingProductId) {
+        throw new Error(
+          `Product ID missing for ${
+            missingProductId.name ||
+            "a product"
+          }.`
         );
       }
 
@@ -500,25 +481,33 @@ export default function Check() {
         }
 
         // -----------------------------------------------
-        // CLEAR CART FROM DATABASE
+        // CART IS ALREADY CLEARED BY orderController
+        // -----------------------------------------------
+        // The backend clears the MongoDB cart after the
+        // order and stock update succeed.
+        // Do NOT call /api/cart/clear again here.
         // -----------------------------------------------
 
-        console.log(
-          "🧹 NOW CLEARING CART..."
+        setCartItems([]);
+
+        // Tell Navbar to reset its badge exactly once.
+        window.dispatchEvent(
+          new CustomEvent("cartUpdated", {
+            detail: {
+              cleared: true,
+              count: 0,
+              cartCount: 0,
+            },
+          })
         );
 
-        const cartCleared =
-          await clearCart();
+        console.log(
+          "✅ CART CLEARED BY BACKEND"
+        );
 
-        if (cartCleared) {
-          console.log(
-            "✅ CART COMPLETELY CLEARED"
-          );
-        } else {
-          console.warn(
-            "⚠️ ORDER CREATED BUT CART CLEAR FAILED"
-          );
-        }
+        console.log(
+          "🔴 NAVBAR BADGE RESET TO 0"
+        );
 
         // -----------------------------------------------
         // CLEAR CHECKOUT DATA
@@ -594,6 +583,7 @@ export default function Check() {
     } finally {
 
       setLoading(false);
+
     }
   };
 
@@ -678,6 +668,7 @@ export default function Check() {
             : ""}
 
           {" "}
+
           in your cart
 
           <span
@@ -978,7 +969,9 @@ export default function Check() {
               >
 
                 <div className="payment-icon">
+
                   <FaCreditCard />
+
                 </div>
 
                 <div className="payment-info">
@@ -1025,7 +1018,9 @@ export default function Check() {
               >
 
                 <div className="payment-icon cod-icon">
+
                   <FaMoneyBillWave />
+
                 </div>
 
                 <div className="payment-info">

@@ -18,6 +18,11 @@ import "../styles/Cart.css";
 const API_URL = `${import.meta.env.VITE_API_URL}/api/cart`;
 const IMAGE_BASE_URL = import.meta.env.VITE_API_URL;
 
+
+// ==========================================
+// IMAGE URL HELPER
+// ==========================================
+
 const getImageUrl = (image) => {
   if (!image) return "";
 
@@ -30,12 +35,19 @@ const getImageUrl = (image) => {
 
   return `${IMAGE_BASE_URL}/${image.replace(/^\/+/, "")}`;
 };
+
+
+// ==========================================
+// CART PAGE
+// ==========================================
+
 export default function Cart() {
+  const navigate = useNavigate();
+
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState(null);
 
-  const navigate = useNavigate();
 
   // ==========================================
   // GET CART
@@ -52,6 +64,7 @@ export default function Cart() {
           ? response.data
           : []
       );
+
     } catch (error) {
       console.error(
         "GET CART ERROR:",
@@ -59,14 +72,21 @@ export default function Cart() {
       );
 
       setCartItems([]);
+
     } finally {
       setLoading(false);
     }
   };
 
+
+  // ==========================================
+  // LOAD CART
+  // ==========================================
+
   useEffect(() => {
     fetchCart();
   }, []);
+
 
   // ==========================================
   // PLUS
@@ -111,10 +131,12 @@ export default function Cart() {
         error.response?.data?.message ||
           "Could not increase quantity."
       );
+
     } finally {
       setBusyId(null);
     }
   };
+
 
   // ==========================================
   // MINUS
@@ -164,10 +186,12 @@ export default function Cart() {
         error.response?.data?.message ||
           "Could not decrease quantity."
       );
+
     } finally {
       setBusyId(null);
     }
   };
+
 
   // ==========================================
   // DELETE
@@ -208,10 +232,12 @@ export default function Cart() {
         error.response?.data?.message ||
           "Could not remove item."
       );
+
     } finally {
       setBusyId(null);
     }
   };
+
 
   // ==========================================
   // TOTALS
@@ -223,6 +249,7 @@ export default function Cart() {
     0
   );
 
+
   const subtotal = cartItems.reduce(
     (total, item) =>
       total +
@@ -231,11 +258,13 @@ export default function Cart() {
     0
   );
 
+
   const shipping = subtotal > 499 ? 0 : 40;
 
   const tax = Math.round(subtotal * 0.05);
 
   const total = subtotal + shipping + tax;
+
 
   // ==========================================
   // LOADING
@@ -244,6 +273,7 @@ export default function Cart() {
   if (loading) {
     return (
       <section className="cart-page">
+
         <div className="cart-blob blob-one"></div>
         <div className="cart-blob blob-two"></div>
         <div className="cart-blob blob-three"></div>
@@ -251,9 +281,11 @@ export default function Cart() {
         <div className="empty-cart">
           <h2>Loading Cart...</h2>
         </div>
+
       </section>
     );
   }
+
 
   // ==========================================
   // PAGE
@@ -265,6 +297,7 @@ export default function Cart() {
       <div className="cart-blob blob-one"></div>
       <div className="cart-blob blob-two"></div>
       <div className="cart-blob blob-three"></div>
+
 
       <motion.section
         className="cart-hero"
@@ -281,7 +314,9 @@ export default function Cart() {
         }}
       />
 
+
       <div className="cart-wrapper">
+
 
         {/* =====================================
             CART
@@ -293,7 +328,8 @@ export default function Cart() {
 
             cartItems.map((item) => {
 
-              const isBusy = busyId === item._id;
+              const isBusy =
+                busyId === item._id;
 
               return (
                 <motion.div
@@ -312,18 +348,29 @@ export default function Cart() {
                   }}
                 >
 
+
                   {/* IMAGE */}
 
                   <div className="cart-image">
+
                     <img
-                    src={getImageUrl(item.image)}
-    alt={item.name}
-    onError={(e) => {
-      console.error("CART IMAGE FAILED:", item.image);
-      console.error("IMAGE URL:", getImageUrl(item.image));
-    }}
-  />
-</div>
+                      src={getImageUrl(item.image)}
+                      alt={item.name}
+                      onError={(e) => {
+                        console.error(
+                          "CART IMAGE FAILED:",
+                          item.image
+                        );
+
+                        console.error(
+                          "IMAGE URL:",
+                          getImageUrl(item.image)
+                        );
+                      }}
+                    />
+
+                  </div>
+
 
                   {/* INFO */}
 
@@ -343,6 +390,7 @@ export default function Cart() {
 
                   </div>
 
+
                   {/* ACTIONS */}
 
                   <div
@@ -354,6 +402,7 @@ export default function Cart() {
                     }}
                   >
 
+
                     {/* QUANTITY */}
 
                     <div
@@ -364,6 +413,9 @@ export default function Cart() {
                         pointerEvents: "auto",
                       }}
                     >
+
+
+                      {/* MINUS */}
 
                       <button
                         type="button"
@@ -386,9 +438,13 @@ export default function Cart() {
                         <FaMinus />
                       </button>
 
+
                       <span>
                         {item.quantity}
                       </span>
+
+
+                      {/* PLUS */}
 
                       <button
                         type="button"
@@ -411,7 +467,9 @@ export default function Cart() {
                         <FaPlus />
                       </button>
 
+
                     </div>
+
 
                     {/* DELETE */}
 
@@ -442,13 +500,18 @@ export default function Cart() {
 
                     </button>
 
+
                   </div>
+
 
                 </motion.div>
               );
             })
 
           ) : (
+
+
+            /* EMPTY CART */
 
             <motion.div
               className="empty-cart"
@@ -482,6 +545,7 @@ export default function Cart() {
 
         </div>
 
+
         {/* =====================================
             SUMMARY
         ===================================== */}
@@ -505,7 +569,11 @@ export default function Cart() {
             Order Summary
           </h2>
 
+
+          {/* TOTAL ITEMS */}
+
           <div className="summary-row">
+
             <span>
               Total Items
             </span>
@@ -513,9 +581,14 @@ export default function Cart() {
             <span>
               {totalItems}
             </span>
+
           </div>
 
+
+          {/* SUBTOTAL */}
+
           <div className="summary-row">
+
             <span>
               Subtotal
             </span>
@@ -523,9 +596,14 @@ export default function Cart() {
             <span>
               ₹{subtotal}
             </span>
+
           </div>
 
+
+          {/* SHIPPING */}
+
           <div className="summary-row">
+
             <span>
               Shipping
             </span>
@@ -535,9 +613,14 @@ export default function Cart() {
                 ? "FREE"
                 : `₹${shipping}`}
             </span>
+
           </div>
 
+
+          {/* GST */}
+
           <div className="summary-row">
+
             <span>
               GST (5%)
             </span>
@@ -545,9 +628,14 @@ export default function Cart() {
             <span>
               ₹{tax}
             </span>
+
           </div>
 
+
+          {/* TOTAL */}
+
           <div className="summary-total">
+
             <span>
               Total
             </span>
@@ -555,7 +643,11 @@ export default function Cart() {
             <span>
               ₹{total}
             </span>
+
           </div>
+
+
+          {/* CHECKOUT */}
 
           <button
             type="button"
@@ -566,35 +658,50 @@ export default function Cart() {
             Secure Checkout
           </button>
 
+
+          {/* FEATURES */}
+
           <div className="cart-features">
 
             <div>
+
               <FaTruck />
+
               <span>
                 Fast Delivery
               </span>
+
             </div>
 
+
             <div>
+
               <FaShieldAlt />
+
               <span>
                 Quality Guaranteed
               </span>
+
             </div>
 
+
             <div>
+
               <FaLock />
+
               <span>
                 Secure Payments
               </span>
+
             </div>
 
           </div>
 
+
         </motion.aside>
 
-      </div>
 
+      </div>
     </section>
   );
 }

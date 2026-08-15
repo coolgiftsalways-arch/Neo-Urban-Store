@@ -471,25 +471,38 @@ export default function ProductDetails() {
 
       if (!response.ok) {
 
-        const errorData =
-          await response
-            .json()
-            .catch(
-              () => ({})
-            );
+  const errorData =
+    await response
+      .json()
+      .catch(() => ({}));
+
+  throw new Error(
+    errorData.message ||
+      "Failed to add product to cart"
+  );
+}
 
 
-        throw new Error(
-          errorData.message ||
-            "Failed to add product to cart"
-        );
+// ==========================================
+// 🔔 TELL NAVBAR CART WAS UPDATED
+// ==========================================
 
-      }
+window.dispatchEvent(
+  new CustomEvent("cartUpdated", {
+    detail: {
+      added: true,
+    },
+  })
+);
+
+console.log(
+  "🛒 PRODUCT DETAILS — CART UPDATED EVENT SENT"
+);
 
 
-      alert(
-        "Added to Cart 🛒"
-      );
+// alert(
+//   "Added to Cart 🛒"
+// );
 
 
     } catch (error) {

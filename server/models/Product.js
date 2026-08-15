@@ -35,7 +35,6 @@ const productSchema = new mongoose.Schema(
 
     // ==========================================
     // COLLECTION TYPE
-    // Regulars / Imported / Rare / Collections
     // ==========================================
 
     collectionType: {
@@ -132,9 +131,12 @@ const productSchema = new mongoose.Schema(
   }
 );
 
-const Product = mongoose.model(
-  "Product",
-  productSchema
-);
+// ==========================================
+// PREVENT MONGOOSE OVERWRITE MODEL ERROR
+// ==========================================
+
+const Product =
+  mongoose.models.Product ||
+  mongoose.model("Product", productSchema);
 
 export default Product;

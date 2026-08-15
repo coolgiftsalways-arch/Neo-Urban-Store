@@ -67,27 +67,60 @@ export default function Navbar() {
   };
 
   // ==============================
-  // LOAD CART COUNT
-  // ==============================
+// LOAD + SYNC CART COUNT
+// ==============================
 
-  useEffect(() => {
+useEffect(() => {
+  // Initial cart count
+  fetchCartCount();
+
+  // Listen for cart changes
+  const handleCartUpdated = (event) => {
+    console.log(
+      "🛒 CART UPDATED EVENT:",
+      event.detail
+    );
+
+    // ------------------------------------------
+    // ORDER COMPLETED → FORCE CART COUNT TO 0
+    // ------------------------------------------
+
+    if (event.detail?.cleared === true) {
+      console.log(
+        "✅ ORDER COMPLETED — RESETTING CART BADGE TO 0"
+      );
+
+      setCartCount(0);
+      return;
+    }
+
+    // ------------------------------------------
+    // NORMAL CART UPDATE
+    // ------------------------------------------
+
     fetchCartCount();
+  };
 
-    // Keep navbar count synced
-    const interval = setInterval(() => {
-      fetchCartCount();
-    }, 1000);
+  window.addEventListener(
+    "cartUpdated",
+    handleCartUpdated
+  );
 
-    return () => clearInterval(interval);
-  }, []);
+  return () => {
+    window.removeEventListener(
+      "cartUpdated",
+      handleCartUpdated
+    );
+  };
+}, []);
 
-  // ==============================
-  // ALSO REFRESH WHEN PAGE CHANGES
-  // ==============================
+// ==============================
+// REFRESH WHEN PAGE CHANGES
+// ==============================
 
-  useEffect(() => {
-    fetchCartCount();
-  }, [location.pathname]);
+useEffect(() => {
+  fetchCartCount();
+}, [location.pathname]);
 
   // ==============================
   // NAVIGATION
