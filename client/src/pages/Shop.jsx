@@ -142,26 +142,38 @@ export default function Shop() {
   // =======================================================
 
   const getCategory = () => {
-    switch (slug) {
-      case "energy-drinks":
-        return "Energy";
+  switch (slug) {
+    case "regulars":
+      return "Regulars";
 
-      case "soft-drinks":
-        return "Soft Drinks";
+    case "imported":
+      return "Imported";
 
-      case "juices":
-        return "Juice";
+    case "rare":
+      return "Rare";
 
-      case "sparkling-water":
-        return "Water";
+    case "collections":
+      return "Collections";
 
-      case "tea":
-        return "Tea";
+    case "energy-drinks":
+      return "Energy";
 
-      default:
-        return "All";
-    }
-  };
+    case "soft-drinks":
+      return "Soft Drinks";
+
+    case "juices":
+      return "Juice";
+
+    case "sparkling-water":
+      return "Water";
+
+    case "tea":
+      return "Tea";
+
+    default:
+      return "All";
+  }
+};
 
   const [selectedCategory, setSelectedCategory] =
     useState(getCategory());

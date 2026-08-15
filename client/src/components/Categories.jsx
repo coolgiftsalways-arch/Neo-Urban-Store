@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import axios from "axios";
+
 import CategoryCard from "./CategoryCard";
 import "../styles/Categories.css";
 
@@ -7,6 +9,18 @@ import monster from "../assets/images/bs10.jpg";
 import drink from "../assets/images/bsfive.jpg";
 import juice from "../assets/images/bssevin.jpg";
 import water from "../assets/images/bsone.jpg";
+
+// =========================================================
+// API
+// =========================================================
+
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+// =========================================================
+// CATEGORIES
+// =========================================================
+
 const categories = [
   {
     id: 1,
@@ -38,6 +52,10 @@ const categories = [
   },
 ];
 
+// =========================================================
+// ANIMATIONS
+// =========================================================
+
 const container = {
   hidden: {},
 
@@ -66,18 +84,123 @@ const heading = {
   },
 };
 
+// =========================================================
+// COMPONENT
+// =========================================================
+
 const Categories = () => {
+
+  // =======================================================
+  // PRODUCT COUNTS
+  // =======================================================
+
+  const [productCounts, setProductCounts] = useState({
+    regulars: 0,
+    imported: 0,
+    rare: 0,
+    collections: 0,
+  });
+
+  const [loadingCounts, setLoadingCounts] = useState(true);
+
+  // =======================================================
+  // FETCH PRODUCTS
+  // =======================================================
+
+  useEffect(() => {
+    const fetchProductCounts = async () => {
+      try {
+        setLoadingCounts(true);
+
+        const response = await axios.get(
+          `${API_URL}/api/products`
+        );
+
+        if (!Array.isArray(response.data)) {
+          console.error(
+            "Products response is not an array:",
+            response.data
+          );
+
+          return;
+        }
+
+        // Start all counts from 0
+        const counts = {
+          regulars: 0,
+          imported: 0,
+          rare: 0,
+          collections: 0,
+        };
+
+        // Count products based on collectionType
+        response.data.forEach((product) => {
+
+          const collection =
+            String(
+              product?.collectionType || ""
+            )
+              .trim()
+              .toLowerCase();
+
+          if (collection === "regulars") {
+            counts.regulars++;
+          }
+
+          if (collection === "imported") {
+            counts.imported++;
+          }
+
+          if (collection === "rare") {
+            counts.rare++;
+          }
+
+          if (collection === "collections") {
+            counts.collections++;
+          }
+        });
+
+        setProductCounts(counts);
+
+      } catch (error) {
+
+        console.error(
+          "Failed to fetch category product counts:",
+          error
+        );
+
+      } finally {
+
+        setLoadingCounts(false);
+
+      }
+    };
+
+    fetchProductCounts();
+  }, []);
+
+  // =======================================================
+  // RENDER
+  // =======================================================
+
   return (
     <section className="category-section">
-      {/* Heading */}
+
+      {/* =====================================================
+          HEADING
+      ===================================================== */}
 
       <motion.div
         className="category-heading-wrap"
         initial="hidden"
         whileInView="show"
-        viewport={{ once: true, amount: 0.3 }}
+        viewport={{
+          once: true,
+          amount: 0.3,
+        }}
         variants={heading}
       >
+
         <motion.span
           className="category-small-title"
           initial={{
@@ -110,7 +233,10 @@ const Categories = () => {
             duration: 0.9,
           }}
         >
-          SHOP BY <span className="highlight">CATEGORY</span>
+          SHOP BY{" "}
+          <span className="highlight">
+            CATEGORY
+          </span>
         </motion.h2>
 
         <motion.p
@@ -129,9 +255,12 @@ const Categories = () => {
         >
           Explore premium drinks from world-famous brands.
         </motion.p>
+
       </motion.div>
 
-      {/* Cards */}
+      {/* =====================================================
+          CATEGORY CARDS
+      ===================================================== */}
 
       <motion.div
         className="category-grid"
@@ -143,10 +272,22 @@ const Categories = () => {
           amount: 0.2,
         }}
       >
+
         {categories.map((category) => (
-          <CategoryCard key={category.id} category={category} />
+
+          <CategoryCard
+            key={category.id}
+            category={category}
+            productCount={
+              productCounts[category.slug]
+            }
+            loadingCount={loadingCounts}
+          />
+
         ))}
+
       </motion.div>
+
     </section>
   );
 };
