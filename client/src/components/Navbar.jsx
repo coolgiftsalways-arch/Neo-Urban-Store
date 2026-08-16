@@ -17,9 +17,10 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const navRef = useRef(null);
-  const mobilePopupRef = useRef(null);
-  const linksRef = useRef([]);
+ const navRef = useRef(null);
+const mobilePopupRef = useRef(null);
+const linksRef = useRef([]);
+const cartBadgeRef = useRef(null);
 
   // ==============================
   // NAVIGATION LINKS
@@ -120,6 +121,31 @@ useEffect(() => {
   };
 }, []);
 
+// =====================================================
+// CART BADGE ANIMATION
+// =====================================================
+
+useEffect(() => {
+  if (!cartBadgeRef.current) return;
+
+  gsap.killTweensOf(cartBadgeRef.current);
+
+  gsap.fromTo(
+    cartBadgeRef.current,
+    {
+      scale: 0.6,
+      opacity: 0.5,
+      y: -4,
+    },
+    {
+      scale: 1,
+      opacity: 1,
+      y: 0,
+      duration: 0.45,
+      ease: "back.out(2)",
+    }
+  );
+}, [cartCount]);
 // ==============================
 // REFRESH WHEN PAGE CHANGES
 // ==============================
@@ -449,12 +475,15 @@ useEffect(() => {
               {/* CART COUNT */}
 
               {cartCount > 0 && (
-                <span className="cart-badge">
-                  {cartCount > 99
-                    ? "99+"
-                    : cartCount}
-                </span>
-              )}
+  <span
+    ref={cartBadgeRef}
+    className="cart-badge"
+  >
+    {cartCount > 99
+      ? "99+"
+      : cartCount}
+  </span>
+)}
 
             </Link>
 

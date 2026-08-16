@@ -10,5 +10,5 @@
     RewriteRule ^ - [L]
 
     # React Router fallback
-    RewriteRule ^ index.html [L]
+    RewriteRule ^ /index.html [L]
 </IfModule>
