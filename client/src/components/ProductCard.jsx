@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import getCartId from "../utils/cartId";
 import { motion } from "framer-motion";
 import {
   FaHeart,
@@ -68,9 +69,14 @@ export default function ProductCard({ product }) {
     try {
 
       const res =
-        await axios.get(
-          `${API_URL}/api/cart`
-        );
+  await axios.get(
+    `${API_URL}/api/cart`,
+    {
+      params: {
+        cartId: getCartId(),
+      },
+    }
+  );
 
 
       const cart =
@@ -253,9 +259,10 @@ export default function ProductCard({ product }) {
         await axios.post(
           `${API_URL}/api/cart`,
           {
+  cartId: getCartId(),
 
-            productId:
-              product.id,
+  productId:
+    product.id,
 
             name:
               product.name,
@@ -440,12 +447,14 @@ alert("Added to Cart 🛒");
 
 
       await axios.put(
-        `${API_URL}/api/cart/${cartItemId}`,
-        {
-          quantity:
-            newQuantity,
-        }
-      );
+  `${API_URL}/api/cart/${cartItemId}`,
+  {
+    cartId: getCartId(),
+
+    quantity:
+      newQuantity,
+  }
+);
 
 
       setQuantity(
@@ -521,9 +530,14 @@ alert("Added to Cart 🛒");
         quantity === 1
       ) {
 
-        await axios.delete(
-          `${API_URL}/api/cart/${cartItemId}`
-        );
+       await axios.delete(
+  `${API_URL}/api/cart/${cartItemId}`,
+  {
+    params: {
+      cartId: getCartId(),
+    },
+  }
+);
 
 
         setQuantity(0);
@@ -544,12 +558,14 @@ alert("Added to Cart 🛒");
 
 
       await axios.put(
-        `${API_URL}/api/cart/${cartItemId}`,
-        {
-          quantity:
-            newQuantity,
-        }
-      );
+  `${API_URL}/api/cart/${cartItemId}`,
+  {
+    cartId: getCartId(),
+
+    quantity:
+      newQuantity,
+  }
+);
 
 
       setQuantity(

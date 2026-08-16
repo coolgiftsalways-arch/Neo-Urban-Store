@@ -2,10 +2,15 @@ import mongoose from "mongoose";
 
 const cartSchema = new mongoose.Schema(
   {
+    cartId: {
+      type: String,
+      required: true,
+      index: true,
+    },
+
     productId: {
       type: String,
       required: true,
-      unique: true,
     },
 
     name: {
@@ -37,4 +42,12 @@ const cartSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("Cart", cartSchema);
+cartSchema.index(
+  { cartId: 1, productId: 1 },
+  { unique: true }
+);
+
+export default mongoose.model(
+  "Cart",
+  cartSchema
+);

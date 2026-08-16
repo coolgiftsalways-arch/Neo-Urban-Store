@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import getCartId from "../utils/cartId";
 import { motion } from "framer-motion";
 import axios from "axios";
 
@@ -55,7 +56,14 @@ export default function Cart() {
 
   const fetchCart = async () => {
     try {
-      const response = await axios.get(API_URL);
+      const response = await axios.get(
+  API_URL,
+  {
+    params: {
+      cartId: getCartId(),
+    },
+  }
+);
 
       console.log("CART:", response.data);
 
@@ -112,9 +120,10 @@ export default function Cart() {
 
       const response = await axios.put(
         `${API_URL}/${id}`,
-        {
-          quantity: Number(item.quantity) + 1,
-        }
+       {
+  cartId: getCartId(),
+  quantity: Number(item.quantity) + 1,
+}
       );
 
       console.log("PLUS RESPONSE:", response.data);
@@ -168,8 +177,9 @@ export default function Cart() {
       const response = await axios.put(
         `${API_URL}/${id}`,
         {
-          quantity: quantity - 1,
-        }
+  cartId: getCartId(),
+  quantity: quantity - 1,
+}
       );
 
       console.log("MINUS RESPONSE:", response.data);
@@ -215,8 +225,13 @@ export default function Cart() {
       setBusyId(id);
 
       const response = await axios.delete(
-        `${API_URL}/${id}`
-      );
+  `${API_URL}/${id}`,
+  {
+    params: {
+      cartId: getCartId(),
+    },
+  }
+);
 
       console.log("DELETE RESPONSE:", response.data);
 
