@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import getCartId from "../utils/cartId";
 
 import {
   FaCreditCard,
@@ -71,8 +72,13 @@ export default function Check() {
         setCartLoading(true);
 
         const response = await axios.get(
-          `${API_URL}/api/cart`
-        );
+  `${API_URL}/api/cart`,
+  {
+    params: {
+      cartId: getCartId(),
+    },
+  }
+);
 
         const items =
           Array.isArray(response.data)
