@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import getCartId from "../utils/cartId";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { gsap } from "gsap";
 import axios from "axios";
@@ -37,34 +38,39 @@ export default function Navbar() {
   // ==============================
 
   const fetchCartCount = async () => {
-    try {
-      const response = await axios.get(
-  `${import.meta.env.VITE_API_URL}/api/cart`
-);
+  try {
+    const cartId = getCartId();
 
-      const cart = Array.isArray(response.data)
-        ? response.data
-        : [];
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/api/cart`,
+      {
+        params: {
+          cartId,
+        },
+      }
+    );
 
-      // IMPORTANT:
-      // Count total QUANTITY, not number of products
-      const totalQuantity = cart.reduce(
-        (total, item) =>
-          total + Number(item.quantity || 0),
-        0
-      );
+    const cart = Array.isArray(response.data)
+      ? response.data
+      : [];
 
-      setCartCount(totalQuantity);
+    const totalQuantity = cart.reduce(
+      (total, item) =>
+        total + Number(item.quantity || 0),
+      0
+    );
 
-    } catch (error) {
-      console.error(
-        "Navbar cart count error:",
-        error.response?.data || error.message
-      );
+    setCartCount(totalQuantity);
 
-      setCartCount(0);
-    }
-  };
+  } catch (error) {
+    console.error(
+      "Navbar cart count error:",
+      error.response?.data || error.message
+    );
+
+    setCartCount(0);
+  }
+};
 
   // ==============================
 // LOAD + SYNC CART COUNT
