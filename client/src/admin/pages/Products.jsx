@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
+import api from "../../config/api";
 
 import {
   FiPlus,
@@ -19,7 +20,7 @@ import "../styles/products.css";
 // API
 // =========================================================
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://api.neourbanstore.in";
 
 const PRODUCTS_API =
   `${API_URL}/api/products`;

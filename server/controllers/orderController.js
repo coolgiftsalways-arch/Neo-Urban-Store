@@ -1,6 +1,8 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
 import Cart from "../models/cart.js";
+import { sendOrderConfirmationEmail } from "../utils/email.js";
+
 
 
 /* =====================================================
@@ -982,21 +984,26 @@ console.log(
 
 await session.commitTransaction();
 
-console.log(
-  "✅ TRANSACTION COMMITTED"
-);
+console.log("✅ TRANSACTION COMMITTED");
+console.log("📧 CUSTOMER EMAIL:", createdOrder.email);
 
-console.log(
-  `✅ CART CLEARED — ${cartResult.deletedCount} item(s) deleted`
-);
+try {
+  await sendOrderConfirmationEmail(createdOrder);
 
-    console.log("====================================");
-    console.log("✅ ORDER CREATED");
-    console.log("ORDER ID:", createdOrder._id);
-    console.log("CUSTOMER:", finalCustomerName);
-    console.log("TOTAL:", finalTotal);
-    console.log("📦 PRODUCT STOCK UPDATED");
-    console.log("====================================");
+  console.log("✅ ORDER CONFIRMATION EMAIL SENT");
+  console.log("📨 SENT TO:", createdOrder.email);
+} catch (emailError) {
+  console.error("❌ ORDER EMAIL FAILED");
+  console.error("Email error:", emailError);
+}
+
+console.log("====================================");
+console.log("✅ ORDER CREATED");
+console.log("ORDER ID:", createdOrder._id);
+console.log("CUSTOMER:", finalCustomerName);
+console.log("TOTAL:", finalTotal);
+console.log("📦 PRODUCT STOCK UPDATED");
+console.log("====================================");
 
 
     // =================================================

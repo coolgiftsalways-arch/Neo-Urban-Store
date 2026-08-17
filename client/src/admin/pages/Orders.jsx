@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import api from "../../config/api";
 import "../styles/orders.css";
 
 import {
@@ -27,9 +28,8 @@ export default function Orders() {
     try {
       setLoading(true);
 
-      const response = await axios.get(
-        "http://localhost:5000/api/orders"
-      );
+      const response = await api.get("/orders");
+      
 
       console.log("📦 ORDERS FROM BACKEND:", response.data);
 
@@ -64,12 +64,12 @@ export default function Orders() {
     try {
       setUpdatingId(orderId);
 
-      const response = await axios.put(
-        `http://localhost:5000/api/orders/${orderId}/status`,
-        {
-          status: newStatus,
-        }
-      );
+      const response = await api.put(
+  `/orders/${orderId}/status`,
+  {
+    status,
+  }
+);
 
       console.log(
         "✅ STATUS UPDATED:",

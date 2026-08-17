@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import api from "../../config/api";
 
 import "../styles/analytics.css";
 
@@ -31,9 +32,9 @@ export default function Analytics() {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/api/analytics/dashboard"
-        );
+        const response = await api.get(
+  "/analytics/dashboard"
+);
 
         console.log("ANALYTICS DATA:", response.data);
 

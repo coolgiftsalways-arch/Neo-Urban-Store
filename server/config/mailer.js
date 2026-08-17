@@ -11,7 +11,7 @@ console.log(
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.hostinger.com",
-
+  
   port: Number(process.env.SMTP_PORT) || 465,
 
   secure: process.env.SMTP_SECURE === "true",
@@ -20,6 +20,15 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASSWORD,
   },
+});
+
+// Test SMTP connection
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("❌ SMTP CONNECTION ERROR:", error);
+  } else {
+    console.log("✅ Hostinger SMTP is ready");
+  }
 });
 
 export default transporter;

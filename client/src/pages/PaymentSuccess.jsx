@@ -30,9 +30,7 @@ export default function PaymentSuccess() {
           Continue Shopping
         </Link>
 
-        <Link to="/admin/orders" className="orders-link">
-          View Orders
-        </Link>
+        
       </div>
     </div>
   );

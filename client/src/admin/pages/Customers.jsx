@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+
+import api from "../../config/api";
 
 import "../styles/customers.css";
 
@@ -30,50 +31,41 @@ export default function Customers() {
   // FETCH CUSTOMERS
   // =====================================================
 
-  const fetchCustomers = async () => {
-    try {
-      setLoading(true);
-      setError("");
+ const fetchCustomers = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      const response = await axios.get(
-        "http://localhost:5000/api/orders/customers/all"
-      );
+    console.log("🔵 FETCHING CUSTOMERS");
 
-      console.log(
-        "CUSTOMERS:",
-        response.data
-      );
+    const response = await api.get("/admin/customers");
 
-      if (Array.isArray(response.data)) {
-        setCustomers(response.data);
-      } else if (
-        Array.isArray(response.data.customers)
-      ) {
-        setCustomers(
-          response.data.customers
-        );
-      } else {
-        setCustomers([]);
-        setError(
-          "Invalid customer data received."
-        );
-      }
-    } catch (err) {
-      console.error(
-        "Customer fetch error:",
-        err
-      );
+    console.log("🟢 CUSTOMERS RESPONSE:", response.data);
 
+    if (Array.isArray(response.data)) {
+      setCustomers(response.data);
+    } else if (Array.isArray(response.data.customers)) {
+      setCustomers(response.data.customers);
+    } else {
       setCustomers([]);
-
-      setError(
-        err.response?.data?.message ||
-        "Unable to load customers."
-      );
-    } finally {
-      setLoading(false);
+      setError("Invalid customer data received.");
     }
-  };
+  } catch (err) {
+    console.error("❌ Customer fetch error:", err);
+
+    console.error("❌ Status:", err.response?.status);
+    console.error("❌ Response:", err.response?.data);
+
+    setCustomers([]);
+
+    setError(
+      err.response?.data?.message ||
+        "Unable to load customers."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   // =====================================================
   // LOAD CUSTOMERS

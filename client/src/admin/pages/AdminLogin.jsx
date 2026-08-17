@@ -67,7 +67,7 @@ export default function AdminLogin() {
       // IMPORTANT
       // =================================================
 
-      const API_URL = "http://localhost:5000";
+      const API_URL = "https://api.neourbanstore.in";
 
       console.log("🔵 Admin Login Request");
       console.log(
