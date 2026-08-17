@@ -64,10 +64,10 @@ export default function Orders() {
     try {
       setUpdatingId(orderId);
 
-      const response = await api.put(
+     const response = await api.put(
   `/orders/${orderId}/status`,
   {
-    status,
+    status: newStatus,
   }
 );
 
@@ -101,6 +101,100 @@ export default function Orders() {
       setUpdatingId(null);
     }
   };
+
+  // =====================================================
+// SHIP ORDER WITH SHIPROCKET
+// =====================================================
+
+const shipWithShiprocket = async (order) => {
+  try {
+    if (!order?._id) {
+      alert("Invalid order ID");
+      return;
+    }
+
+    const alreadySynced = order?.shiprocket?.synced;
+
+    if (alreadySynced) {
+      alert("This order is already synced with Shiprocket.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Ship order #${order._id.slice(-6).toUpperCase()} with Shiprocket?\n\n` +
+      `This will create the shipment, assign AWB and request pickup.`
+    );
+
+    if (!confirmed) return;
+
+    setUpdatingId(order._id);
+
+    console.log(
+      "🚚 SHIPPING ORDER WITH SHIPROCKET:",
+      order._id
+    );
+
+    const response = await api.post(
+      `/orders/${order._id}/shiprocket`
+    );
+
+    console.log(
+      "✅ SHIPROCKET RESPONSE:",
+      response.data
+    );
+
+    if (response.data?.success) {
+      alert(
+        `✅ Order successfully sent to Shiprocket!\n\n` +
+        `AWB: ${
+          response.data?.shiprocket?.awbCode ||
+          "Assigned"
+        }`
+      );
+
+      // Refresh orders so the latest Shiprocket
+      // information comes from MongoDB.
+      await fetchOrders();
+
+      // Also close modal if this order was open.
+      setSelectedOrder(null);
+
+    } else {
+      alert(
+        response.data?.message ||
+        "Shiprocket shipment failed."
+      );
+    }
+
+  } catch (error) {
+
+    console.error(
+      "❌ SHIPROCKET ERROR:",
+      error
+    );
+
+    alert(
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      "Failed to send order to Shiprocket."
+    );
+
+  } finally {
+    setUpdatingId(null);
+  }
+};
+
+// =====================================================
+// SHIPROCKET STATUS
+// =====================================================
+
+const getShiprocketStatus = (order) => {
+  if (order?.shiprocket?.synced) {
+    return "SYNCED";
+  }
+
+  return "NOT SYNCED";
+};
 
   // =====================================================
   // CUSTOMER NAME
@@ -674,21 +768,72 @@ export default function Orders() {
 
                       <td>
 
-                        <button
-                          className="action-btn"
-                          onClick={() =>
-                            setSelectedOrder(
-                              order
-                            )
-                          }
-                          title="View Order"
-                        >
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+    }}
+  >
 
-                          <FiEye />
+    {/* VIEW ORDER */}
 
-                        </button>
+    <button
+      className="action-btn"
+      onClick={() =>
+        setSelectedOrder(order)
+      }
+      title="View Order"
+    >
+      <FiEye />
+    </button>
 
-                      </td>
+
+    {/* SHIPROCKET */}
+
+    {!order?.shiprocket?.synced ? (
+
+      <button
+        className="action-btn"
+        onClick={() =>
+          shipWithShiprocket(order)
+        }
+        disabled={
+          updatingId === order._id
+        }
+        title="Ship with Shiprocket"
+        style={{
+          color: "#ff1744",
+        }}
+      >
+
+        {updatingId === order._id ? (
+          <FiRefreshCw className="spin" />
+        ) : (
+          <FiTruck />
+        )}
+
+      </button>
+
+    ) : (
+
+      <button
+        className="action-btn"
+        disabled
+        title="Already synced with Shiprocket"
+        style={{
+          color: "#22c55e",
+          cursor: "default",
+        }}
+      >
+        <FiCheckCircle />
+      </button>
+
+    )}
+
+  </div>
+
+</td>
 
                     </tr>
 

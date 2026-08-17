@@ -112,16 +112,75 @@ const orderSchema = new mongoose.Schema(
     // ORDER STATUS
     // =====================================================
 
-    orderStatus: {
-      type: String,
-      default: "Placed",
-      trim: true,
-    },
+   orderStatus: {
+  type: String,
+  default: "Placed",
+  trim: true,
+},
+
+// =====================================================
+// SHIPROCKET SHIPPING
+// =====================================================
+
+shiprocket: {
+  synced: {
+    type: Boolean,
+    default: false,
+  },
+
+  shiprocketOrderId: {
+    type: String,
+    default: "",
+  },
+
+  shipmentId: {
+    type: String,
+    default: "",
+  },
+
+  awbCode: {
+    type: String,
+    default: "",
+  },
+
+  courierName: {
+    type: String,
+    default: "",
+  },
+
+  trackingUrl: {
+    type: String,
+    default: "",
+  },
+
+  shippingStatus: {
+    type: String,
+    default: "NOT_SHIPPED",
+  },
+
+  pickupScheduled: {
+    type: Boolean,
+    default: false,
+  },
+
+  pickupDate: {
+    type: String,
+    default: "",
+  },
+
+  syncedAt: {
+    type: Date,
+    default: null,
+  },
+},
   },
   {
     timestamps: true,
   }
 );
+
+
+
 
 const Order = mongoose.model("Order", orderSchema);
 

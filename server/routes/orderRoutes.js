@@ -6,6 +6,8 @@ import {
   getOrderById,
   updateOrderStatus,
   getCustomers,
+  shipOrderWithShiprocket,
+  getOrderTracking,
 } from "../controllers/orderController.js";
 
 const router = express.Router();
@@ -26,6 +28,21 @@ router.get("/", getOrders);
 
 router.get("/customers/all", getCustomers);
 
+
+// ==========================================
+// SHIP ORDER WITH SHIPROCKET
+// POST /api/orders/:id/shiprocket
+// IMPORTANT: Must come BEFORE /:id
+// ==========================================
+
+router.post(
+  "/:id/shiprocket",
+  shipOrderWithShiprocket
+);
+router.get(
+  "/:id/tracking",
+  getOrderTracking
+);
 
 // ==========================================
 // GET SINGLE ORDER

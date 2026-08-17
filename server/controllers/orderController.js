@@ -3,6 +3,13 @@ import Product from "../models/Product.js";
 import Cart from "../models/cart.js";
 import { sendOrderConfirmationEmail } from "../utils/email.js";
 
+import {
+  createShiprocketOrder,
+  assignShiprocketAWB,
+  requestShiprocketPickup,
+   trackShiprocketShipment,
+} from "../services/shiprocketService.js";
+
 
 
 /* =====================================================
@@ -1771,6 +1778,552 @@ export const getCustomers = async (
         "Failed to fetch customers",
 
       error:
+        error.message,
+
+    });
+
+  }
+
+};
+
+// =====================================================
+// SHIP ORDER WITH SHIPROCKET
+// POST /api/orders/:id/shiprocket
+// =====================================================
+
+export const shipOrderWithShiprocket = async (
+  req,
+  res
+) => {
+
+  try {
+
+    console.log("====================================");
+    console.log("🚚 SHIP ORDER WITH SHIPROCKET");
+    console.log("ORDER ID:", req.params.id);
+    console.log("====================================");
+
+
+    // =================================================
+    // FIND ORDER
+    // =================================================
+
+    const order = await Order.findById(
+      req.params.id
+    );
+
+
+    if (!order) {
+
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+
+    }
+
+
+    // =================================================
+    // PREVENT DUPLICATE SHIPPING
+    // =================================================
+
+    if (order.shiprocket?.synced) {
+
+      return res.status(400).json({
+        success: false,
+        message:
+          "This order is already synced with Shiprocket.",
+        shiprocket: order.shiprocket,
+      });
+
+    }
+
+
+    // =================================================
+    // CREATE SHIPROCKET ORDER
+    // =================================================
+
+    console.log(
+      "🚚 Creating Shiprocket order..."
+    );
+
+    const shiprocketOrder =
+      await createShiprocketOrder(order);
+
+
+    console.log(
+      "✅ Shiprocket order created"
+    );
+
+
+    // =================================================
+    // GET SHIPMENT ID
+    // =================================================
+
+    const shipmentId =
+      shiprocketOrder?.shipment_id;
+
+
+    const shiprocketOrderId =
+      shiprocketOrder?.order_id;
+
+
+    if (!shipmentId) {
+
+      console.error(
+        "❌ Shiprocket did not return shipment ID"
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Shiprocket order created but shipment ID was not returned.",
+        response:
+          shiprocketOrder,
+      });
+
+    }
+
+
+    // =================================================
+    // ASSIGN AWB
+    // =================================================
+
+    console.log(
+      "🚚 Assigning courier / AWB..."
+    );
+
+    const awbResponse =
+      await assignShiprocketAWB(
+        shipmentId
+      );
+
+
+    const awbData =
+      awbResponse?.response?.data ||
+      awbResponse?.data ||
+      {};
+
+
+    const awbCode =
+      awbData?.awb_code ||
+      awbResponse?.awb_code ||
+      "";
+
+
+    const courierName =
+      awbData?.courier_name ||
+      awbResponse?.courier_name ||
+      "";
+
+
+    // =================================================
+    // REQUEST PICKUP
+    // =================================================
+
+    console.log(
+      "🚚 Requesting pickup..."
+    );
+
+
+    let pickupResponse = null;
+
+
+    try {
+
+      pickupResponse =
+        await requestShiprocketPickup(
+          shipmentId
+        );
+
+      console.log(
+        "✅ Pickup requested"
+      );
+
+    } catch (pickupError) {
+
+      console.error(
+        "⚠️ Pickup request failed:"
+      );
+
+      console.error(
+        pickupError.response?.data ||
+        pickupError.message
+      );
+
+    }
+
+
+    // =================================================
+    // SAVE SHIPROCKET INFORMATION
+    // =================================================
+
+    order.shiprocket = {
+
+      synced: true,
+
+      shiprocketOrderId:
+        String(
+          shiprocketOrderId || ""
+        ),
+
+      shipmentId:
+        String(
+          shipmentId || ""
+        ),
+
+      awbCode:
+        String(
+          awbCode || ""
+        ),
+
+      courierName:
+        String(
+          courierName || ""
+        ),
+
+      trackingUrl:
+        awbCode
+          ? `https://shiprocket.co/tracking/${awbCode}`
+          : "",
+
+      shippingStatus:
+        "SHIPPED",
+
+      pickupScheduled:
+        !!pickupResponse,
+
+      pickupDate:
+        "",
+
+      syncedAt:
+        new Date(),
+
+    };
+
+
+    // =================================================
+    // UPDATE WEBSITE ORDER STATUS
+    // =================================================
+
+    order.orderStatus =
+      "Shipped";
+
+    order.status =
+      "Shipped";
+
+
+    // =================================================
+    // SAVE ORDER
+    // =================================================
+
+    await order.save();
+
+
+    console.log(
+      "===================================="
+    );
+
+    console.log(
+      "✅ SHIPROCKET SYNC COMPLETE"
+    );
+
+    console.log(
+      "ORDER:",
+      order._id
+    );
+
+    console.log(
+      "SHIPROCKET ORDER:",
+      shiprocketOrderId
+    );
+
+    console.log(
+      "SHIPMENT:",
+      shipmentId
+    );
+
+    console.log(
+      "AWB:",
+      awbCode
+    );
+
+    console.log(
+      "COURIER:",
+      courierName
+    );
+
+    console.log(
+      "====================================");
+
+
+    return res.status(200).json({
+
+      success: true,
+
+      message:
+        "Order successfully shipped with Shiprocket.",
+
+      order,
+
+      shiprocket: {
+        orderId:
+          shiprocketOrderId,
+
+        shipmentId:
+          shipmentId,
+
+        awbCode:
+          awbCode,
+
+        courierName:
+          courierName,
+
+        pickupScheduled:
+          !!pickupResponse,
+      },
+
+    });
+
+
+  } catch (error) {
+
+    console.error(
+      "===================================="
+    );
+
+    console.error(
+      "❌ SHIPROCKET SHIPPING ERROR"
+    );
+
+    console.error(
+      error.response?.data ||
+      error.message
+    );
+
+    console.error(
+      "===================================="
+    );
+
+
+    return res.status(500).json({
+
+      success: false,
+
+      message:
+        "Failed to ship order with Shiprocket.",
+
+      error:
+        error.response?.data ||
+        error.message,
+
+    });
+
+  }
+
+};
+// =====================================================
+// GET ORDER TRACKING
+// GET /api/orders/:id/tracking
+// =====================================================
+
+export const getOrderTracking = async (req, res) => {
+
+  try {
+
+    console.log("====================================");
+    console.log("📍 GET ORDER TRACKING");
+    console.log("ORDER ID:", req.params.id);
+    console.log("====================================");
+
+
+    // =================================================
+    // FIND ORDER
+    // =================================================
+
+    const order = await Order.findById(
+      req.params.id
+    );
+
+
+    if (!order) {
+
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+
+    }
+
+
+    // =================================================
+    // CHECK SHIPROCKET SYNC
+    // =================================================
+
+    if (!order.shiprocket?.synced) {
+
+      return res.status(400).json({
+        success: false,
+        message:
+          "This order has not been shipped yet.",
+        order: {
+          _id: order._id,
+          orderStatus: order.orderStatus,
+          shiprocket: order.shiprocket,
+        },
+      });
+
+    }
+
+
+    // =================================================
+    // GET AWB
+    // =================================================
+
+    const awbCode =
+      order.shiprocket?.awbCode;
+
+
+    if (!awbCode) {
+
+      return res.status(400).json({
+        success: false,
+        message:
+          "Tracking is not available yet. AWB has not been assigned.",
+        order: {
+          _id: order._id,
+          orderStatus: order.orderStatus,
+          shiprocket: order.shiprocket,
+        },
+      });
+
+    }
+
+
+    // =================================================
+    // ASK SHIPROCKET FOR LATEST TRACKING
+    // =================================================
+
+    console.log(
+      "📍 Tracking AWB:",
+      awbCode
+    );
+
+
+    const trackingResponse =
+      await trackShiprocketShipment(
+        awbCode
+      );
+
+
+    console.log(
+      "✅ SHIPROCKET TRACKING RESPONSE:"
+    );
+
+    console.log(
+      JSON.stringify(
+        trackingResponse,
+        null,
+        2
+      )
+    );
+
+
+    // =================================================
+    // RETURN TRACKING DATA
+    // =================================================
+
+    return res.status(200).json({
+
+      success: true,
+
+      order: {
+        id: order._id,
+
+        customerName:
+          order.customerName,
+
+        email:
+          order.email,
+
+        orderStatus:
+          order.orderStatus,
+
+        paymentMethod:
+          order.paymentMethod,
+
+        items:
+          order.items,
+
+        subtotal:
+          order.subtotal,
+
+        shipping:
+          order.shipping,
+
+        tax:
+          order.tax,
+
+        total:
+          order.total,
+      },
+
+      shiprocket: {
+
+        synced:
+          order.shiprocket.synced,
+
+        shiprocketOrderId:
+          order.shiprocket.shiprocketOrderId,
+
+        shipmentId:
+          order.shiprocket.shipmentId,
+
+        awbCode:
+          awbCode,
+
+        courierName:
+          order.shiprocket.courierName,
+
+        trackingUrl:
+          order.shiprocket.trackingUrl,
+
+        shippingStatus:
+          order.shiprocket.shippingStatus,
+
+        pickupScheduled:
+          order.shiprocket.pickupScheduled,
+
+      },
+
+      tracking:
+        trackingResponse,
+
+    });
+
+
+  } catch (error) {
+
+    console.error("====================================");
+    console.error("❌ ORDER TRACKING ERROR");
+
+    console.error(
+      error.response?.data ||
+      error.message
+    );
+
+    console.error("====================================");
+
+
+    return res.status(500).json({
+
+      success: false,
+
+      message:
+        "Failed to fetch shipment tracking.",
+
+      error:
+        error.response?.data ||
         error.message,
 
     });
