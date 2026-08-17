@@ -188,9 +188,23 @@ const clearCart = async () => {
   try {
     console.log("🧹 Clearing cart after payment...");
 
+    const cartId = getCartId();
+
+    console.log("🛒 CART ID TO CLEAR:", cartId);
+
+    if (!cartId) {
+      console.error("❌ No cart ID found");
+      return false;
+    }
+
     const response = await axios.delete(
-      `${API_URL}/api/cart/clear`
-    );
+  `${API_URL}/api/cart/clear`,
+  {
+    params: {
+      cartId: getCartId(),
+    },
+  }
+);
 
     console.log(
       "✅ CART CLEAR RESPONSE:",
@@ -198,10 +212,11 @@ const clearCart = async () => {
     );
 
     if (response.data?.success) {
-      // Clear cart from Payment page immediately
+
+      // Clear React cart state
       setCartItems([]);
 
-      // Clear cart badge everywhere
+      // Tell Navbar to reset cart badge
       window.dispatchEvent(
         new CustomEvent("cartUpdated", {
           detail: {
@@ -217,16 +232,21 @@ const clearCart = async () => {
       return true;
     }
 
+    console.warn(
+      "⚠️ Backend did not return success:true"
+    );
+
     return false;
 
   } catch (error) {
+
     console.error(
       "❌ CLEAR CART ERROR:",
       error
     );
 
     console.error(
-      "SERVER RESPONSE:",
+      "❌ SERVER RESPONSE:",
       error.response?.data
     );
 
@@ -389,41 +409,69 @@ const { data } = await axios.post(
     // 1. VERIFY PAYMENT
     // ==========================================
 
-    await axios.post(
-      `${API_URL}/api/payment/verify`,
-      response
-    );
-
-    console.log("✅ PAYMENT VERIFIED");
-
     // ==========================================
-    // 2. CLEAR CART FROM DATABASE
-    // ==========================================
+// 1. VERIFY PAYMENT
+// ==========================================
 
-    const cartCleared = await clearCart();
+await axios.post(
+  `${API_URL}/api/payment/verify`,
+  response
+);
 
-    if (!cartCleared) {
-      console.warn(
-        "⚠️ Payment successful but cart could not be cleared"
-      );
-    } else {
-      console.log("✅ CART CLEARED AFTER PAYMENT");
-    }
+console.log("✅ PAYMENT VERIFIED");
 
-    // ==========================================
-    // 3. CLEAR CHECKOUT DATA
-    // ==========================================
+// ==========================================
+// 2. CREATE ACTUAL STORE ORDER
+// ==========================================
 
-    localStorage.removeItem("checkoutData");
-    localStorage.removeItem("pendingOrder");
+const orderResponse = await axios.post(
+  `${API_URL}/api/orders`,
+  pendingOrder
+);
 
-    // ==========================================
-    // 4. SUCCESS
-    // ==========================================
+console.log(
+  "✅ RAZORPAY ORDER CREATED:",
+  orderResponse.data
+);
 
-    alert("Payment Successful 🎉");
+// Save order ID
+if (orderResponse.data?._id) {
+  localStorage.setItem(
+    "orderId",
+    orderResponse.data._id
+  );
+}
 
-    navigate("/payment-success");
+// ==========================================
+// 3. CLEAR CART
+// ==========================================
+
+const cartCleared = await clearCart();
+
+if (!cartCleared) {
+  console.warn(
+    "⚠️ Payment successful but cart could not be cleared"
+  );
+} else {
+  console.log(
+    "✅ CART CLEARED AFTER PAYMENT"
+  );
+}
+
+// ==========================================
+// 4. CLEAR CHECKOUT DATA
+// ==========================================
+
+localStorage.removeItem("checkoutData");
+localStorage.removeItem("pendingOrder");
+
+// ==========================================
+// 5. SUCCESS
+// ==========================================
+
+alert("Payment Successful 🎉");
+
+navigate("/payment-success");
 
   } catch (err) {
 

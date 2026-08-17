@@ -131,7 +131,7 @@ export const updateCart = async (req, res) => {
     res.status(500).json({
       message: err.message,
     });
-  }
+  }axios.delete(`${API_URL}/api/cart/clear`)
 };
 
 export const deleteCart = async (
