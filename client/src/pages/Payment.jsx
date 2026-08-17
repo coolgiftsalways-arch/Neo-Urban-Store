@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import getCartId from "../utils/cartId"
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -144,31 +145,94 @@ export default function Payment() {
   // =========================================================
 
   const fetchCart = async () => {
-    try {
-      const res = await axios.get(
-        `${API_URL}/api/cart`
-      );
+  try {
+    const cartId = getCartId();
 
-      console.log(
-        "🛒 PAYMENT CART DATA:",
-        res.data
-      );
+    console.log("🛒 PAYMENT CART ID:", cartId);
 
-      setCartItems(
-        Array.isArray(res.data)
-          ? res.data
-          : []
-      );
-    } catch (err) {
-      console.error(
-        "❌ Failed to fetch cart:",
-        err
-      );
+    const res = await axios.get(
+      `${API_URL}/api/cart`,
+      {
+        params: {
+          cartId,
+        },
+      }
+    );
 
+    console.log(
+      "🛒 PAYMENT CART DATA:",
+      res.data
+    );
+
+    setCartItems(
+      Array.isArray(res.data)
+        ? res.data
+        : []
+    );
+
+  } catch (err) {
+    console.error(
+      "❌ Failed to fetch cart:",
+      err
+    );
+
+    setCartItems([]);
+  }
+};
+
+// =========================================================
+// CLEAR CART AFTER SUCCESSFUL PAYMENT
+// =========================================================
+
+const clearCart = async () => {
+  try {
+    console.log("🧹 Clearing cart after payment...");
+
+    const response = await axios.delete(
+      `${API_URL}/api/cart/clear`
+    );
+
+    console.log(
+      "✅ CART CLEAR RESPONSE:",
+      response.data
+    );
+
+    if (response.data?.success) {
+      // Clear cart from Payment page immediately
       setCartItems([]);
-    }
-  };
 
+      // Clear cart badge everywhere
+      window.dispatchEvent(
+        new CustomEvent("cartUpdated", {
+          detail: {
+            count: 0,
+            cartCount: 0,
+            cleared: true,
+          },
+        })
+      );
+
+      console.log("✅ CART CLEARED AFTER PAYMENT");
+
+      return true;
+    }
+
+    return false;
+
+  } catch (error) {
+    console.error(
+      "❌ CLEAR CART ERROR:",
+      error
+    );
+
+    console.error(
+      "SERVER RESPONSE:",
+      error.response?.data
+    );
+
+    return false;
+  }
+};
   // =========================================================
   // LOAD CART
   // =========================================================
@@ -269,15 +333,28 @@ export default function Payment() {
       // CREATE RAZORPAY ORDER
       // -----------------------------------------------------
 
-      const { data } =
-        await axios.post(
-          `${API_URL}/api/payment/create`,
-          {
-            amount: total,
-            customerName: "Nikita",
-            email: "niki@gmail.com",
-          }
-        );
+      const pendingOrder = JSON.parse(
+  localStorage.getItem("pendingOrder") || "{}"
+);
+
+const cartId = getCartId();
+
+console.log("💳 PENDING ORDER:", pendingOrder);
+console.log("🛒 PAYMENT CART ID:", cartId);
+
+const { data } = await axios.post(
+  `${API_URL}/api/payment/create`,
+  {
+    amount: total,
+
+    // Customer details from Checkout
+    customerName: pendingOrder.customerName || "",
+    email: pendingOrder.email || "",
+
+    // Cart identification
+    cartId,
+  }
+);
 
       // -----------------------------------------------------
       // RAZORPAY OPTIONS
@@ -306,44 +383,73 @@ export default function Payment() {
         // PAYMENT SUCCESS
         // ---------------------------------------------------
 
-        handler: async function (
-          response
-        ) {
-          try {
-            await axios.post(
-              `${API_URL}/api/payment/verify`,
-              response
-            );
+        handler: async function (response) {
+  try {
+    // ==========================================
+    // 1. VERIFY PAYMENT
+    // ==========================================
 
-            alert(
-              "Payment Successful 🎉"
-            );
+    await axios.post(
+      `${API_URL}/api/payment/verify`,
+      response
+    );
 
-            navigate(
-              "/payment-success"
-            );
-          } catch (err) {
-            console.error(
-              "❌ Payment verification error:",
-              err
-            );
+    console.log("✅ PAYMENT VERIFIED");
 
-            alert(
-              "Payment Verification Failed"
-            );
-          }
-        },
+    // ==========================================
+    // 2. CLEAR CART FROM DATABASE
+    // ==========================================
+
+    const cartCleared = await clearCart();
+
+    if (!cartCleared) {
+      console.warn(
+        "⚠️ Payment successful but cart could not be cleared"
+      );
+    } else {
+      console.log("✅ CART CLEARED AFTER PAYMENT");
+    }
+
+    // ==========================================
+    // 3. CLEAR CHECKOUT DATA
+    // ==========================================
+
+    localStorage.removeItem("checkoutData");
+    localStorage.removeItem("pendingOrder");
+
+    // ==========================================
+    // 4. SUCCESS
+    // ==========================================
+
+    alert("Payment Successful 🎉");
+
+    navigate("/payment-success");
+
+  } catch (err) {
+
+    console.error(
+      "❌ Payment verification error:",
+      err
+    );
+
+    console.error(
+      "SERVER RESPONSE:",
+      err.response?.data
+    );
+
+    alert("Payment Verification Failed");
+  }
+},
 
         // ---------------------------------------------------
         // PREFILL
         // ---------------------------------------------------
 
         prefill: {
-          name: "Nikita",
-          email: "niki@gmail.com",
-          contact:
-            "9876543210",
-        },
+  name: pendingOrder.customerName || "",
+  email: pendingOrder.email || "",
+  contact: pendingOrder.phone || "",
+},
 
         // ---------------------------------------------------
         // THEME
