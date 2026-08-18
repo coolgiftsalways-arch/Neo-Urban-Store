@@ -44,27 +44,6 @@ export default function Footer() {
 
 
         {/* ===================================================
-            SHOP
-        =================================================== */}
-
-        <div className="footer-links">
-
-          <h3>
-            Shop
-          </h3>
-
-          <Link to="/shop">
-            Energy Drinks
-          </Link>
-
-          <Link to="/shop">
-            Soft Drinks
-          </Link>
-
-        </div>
-
-
-        {/* ===================================================
             PAGE
         =================================================== */}
 
@@ -90,7 +69,7 @@ export default function Footer() {
             About
           </Link>
 
-          <Link to="/Track">
+          <Link to="/track-order">
             Track Order
           </Link>
 
@@ -176,7 +155,7 @@ export default function Footer() {
 
 
         {/* ===================================================
-            ADDRESS
+            ADDRESS — FAR RIGHT
         =================================================== */}
 
         <div className="footer-address">

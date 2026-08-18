@@ -57,29 +57,43 @@ function App() {
 
 
   // ===================================================
-  // SCROLL TO TOP WHEN PAGE / ROUTE CHANGES
+  // ALWAYS START NEW PAGE FROM THE TOP
   // ===================================================
-useEffect(() => {
-  // Disable browser's automatic scroll restoration
-  if ("scrollRestoration" in window.history) {
-    window.history.scrollRestoration = "manual";
-  }
 
-  // Wait until React renders the new route
-  const timer = setTimeout(() => {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "auto",
-    });
+  useEffect(() => {
 
-    
+    // Prevent browser from restoring the previous
+    // scroll position when changing routes
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
+    // Scroll immediately
+    window.scrollTo(0, 0);
+
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
-  }, 0);
 
-  return () => clearTimeout(timer);
-}, [location.pathname]);
+    // Scroll again after the new page has rendered
+    const timer = setTimeout(() => {
+
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "auto",
+      });
+
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+    };
+
+  }, [location.pathname]);
+
 
   return (
     <>
