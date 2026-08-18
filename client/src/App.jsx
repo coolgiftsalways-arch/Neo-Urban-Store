@@ -18,7 +18,7 @@ import Payment from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ProductDetails from "./pages/ProductDetails";
 import OrderSuccess from "./pages/OrderSuccess";
-import Track from "./pages/Track";
+import Track from "./components/Track";
 
 // =====================================================
 // LEGAL / POLICY PAGES
