@@ -8,8 +8,18 @@ export const createPayment = async (req, res) => {
   try {
     const { amount, customerName, email } = req.body;
 
+    const finalAmount = Number(amount);
+
+    if (!Number.isFinite(finalAmount) || finalAmount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid payment amount",
+        amount,
+      });
+    }
+
     const options = {
-      amount: amount * 100,
+      amount: Math.round(finalAmount * 100),
       currency: "INR",
       receipt: `receipt_${Date.now()}`,
     };
@@ -21,7 +31,7 @@ export const createPayment = async (req, res) => {
       razorpayOrderId: order.id,
       customerName,
       email,
-      amount,
+      amount: finalAmount,
       status: "Pending",
     });
 
@@ -31,11 +41,12 @@ export const createPayment = async (req, res) => {
       key: process.env.RAZORPAY_KEY_ID,
     });
   } catch (err) {
-    console.log(err);
+    console.log("❌ RAZORPAY ERROR:", err.response?.data || err);
 
     res.status(500).json({
       success: false,
       message: "Payment creation failed",
+      error: err.response?.data || err.message,
     });
   }
 };
