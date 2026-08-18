@@ -8,6 +8,8 @@ import {
   getCustomers,
   shipOrderWithShiprocket,
   getOrderTracking,
+  testShiprocket,
+  testCreateShiprocketOrder,
 } from "../controllers/orderController.js";
 
 const router = express.Router();
@@ -35,6 +37,15 @@ router.get("/customers/all", getCustomers);
 // IMPORTANT: Must come BEFORE /:id
 // ==========================================
 
+router.get(
+  "/shiprocket/test",
+  testShiprocket
+);
+
+router.post(
+  "/shiprocket/test-order/:id",
+  testCreateShiprocketOrder
+);
 router.post(
   "/:id/shiprocket",
   shipOrderWithShiprocket

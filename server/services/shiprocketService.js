@@ -833,3 +833,68 @@ export const trackShiprocketShipment = async (
     throw error;
   }
 };
+
+// =====================================================
+// TEST SHIPROCKET CONNECTION ONLY
+// DOES NOT CREATE ORDER
+// DOES NOT ASSIGN AWB
+// DOES NOT REQUEST PICKUP
+// =====================================================
+
+export const testShiprocketConnection = async () => {
+  try {
+    console.log("====================================");
+    console.log("🔐 TESTING SHIPROCKET CONNECTION");
+    console.log("====================================");
+
+    if (!process.env.SHIPROCKET_EMAIL) {
+      throw new Error(
+        "SHIPROCKET_EMAIL is missing from .env"
+      );
+    }
+
+    if (!process.env.SHIPROCKET_PASSWORD) {
+      throw new Error(
+        "SHIPROCKET_PASSWORD is missing from .env"
+      );
+    }
+
+    const response = await shiprocketClient.post(
+      "/auth/login",
+      {
+        email: process.env.SHIPROCKET_EMAIL,
+        password: process.env.SHIPROCKET_PASSWORD,
+      }
+    );
+
+    if (!response.data?.token) {
+      throw new Error(
+        "Shiprocket login succeeded but no token was returned."
+      );
+    }
+
+    console.log("====================================");
+    console.log("✅ SHIPROCKET CONNECTION SUCCESSFUL");
+    console.log("====================================");
+
+    return {
+      success: true,
+      message: "Shiprocket connection successful",
+    };
+
+  } catch (error) {
+
+    console.error("====================================");
+    console.error("❌ SHIPROCKET CONNECTION FAILED");
+    console.error(
+      JSON.stringify(
+        getShiprocketError(error),
+        null,
+        2
+      )
+    );
+    console.error("====================================");
+
+    throw error;
+  }
+};

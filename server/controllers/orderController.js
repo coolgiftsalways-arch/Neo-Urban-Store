@@ -8,6 +8,8 @@ import {
   assignShiprocketAWB,
   requestShiprocketPickup,
    trackShiprocketShipment,
+   testShiprocketConnection,
+   
 } from "../services/shiprocketService.js";
 
 
@@ -2330,4 +2332,80 @@ export const getOrderTracking = async (req, res) => {
 
   }
 
+};
+export const testShiprocket = async (req, res) => {
+  try {
+
+    const result =
+      await testShiprocketConnection();
+
+    res.status(200).json(result);
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message:
+        error.response?.data?.message ||
+        error.message ||
+        "Shiprocket connection failed",
+    });
+
+  }
+};
+
+export const testCreateShiprocketOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    console.log("====================================");
+    console.log("🧪 TEST: CREATE SHIPROCKET ORDER ONLY");
+    console.log("ORDER ID:", id);
+    console.log("====================================");
+
+    const order = await Order.findById(id);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    if (order.shiprocket?.synced) {
+      return res.status(400).json({
+        success: false,
+        message: "This order is already synced with Shiprocket.",
+      });
+    }
+
+    // ONLY CREATE ORDER
+    // NO AWB
+    // NO PICKUP
+    const shiprocketResponse =
+      await createShiprocketOrder(order);
+
+    console.log("✅ ORDER CREATED IN SHIPROCKET");
+    console.log(shiprocketResponse);
+
+    return res.status(200).json({
+      success: true,
+      message: "Order created in Shiprocket successfully.",
+      shiprocket: shiprocketResponse,
+    });
+
+  } catch (error) {
+    console.error(
+      "❌ SHIPROCKET TEST ORDER ERROR:",
+      error.response?.data || error.message
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to create Shiprocket order.",
+    });
+  }
 };

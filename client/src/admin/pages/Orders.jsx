@@ -184,6 +184,90 @@ const shipWithShiprocket = async (order) => {
   }
 };
 
+
+// =====================================================
+// 🧪 TEST SHIPROCKET - CREATE ORDER ONLY
+// NO AWB + NO PICKUP
+// =====================================================
+
+const testCreateShiprocketOrder = async (order) => {
+  try {
+    if (!order?._id) {
+      alert("Invalid order ID");
+      return;
+    }
+
+    const alreadySynced = order?.shiprocket?.synced;
+
+    if (alreadySynced) {
+      alert("This order is already synced with Shiprocket.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `TEST Shiprocket for order #${order._id
+        .slice(-6)
+        .toUpperCase()}?\n\n` +
+      `This will ONLY create the order in Shiprocket.\n\n` +
+      `❌ No AWB will be assigned\n` +
+      `❌ No pickup will be requested\n\n` +
+      `Continue?`
+    );
+
+    if (!confirmed) return;
+
+    setUpdatingId(order._id);
+
+    console.log(
+      "🧪 TESTING SHIPROCKET ORDER:",
+      order._id
+    );
+
+    const response = await api.post(
+      `/orders/shiprocket/test-order/${order._id}`
+    );
+
+    console.log(
+      "🧪 SHIPROCKET TEST RESPONSE:",
+      response.data
+    );
+
+    if (response.data?.success) {
+      alert(
+        `✅ SUCCESS!\n\n` +
+        `Order was created in Shiprocket.\n\n` +
+        `No AWB or pickup was triggered.`
+      );
+
+      console.log(
+        "📦 Shiprocket order:",
+        response.data.shiprocket
+      );
+
+    } else {
+      alert(
+        response.data?.message ||
+        "Shiprocket test failed."
+      );
+    }
+
+  } catch (error) {
+    console.error(
+      "❌ SHIPROCKET TEST ERROR:",
+      error
+    );
+
+    alert(
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      "Failed to create test order in Shiprocket."
+    );
+
+  } finally {
+    setUpdatingId(null);
+  }
+};
+
 // =====================================================
 // SHIPROCKET STATUS
 // =====================================================
@@ -796,7 +880,7 @@ const getShiprocketStatus = (order) => {
       <button
         className="action-btn"
         onClick={() =>
-          shipWithShiprocket(order)
+          testCreateShiprocketOrder(order)
         }
         disabled={
           updatingId === order._id
