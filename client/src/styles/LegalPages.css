@@ -1,0 +1,207 @@
+/* =====================================================
+   NEO URBAN STORE — LEGAL PAGES
+===================================================== */
+
+.legal-page {
+  min-height: 100vh;
+  padding: 140px 6% 100px;
+  background:
+    radial-gradient(
+      circle at 10% 0%,
+      rgba(255, 0, 55, 0.12),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 90% 20%,
+      rgba(255, 40, 80, 0.07),
+      transparent 28%
+    ),
+    #050505;
+  color: #f5f5f5;
+  position: relative;
+  overflow: hidden;
+}
+
+.legal-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px
+    );
+
+  background-size: 60px 60px;
+  mask-image: linear-gradient(
+    to bottom,
+    black,
+    transparent 85%
+  );
+}
+
+.legal-container {
+  width: min(100%, 950px);
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+
+  padding: 60px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.045),
+      rgba(255, 255, 255, 0.015)
+    );
+
+  box-shadow:
+    0 30px 100px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  backdrop-filter: blur(18px);
+}
+
+.legal-eyebrow {
+  display: inline-flex;
+  align-items: center;
+
+  margin-bottom: 22px;
+  padding: 8px 13px;
+
+  border: 1px solid rgba(255, 30, 70, 0.35);
+
+  color: #ff304f;
+
+  font-family: monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.legal-container h1 {
+  margin: 0;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(42px, 7vw, 82px);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.055em;
+  text-transform: uppercase;
+}
+
+.legal-date {
+  margin: 22px 0 70px;
+
+  color: #8d8d8d;
+
+  font-family: monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.legal-container section {
+  padding: 34px 0;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.legal-container section:first-of-type {
+  border-top: 0;
+}
+
+.legal-container h2 {
+  margin: 0 0 18px;
+
+  color: #ffffff;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.legal-container p,
+.legal-container li {
+  color: #b8b8b8;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+.legal-container p {
+  margin: 0 0 14px;
+}
+
+.legal-container p:last-child {
+  margin-bottom: 0;
+}
+
+.legal-container ul {
+  margin: 15px 0 0;
+  padding-left: 22px;
+}
+
+.legal-container li {
+  margin-bottom: 8px;
+}
+
+.legal-container strong {
+  color: #ffffff;
+}
+
+.legal-container a {
+  color: #ff304f;
+  text-decoration: none;
+}
+
+.legal-container a:hover {
+  text-decoration: underline;
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 768px) {
+  .legal-page {
+    padding: 100px 18px 60px;
+  }
+
+  .legal-container {
+    padding: 32px 22px;
+  }
+
+  .legal-container h1 {
+    font-size: 46px;
+  }
+
+  .legal-date {
+    margin-bottom: 45px;
+  }
+
+  .legal-container section {
+    padding: 27px 0;
+  }
+
+  .legal-container h2 {
+    font-size: 18px;
+  }
+
+  .legal-container p,
+  .legal-container li {
+    font-size: 14px;
+    line-height: 1.8;
+  }
+}

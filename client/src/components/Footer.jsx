@@ -3,6 +3,8 @@ import {
   FaWhatsapp,
 } from "react-icons/fa";
 
+import { Link } from "react-router-dom";
+
 import "../styles/Footer.css";
 
 export default function Footer() {
@@ -51,13 +53,13 @@ export default function Footer() {
             Shop
           </h3>
 
-          <a href="/shop">
+          <Link to="/shop">
             Energy Drinks
-          </a>
+          </Link>
 
-          <a href="/shop">
+          <Link to="/shop">
             Soft Drinks
-          </a>
+          </Link>
 
         </div>
 
@@ -72,25 +74,54 @@ export default function Footer() {
             Page
           </h3>
 
-          <a href="/">
+          <Link to="/">
             Home
-          </a>
+          </Link>
 
-          <a href="/shop">
+          <Link to="/shop">
             Shop
-          </a>
+          </Link>
 
-          <a href="/#bestSellers">
+          <Link to="/#bestSellers">
             Best Seller
-          </a>
+          </Link>
 
-          <a href="/#about">
+          <Link to="/#about">
             About
-          </a>
+          </Link>
 
-          <a href="/track-order">
+          <Link to="/track-order">
             Track Order
-          </a>
+          </Link>
+
+        </div>
+
+
+        {/* ===================================================
+            LEGAL
+        =================================================== */}
+
+        <div className="footer-links">
+
+          <h3>
+            Legal
+          </h3>
+
+          <Link to="/privacy-policy">
+            Privacy Policy
+          </Link>
+
+          <Link to="/terms-and-conditions">
+            Terms & Conditions
+          </Link>
+
+          <Link to="/shipping-policy">
+            Shipping & Delivery
+          </Link>
+
+          <Link to="/refund-policy">
+            Cancellation & Refund
+          </Link>
 
         </div>
 
@@ -114,32 +145,32 @@ export default function Footer() {
               GMAIL + WHATSAPP
           ================================================= */}
 
-        <div className="contact-icons">
+          <div className="contact-icons">
 
-  {/* GMAIL / EMAIL */}
+            {/* GMAIL / EMAIL */}
 
-  <a
-    href="mailto:info@neourbanstore.in"
-    className="contact-icon"
-    title="Email Us"
-  >
-    <FaGoogle />
-  </a>
+            <a
+              href="mailto:info@neourbanstore.in"
+              className="contact-icon"
+              title="Email Us"
+            >
+              <FaGoogle />
+            </a>
 
 
-  {/* WHATSAPP */}
+            {/* WHATSAPP */}
 
-  <a
-    href="https://wa.me/message/XH2PJBMO2RHZL1"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="contact-icon"
-    title="Chat on WhatsApp"
-  >
-    <FaWhatsapp />
-  </a>
+            <a
+              href="https://wa.me/message/XH2PJBMO2RHZL1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="contact-icon"
+              title="Chat on WhatsApp"
+            >
+              <FaWhatsapp />
+            </a>
 
-</div>
+          </div>
 
         </div>
 
@@ -155,9 +186,13 @@ export default function Footer() {
           </h3>
 
           <p>
-            Mumbai,
+            ITP Road,
             <br />
-            Maharashtra,
+            Whitefield,
+            <br />
+            Bangalore,
+            <br />
+            Karnataka - 560066,
             <br />
             India
           </p>

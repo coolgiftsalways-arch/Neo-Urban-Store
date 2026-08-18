@@ -18,6 +18,15 @@ import ProductDetails from "./pages/ProductDetails";
 import OrderSuccess from "./pages/OrderSuccess";
 
 // =====================================================
+// LEGAL / POLICY PAGES
+// =====================================================
+
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsConditions from "./pages/TermsConditions";
+import ShippingPolicy from "./pages/ShippingPolicy";
+import RefundPolicy from "./pages/RefundPolicy";
+
+// =====================================================
 // ADMIN
 // =====================================================
 
@@ -32,7 +41,6 @@ import Orders from "./admin/pages/Orders";
 import Customers from "./admin/pages/Customers";
 import Analytics from "./admin/pages/Analytics";
 
-
 function App() {
   const location = useLocation();
 
@@ -43,7 +51,6 @@ function App() {
   const isAdmin =
     location.pathname.startsWith("/admin");
 
-
   return (
     <>
       {/* =================================================
@@ -51,7 +58,6 @@ function App() {
       ================================================= */}
 
       {!isAdmin && <Navbar />}
-
 
       <Routes>
 
@@ -99,6 +105,29 @@ function App() {
           element={<OrderSuccess />}
         />
 
+        {/* =================================================
+            LEGAL / POLICY ROUTES
+        ================================================= */}
+
+        <Route
+          path="/privacy-policy"
+          element={<PrivacyPolicy />}
+        />
+
+        <Route
+          path="/terms-and-conditions"
+          element={<TermsConditions />}
+        />
+
+        <Route
+          path="/shipping-policy"
+          element={<ShippingPolicy />}
+        />
+
+        <Route
+          path="/refund-policy"
+          element={<RefundPolicy />}
+        />
 
         {/* =================================================
             ADMIN LOGIN
@@ -109,7 +138,6 @@ function App() {
           path="/admin/login"
           element={<AdminLogin />}
         />
-
 
         {/* =================================================
             ADMIN ROUTES
@@ -141,7 +169,6 @@ function App() {
             }
           />
 
-
           {/* ===============================================
               DASHBOARD
               /admin/dashboard
@@ -151,7 +178,6 @@ function App() {
             path="dashboard"
             element={<Dashboard />}
           />
-
 
           {/* ===============================================
               PRODUCTS
@@ -163,7 +189,6 @@ function App() {
             element={<Products />}
           />
 
-
           {/* ===============================================
               ORDERS
               /admin/orders
@@ -174,7 +199,6 @@ function App() {
             element={<Orders />}
           />
 
-
           {/* ===============================================
               CUSTOMERS
               /admin/customers
@@ -184,7 +208,6 @@ function App() {
             path="customers"
             element={<Customers />}
           />
-
 
           {/* ===============================================
               ANALYTICS
@@ -197,7 +220,6 @@ function App() {
           />
 
         </Route>
-
 
         {/* =================================================
             FALLBACK
@@ -215,7 +237,6 @@ function App() {
 
       </Routes>
 
-
       {/* =================================================
           WEBSITE FOOTER
       ================================================= */}
@@ -225,6 +246,5 @@ function App() {
     </>
   );
 }
-
 
 export default App;
