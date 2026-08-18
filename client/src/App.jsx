@@ -5,6 +5,8 @@ import {
   useLocation,
 } from "react-router-dom";
 
+import { useEffect } from "react";
+
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -42,6 +44,7 @@ import Orders from "./admin/pages/Orders";
 import Customers from "./admin/pages/Customers";
 import Analytics from "./admin/pages/Analytics";
 
+
 function App() {
   const location = useLocation();
 
@@ -52,6 +55,16 @@ function App() {
   const isAdmin =
     location.pathname.startsWith("/admin");
 
+
+  // ===================================================
+  // SCROLL TO TOP WHEN ROUTE CHANGES
+  // ===================================================
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+
   return (
     <>
       {/* =================================================
@@ -59,6 +72,7 @@ function App() {
       ================================================= */}
 
       {!isAdmin && <Navbar />}
+
 
       <Routes>
 
@@ -107,9 +121,10 @@ function App() {
         />
 
         <Route
-  path="/track-order"
-  element={<Track />}
-/>
+          path="/track-order"
+          element={<Track />}
+        />
+
 
         {/* =================================================
             LEGAL / POLICY ROUTES
@@ -135,6 +150,7 @@ function App() {
           element={<RefundPolicy />}
         />
 
+
         {/* =================================================
             ADMIN LOGIN
             PUBLIC ROUTE
@@ -144,6 +160,7 @@ function App() {
           path="/admin/login"
           element={<AdminLogin />}
         />
+
 
         {/* =================================================
             ADMIN ROUTES
@@ -175,6 +192,7 @@ function App() {
             }
           />
 
+
           {/* ===============================================
               DASHBOARD
               /admin/dashboard
@@ -184,6 +202,7 @@ function App() {
             path="dashboard"
             element={<Dashboard />}
           />
+
 
           {/* ===============================================
               PRODUCTS
@@ -195,6 +214,7 @@ function App() {
             element={<Products />}
           />
 
+
           {/* ===============================================
               ORDERS
               /admin/orders
@@ -205,6 +225,7 @@ function App() {
             element={<Orders />}
           />
 
+
           {/* ===============================================
               CUSTOMERS
               /admin/customers
@@ -214,6 +235,7 @@ function App() {
             path="customers"
             element={<Customers />}
           />
+
 
           {/* ===============================================
               ANALYTICS
@@ -226,6 +248,7 @@ function App() {
           />
 
         </Route>
+
 
         {/* =================================================
             FALLBACK
@@ -243,6 +266,7 @@ function App() {
 
       </Routes>
 
+
       {/* =================================================
           WEBSITE FOOTER
       ================================================= */}
@@ -252,5 +276,6 @@ function App() {
     </>
   );
 }
+
 
 export default App;
