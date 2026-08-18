@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import getCartId from "../utils/cartId";
+import Coupon from "../components/Coupon";
 
 import {
   FaCreditCard,
@@ -36,6 +37,9 @@ export default function Check() {
 
   const [cartLoading, setCartLoading] =
     useState(true);
+
+  const [couponCode, setCouponCode] = useState("");
+  const [couponApplied, setCouponApplied] = useState(false);
 
   // =====================================================
   // CART
@@ -159,16 +163,32 @@ export default function Check() {
       subtotal * 0.05
     );
 
-  const total =
-    subtotal +
-    shipping +
-    tax;
+  const originalTotal =
+  subtotal +
+  shipping +
+  tax;
 
-  // =====================================================
-  // SUBMIT
-  // =====================================================
+// =====================================================
+// TEMPORARY RAZORPAY TEST COUPON
+// =====================================================
 
-  const handleSubmit = async (e) => {
+const discount = couponApplied
+  ? Math.round(originalTotal * 0.99 * 100) / 100
+  : 0;
+
+const total = Math.max(
+  1,
+  Math.round((originalTotal - discount) * 100) / 100
+);
+
+
+
+
+// =====================================================
+// SUBMIT
+// =====================================================
+
+const handleSubmit = async (e) => {
     e.preventDefault();
 
     // ===================================================
@@ -935,6 +955,8 @@ export default function Check() {
 
           </div>
 
+          
+
           {/* =================================================
               PAYMENT
           ================================================= */}
@@ -1055,6 +1077,8 @@ export default function Check() {
             </div>
 
           </div>
+
+          
 
           {/* =================================================
               SUBMIT

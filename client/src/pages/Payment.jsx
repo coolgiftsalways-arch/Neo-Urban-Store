@@ -16,7 +16,13 @@ import "../styles/Payment.css";
 
 export default function Payment() {
   const [cartItems, setCartItems] = useState([]);
-  const [loading, setLoading] = useState(false);
+const [loading, setLoading] = useState(false);
+
+// COUPON
+const [couponCode, setCouponCode] = useState("");
+const [couponApplied, setCouponApplied] = useState(false);
+const [couponDiscount, setCouponDiscount] = useState(0);
+const [couponMessage, setCouponMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -313,8 +319,90 @@ const clearCart = async () => {
   const tax =
     Math.round(subtotal * 0.05);
 
-  const total =
-    subtotal + shipping + tax;
+  const originalTotal =
+  subtotal + shipping + tax;
+
+
+
+// =========================================================
+// COUPON
+// =========================================================
+
+const applyCoupon = async () => {
+  const code = couponCode.trim().toUpperCase();
+
+  if (!code) {
+    setCouponMessage("Please enter a coupon code.");
+    return;
+  }
+
+  try {
+    setLoading(true);
+    setCouponMessage("");
+
+    const response = await axios.post(
+      `${API_URL}/api/coupons/apply`,
+      {
+        code,
+        orderAmount: originalTotal,
+      }
+    );
+
+    if (response.data?.success) {
+      setCouponApplied(true);
+
+      setCouponDiscount(
+        Number(response.data.discount) || 0
+      );
+
+      setCouponMessage(
+        `${response.data.coupon.code} applied successfully! 🎉`
+      );
+    } else {
+      setCouponApplied(false);
+      setCouponDiscount(0);
+
+      setCouponMessage(
+        response.data?.message ||
+          "Invalid coupon code."
+      );
+    }
+
+  } catch (error) {
+
+    console.error(
+      "❌ COUPON ERROR:",
+      error
+    );
+
+    setCouponApplied(false);
+    setCouponDiscount(0);
+
+    setCouponMessage(
+      error.response?.data?.message ||
+        "Invalid or expired coupon."
+    );
+
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+// =========================================================
+// FINAL TOTAL
+// =========================================================
+
+const discount = couponApplied
+  ? couponDiscount
+  : 0;
+
+const total = Math.max(
+  1,
+  Math.round(
+    (originalTotal - discount) * 100
+  ) / 100
+);
 
   const totalItems = cartItems.reduce(
     (total, item) => {
@@ -991,6 +1079,57 @@ navigate("/payment-success");
 
           </div>
 
+          {/* =================================================
+    COUPON
+================================================= */}
+
+<div className="payment-coupon">
+
+  <div className="coupon-title">
+    COUPON CODE
+  </div>
+
+  <div className="coupon-row">
+
+    <input
+      type="text"
+      value={couponCode}
+      onChange={(e) =>
+        setCouponCode(e.target.value)
+      }
+      placeholder="Enter coupon code"
+      disabled={couponApplied}
+    />
+
+    <button
+      type="button"
+      onClick={applyCoupon}
+      disabled={
+        couponApplied ||
+        !couponCode.trim()
+      }
+    >
+      {couponApplied ? "APPLIED" : "APPLY"}
+    </button>
+
+  </div>
+
+  {couponMessage && (
+    <div
+      className={
+        couponApplied
+          ? "coupon-success"
+          : "coupon-error"
+      }
+    >
+      {couponApplied
+        ? `✓ ${couponMessage}`
+        : `✕ ${couponMessage}`}
+    </div>
+  )}
+
+</div>
+
 
           {/* =================================================
               TOTALS
@@ -1048,20 +1187,17 @@ navigate("/payment-success");
             </div>
 
 
-            <div className="grand-total">
+            
 
-              <span>
-                TOTAL
-              </span>
+<div className="grand-total">
+  <span>
+    TOTAL
+  </span>
 
-              <span>
-                ₹
-                {total.toLocaleString(
-                  "en-IN"
-                )}
-              </span>
-
-            </div>
+  <span>
+    ₹{total.toLocaleString("en-IN")}
+  </span>
+</div>
 
 
           </div>

@@ -17,6 +17,7 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import couponRoutes from "./routes/couponRoutes.js";
 
 // =====================================================
 // APP
@@ -108,6 +109,12 @@ app.use(
   authRoutes
 );
 
+//coupon//
+
+app.use(
+  "/api/coupons",
+  couponRoutes
+);
 // -----------------------------------------------------
 // ADMIN
 // IMPORTANT:
