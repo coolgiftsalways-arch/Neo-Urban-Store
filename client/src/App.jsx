@@ -59,11 +59,31 @@ function App() {
   // ===================================================
   // SCROLL TO TOP WHEN PAGE / ROUTE CHANGES
   // ===================================================
+useEffect(() => {
+  // Stop browser from restoring the previous scroll position
+  if ("scrollRestoration" in window.history) {
+    window.history.scrollRestoration = "manual";
+  }
 
-  useEffect(() => {
+  // Scroll the window
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: "auto",
+  });
+
+  // Scroll the document
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+
+  // Run once again after React renders the new page
+  requestAnimationFrame(() => {
     window.scrollTo(0, 0);
-  }, [location.pathname]);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  });
 
+}, [location.pathname]);
 
   return (
     <>
