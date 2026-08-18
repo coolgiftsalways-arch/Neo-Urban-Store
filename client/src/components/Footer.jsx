@@ -128,13 +128,15 @@ export default function Footer() {
 
             {/* GMAIL / EMAIL */}
 
-            <a
-              href="mailto:info@neourbanstore.in"
-              className="contact-icon"
-              title="Email Us"
-            >
-              <FaGoogle />
-            </a>
+             <a
+    href="https://mail.google.com/mail/?view=cm&fs=1&to=info@neourbanstore.in"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="contact-icon"
+    title="Email Us"
+  >
+    <FaGoogle />
+  </a>
 
 
             {/* WHATSAPP */}
