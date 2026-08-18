@@ -90,7 +90,7 @@ export default function Footer() {
             About
           </Link>
 
-          <Link to="/track-order">
+          <Link to="/Track">
             Track Order
           </Link>
 

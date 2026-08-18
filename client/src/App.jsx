@@ -16,6 +16,7 @@ import Payment from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ProductDetails from "./pages/ProductDetails";
 import OrderSuccess from "./pages/OrderSuccess";
+import Track from "./pages/Track";
 
 // =====================================================
 // LEGAL / POLICY PAGES
@@ -104,6 +105,11 @@ function App() {
           path="/order-success"
           element={<OrderSuccess />}
         />
+
+        <Route
+  path="/track-order"
+  element={<Track />}
+/>
 
         {/* =================================================
             LEGAL / POLICY ROUTES
