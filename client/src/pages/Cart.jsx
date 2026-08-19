@@ -274,11 +274,9 @@ export default function Cart() {
   );
 
 
-  const shipping = subtotal > 499 ? 0 : 40;
+  const shipping = 49;
 
-  const tax = Math.round(subtotal * 0.05);
-
-  const total = subtotal + shipping + tax;
+const total = subtotal + shipping;
 
 
   // ==========================================
@@ -632,19 +630,7 @@ export default function Cart() {
           </div>
 
 
-          {/* GST */}
-
-          <div className="summary-row">
-
-            <span>
-              GST (5%)
-            </span>
-
-            <span>
-              ₹{tax}
-            </span>
-
-          </div>
+        
 
 
           {/* TOTAL */}

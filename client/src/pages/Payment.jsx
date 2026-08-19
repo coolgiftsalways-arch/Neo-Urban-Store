@@ -267,7 +267,7 @@ export default function Payment() {
     return total + price * quantity;
   }, 0);
 
-  const shipping = subtotal > 499 ? 0 : 40;
+  const shipping = 49;
 
   const tax = 0;
 
@@ -834,7 +834,6 @@ export default function Payment() {
 
               <span>₹{subtotal.toLocaleString("en-IN")}</span>
             </div>
-            
 
             <div>
               <span>Shipping</span>
