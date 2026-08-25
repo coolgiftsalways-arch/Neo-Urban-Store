@@ -309,7 +309,7 @@ console.log(
   "🛒 CART UPDATED EVENT SENT FROM PRODUCT CARD"
 );
 
-alert("Added to Cart 🛒");
+// alert("Added to Cart 🛒");
 
 
     } catch (err) {
