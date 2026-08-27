@@ -9,6 +9,7 @@ import { useEffect } from "react";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import WhatsAppButton from "./components/WhatsAppButton";
 
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
@@ -28,6 +29,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import ShippingPolicy from "./pages/ShippingPolicy";
 import RefundPolicy from "./pages/RefundPolicy";
+
 
 // =====================================================
 // ADMIN
@@ -306,6 +308,7 @@ function App() {
       ================================================= */}
 
       {!isAdmin && <Footer />}
+      {!isAdmin && <WhatsAppButton />}
 
     </>
   );

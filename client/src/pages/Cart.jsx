@@ -637,7 +637,7 @@ const total = subtotal + shipping;
 
           <div className="summary-total">
 
-            <span>
+            <span>   
               Total
             </span>
 
