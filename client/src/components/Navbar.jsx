@@ -17,10 +17,10 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
- const navRef = useRef(null);
-const mobilePopupRef = useRef(null);
-const linksRef = useRef([]);
-const cartBadgeRef = useRef(null);
+  const navRef = useRef(null);
+  const mobilePopupRef = useRef(null);
+  const linksRef = useRef([]);
+  const cartBadgeRef = useRef(null);
 
   // ==============================
   // NAVIGATION LINKS
@@ -39,120 +39,105 @@ const cartBadgeRef = useRef(null);
   // ==============================
 
   const fetchCartCount = async () => {
-  try {
-    const cartId = getCartId();
+    try {
+      const cartId = getCartId();
 
-    const response = await axios.get(
-      `${import.meta.env.VITE_API_URL}/api/cart`,
-      {
-        params: {
-          cartId,
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/cart`,
+        {
+          params: {
+            cartId,
+          },
         },
-      }
-    );
+      );
 
-    const cart = Array.isArray(response.data)
-      ? response.data
-      : [];
+      const cart = Array.isArray(response.data) ? response.data : [];
 
-    const totalQuantity = cart.reduce(
-      (total, item) =>
-        total + Number(item.quantity || 0),
-      0
-    );
+      const totalQuantity = cart.reduce(
+        (total, item) => total + Number(item.quantity || 0),
+        0,
+      );
 
-    setCartCount(totalQuantity);
-
-  } catch (error) {
-    console.error(
-      "Navbar cart count error:",
-      error.response?.data || error.message
-    );
-
-    setCartCount(0);
-  }
-};
-
-  // ==============================
-// LOAD + SYNC CART COUNT
-// ==============================
-
-useEffect(() => {
-  // Initial cart count
-  fetchCartCount();
-
-  // Listen for cart changes
-  const handleCartUpdated = (event) => {
-    console.log(
-      "🛒 CART UPDATED EVENT:",
-      event.detail
-    );
-
-    // ------------------------------------------
-    // ORDER COMPLETED → FORCE CART COUNT TO 0
-    // ------------------------------------------
-
-    if (event.detail?.cleared === true) {
-      console.log(
-        "✅ ORDER COMPLETED — RESETTING CART BADGE TO 0"
+      setCartCount(totalQuantity);
+    } catch (error) {
+      console.error(
+        "Navbar cart count error:",
+        error.response?.data || error.message,
       );
 
       setCartCount(0);
-      return;
     }
+  };
 
-    // ------------------------------------------
-    // NORMAL CART UPDATE
-    // ------------------------------------------
+  // ==============================
+  // LOAD + SYNC CART COUNT
+  // ==============================
 
+  useEffect(() => {
+    // Initial cart count
     fetchCartCount();
-  };
 
-  window.addEventListener(
-    "cartUpdated",
-    handleCartUpdated
-  );
+    // Listen for cart changes
+    const handleCartUpdated = (event) => {
+      console.log("🛒 CART UPDATED EVENT:", event.detail);
 
-  return () => {
-    window.removeEventListener(
-      "cartUpdated",
-      handleCartUpdated
+      // ------------------------------------------
+      // ORDER COMPLETED → FORCE CART COUNT TO 0
+      // ------------------------------------------
+
+      if (event.detail?.cleared === true) {
+        console.log("✅ ORDER COMPLETED — RESETTING CART BADGE TO 0");
+
+        setCartCount(0);
+        return;
+      }
+
+      // ------------------------------------------
+      // NORMAL CART UPDATE
+      // ------------------------------------------
+
+      fetchCartCount();
+    };
+
+    window.addEventListener("cartUpdated", handleCartUpdated);
+
+    return () => {
+      window.removeEventListener("cartUpdated", handleCartUpdated);
+    };
+  }, []);
+
+  // =====================================================
+  // CART BADGE ANIMATION
+  // =====================================================
+
+  useEffect(() => {
+    if (!cartBadgeRef.current) return;
+
+    gsap.killTweensOf(cartBadgeRef.current);
+
+    gsap.fromTo(
+      cartBadgeRef.current,
+      {
+        scale: 0.6,
+        opacity: 0.5,
+        y: -4,
+      },
+      {
+        scale: 1,
+        opacity: 1,
+        y: 0,
+        duration: 0.45,
+        ease: "back.out(2)",
+      },
     );
-  };
-}, []);
+  }, [cartCount]);
+  // ==============================
+  // REFRESH WHEN PAGE CHANGES
+  // ==============================
 
-// =====================================================
-// CART BADGE ANIMATION
-// =====================================================
-
-useEffect(() => {
-  if (!cartBadgeRef.current) return;
-
-  gsap.killTweensOf(cartBadgeRef.current);
-
-  gsap.fromTo(
-    cartBadgeRef.current,
-    {
-      scale: 0.6,
-      opacity: 0.5,
-      y: -4,
-    },
-    {
-      scale: 1,
-      opacity: 1,
-      y: 0,
-      duration: 0.45,
-      ease: "back.out(2)",
-    }
-  );
-}, [cartCount]);
-// ==============================
-// REFRESH WHEN PAGE CHANGES
-// ==============================
-
-useEffect(() => {
-  fetchCartCount();
-}, [location.pathname]);
+  useEffect(() => {
+    fetchCartCount();
+  }, [location.pathname]);
 
   // ==============================
   // NAVIGATION
@@ -179,8 +164,7 @@ useEffect(() => {
         navigate("/");
 
         setTimeout(() => {
-          const element =
-            document.getElementById(id);
+          const element = document.getElementById(id);
 
           if (element) {
             element.scrollIntoView({
@@ -190,8 +174,7 @@ useEffect(() => {
           }
         }, 400);
       } else {
-        const element =
-          document.getElementById(id);
+        const element = document.getElementById(id);
 
         if (element) {
           element.scrollIntoView({
@@ -222,7 +205,7 @@ useEffect(() => {
           opacity: 1,
           duration: 1.2,
           ease: "power4.out",
-        }
+        },
       );
 
       gsap.fromTo(
@@ -238,7 +221,7 @@ useEffect(() => {
           stagger: 0.06,
           delay: 0.3,
           ease: "power3.out",
-        }
+        },
       );
     }, navRef);
 
@@ -250,24 +233,13 @@ useEffect(() => {
   // ==============================
 
   const handleMouseMove = (e) => {
-    const {
-      currentTarget,
-      clientX,
-      clientY,
-    } = e;
+    const { currentTarget, clientX, clientY } = e;
 
-    const {
-      left,
-      top,
-      width,
-      height,
-    } = currentTarget.getBoundingClientRect();
+    const { left, top, width, height } = currentTarget.getBoundingClientRect();
 
-    const x =
-      (clientX - (left + width / 2)) * 0.3;
+    const x = (clientX - (left + width / 2)) * 0.3;
 
-    const y =
-      (clientY - (top + height / 2)) * 0.3;
+    const y = (clientY - (top + height / 2)) * 0.3;
 
     gsap.to(currentTarget, {
       x,
@@ -328,7 +300,7 @@ useEffect(() => {
           stagger: 0.08,
           delay: 0.25,
           ease: "power3.out",
-        }
+        },
       );
     } else {
       gsap.to(mobilePopupRef.current, {
@@ -349,9 +321,7 @@ useEffect(() => {
   }, [isMobileMenuOpen]);
 
   const toggleMenu = () => {
-    setIsMobileMenuOpen(
-      !isMobileMenuOpen
-    );
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   const handleMobileNavClick = (e, path) => {
@@ -369,20 +339,12 @@ useEffect(() => {
           NAVBAR
       ========================== */}
 
-      <header
-        className="navbar-header"
-        ref={navRef}
-      >
+      <header className="navbar-header" ref={navRef}>
         <nav className="navbar-container">
-
           {/* Hamburger */}
 
           <button
-            className={`hamburger-btn ${
-              isMobileMenuOpen
-                ? "open"
-                : ""
-            }`}
+            className={`hamburger-btn ${isMobileMenuOpen ? "open" : ""}`}
             onClick={toggleMenu}
             aria-label="Toggle Navigation"
           >
@@ -396,14 +358,23 @@ useEffect(() => {
           <div className="nav-logo">
             <Link
               to="/"
-              onClick={(e) =>
-                handleNavClick(e, "/")
-              }
+              onClick={(e) => handleNavClick(e, "/")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                textDecoration: "none",
+              }}
             >
-              NEO
-              <span className="text-glow">
-                URBANSTORE
-              </span>
+              <img
+                src="/logo.png"
+                alt="Neo Urban Store"
+                style={{
+                  width: "380px",
+                  height: "65px",
+                  objectFit: "contain",
+                  display: "block",
+                }}
+              />
             </Link>
           </div>
 
@@ -414,23 +385,14 @@ useEffect(() => {
               <Link
                 key={item.name}
                 to={item.path}
-                onClick={(e) =>
-                  handleNavClick(
-                    e,
-                    item.path
-                  )
-                }
+                onClick={(e) => handleNavClick(e, item.path)}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
               >
                 <div className="link-wrapper">
-                  <span className="link-text">
-                    {item.name}
-                  </span>
+                  <span className="link-text">{item.name}</span>
 
-                  <span className="link-text-hover">
-                    {item.name}
-                  </span>
+                  <span className="link-text-hover">{item.name}</span>
                 </div>
               </Link>
             ))}
@@ -439,7 +401,6 @@ useEffect(() => {
           {/* Right Actions */}
 
           <div className="nav-actions">
-
             {/* CART */}
 
             <Link
@@ -449,7 +410,6 @@ useEffect(() => {
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
             >
-
               <svg
                 className="bag-icon"
                 xmlns="http://www.w3.org/2000/svg"
@@ -462,12 +422,7 @@ useEffect(() => {
               >
                 <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
 
-                <line
-                  x1="3"
-                  y1="6"
-                  x2="21"
-                  y2="6"
-                ></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
 
                 <path d="M16 10a4 4 0 0 1-8 0"></path>
               </svg>
@@ -475,20 +430,12 @@ useEffect(() => {
               {/* CART COUNT */}
 
               {cartCount > 0 && (
-  <span
-    ref={cartBadgeRef}
-    className="cart-badge"
-  >
-    {cartCount > 99
-      ? "99+"
-      : cartCount}
-  </span>
-)}
-
+                <span ref={cartBadgeRef} className="cart-badge">
+                  {cartCount > 99 ? "99+" : cartCount}
+                </span>
+              )}
             </Link>
-
           </div>
-
         </nav>
       </header>
 
@@ -496,57 +443,30 @@ useEffect(() => {
           MOBILE POPUP
       ========================== */}
 
-      <div
-        className="mobile-popup-wrapper"
-        ref={mobilePopupRef}
-      >
-
-        <button
-          className="popup-close-btn"
-          onClick={toggleMenu}
-        >
+      <div className="mobile-popup-wrapper" ref={mobilePopupRef}>
+        <button className="popup-close-btn" onClick={toggleMenu}>
           ✕
         </button>
 
         <nav className="mobile-popup-links">
-
-          {navLinks.map(
-            (item, index) => (
-              <div
-                className="mobile-link-item"
-                key={item.name}
+          {navLinks.map((item, index) => (
+            <div className="mobile-link-item" key={item.name}>
+              <Link
+                to={item.path}
+                ref={(el) => (linksRef.current[index] = el)}
+                onClick={(e) => handleMobileNavClick(e, item.path)}
               >
-
-                <Link
-                  to={item.path}
-                  ref={(el) =>
-                    (linksRef.current[index] =
-                      el)
-                  }
-                  onClick={(e) =>
-                    handleMobileNavClick(
-                      e,
-                      item.path
-                    )
-                  }
-                >
-                  {item.name}
-                </Link>
-
-              </div>
-            )
-          )}
-
+                {item.name}
+              </Link>
+            </div>
+          ))}
         </nav>
       </div>
 
       {/* Overlay */}
 
       {isMobileMenuOpen && (
-        <div
-          className="popup-overlay"
-          onClick={toggleMenu}
-        ></div>
+        <div className="popup-overlay" onClick={toggleMenu}></div>
       )}
     </>
   );
