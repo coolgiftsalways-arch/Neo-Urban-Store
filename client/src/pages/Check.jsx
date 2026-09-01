@@ -493,6 +493,36 @@ const handleSubmit = async (e) => {
           response.data
         );
 
+        // ==========================================
+// GOOGLE TAG MANAGER PURCHASE EVENT
+// ==========================================
+
+window.dataLayer = window.dataLayer || [];
+
+window.dataLayer.push({
+  event: "purchase",
+
+  transaction_id:
+    response.data?._id,
+
+  value: Number(
+    orderData.totalPrice ||
+    orderData.total ||
+    0
+  ),
+
+  currency: "INR"
+});
+
+console.log(
+  "✅ GTM PURCHASE EVENT SENT:",
+  {
+    transaction_id: response.data?._id,
+    value: orderData.totalPrice,
+    currency: "INR"
+  }
+);
+
         // -----------------------------------------------
         // SAVE ORDER ID
         // -----------------------------------------------

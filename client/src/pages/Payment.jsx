@@ -430,6 +430,38 @@ export default function Payment() {
             }
 
             // ==========================================
+            // GOOGLE TAG MANAGER PURCHASE EVENT
+            // ==========================================
+
+            window.dataLayer = window.dataLayer || [];
+
+            window.dataLayer.push({
+              event: "purchase",
+
+              transaction_id: orderResponse.data?._id,
+
+              value: Number(total),
+
+              currency: "INR",
+            });
+
+            console.log("✅ GTM RAZORPAY PURCHASE SENT:", {
+              transaction_id: orderResponse.data?._id,
+
+              value: Number(total),
+
+              currency: "INR",
+            });
+
+            // ==========================================
+            // SAVE ORDER ID
+            // ==========================================
+
+            if (orderResponse.data?._id) {
+              localStorage.setItem("orderId", orderResponse.data._id);
+            }
+
+            // ==========================================
             // 3. CLEAR CART
             // ==========================================
 
