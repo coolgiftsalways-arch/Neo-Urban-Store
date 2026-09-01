@@ -153,7 +153,7 @@ export default function Check() {
       0
     );
 
-  const shipping =
+  const shipping = 49;
     subtotal > 499
       ? 0
       : 40;

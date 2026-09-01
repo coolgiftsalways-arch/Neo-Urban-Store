@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 
 import "../styles/ProductDetails.css";
+import getCartId from "../utils/cartId";
 
 export default function ProductDetails() {
   const location = useLocation();
@@ -428,98 +429,103 @@ export default function ProductDetails() {
 
 
   // ==========================================
-  // ADD TO CART
-  // ==========================================
+// ADD TO CART
+// ==========================================
 
-  const addToCart = async () => {
+const addToCart = async () => {
+  try {
+    // Get/create unique cart ID
+    const cartId = getCartId();
 
-    try {
+    console.log(
+      "🛒 PRODUCT DETAILS CART ID:",
+      cartId
+    );
 
-      const response =
-        await fetch(
-          `${API_URL}/api/cart`,
-          {
-            method: "POST",
+    const response = await fetch(
+      `${API_URL}/api/cart`,
+      {
+        method: "POST",
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-            body: JSON.stringify({
-              productId:
-                product.id ||
-                product._id,
+        body: JSON.stringify({
+          // IMPORTANT
+          cartId,
 
-              name:
-                product.name,
+          productId:
+            product.id ||
+            product._id,
 
-              category:
-                product.category,
+          name:
+            product.name,
 
-              image:
-                product.image,
+          category:
+            product.category,
 
-              price:
-                product.price,
+          image:
+            product.image,
 
-              quantity,
-            }),
-          }
-        );
+          price:
+            Number(product.price),
 
+          quantity:
+            Number(quantity),
+        }),
+      }
+    );
 
-      if (!response.ok) {
-
-  const errorData =
-    await response
+    const data = await response
       .json()
       .catch(() => ({}));
 
-  throw new Error(
-    errorData.message ||
-      "Failed to add product to cart"
-  );
-}
-
-
-// ==========================================
-// 🔔 TELL NAVBAR CART WAS UPDATED
-// ==========================================
-
-window.dispatchEvent(
-  new CustomEvent("cartUpdated", {
-    detail: {
-      added: true,
-    },
-  })
-);
-
-console.log(
-  "🛒 PRODUCT DETAILS — CART UPDATED EVENT SENT"
-);
-
-
-// alert(
-//   "Added to Cart 🛒"
-// );
-
-
-    } catch (error) {
-
-      console.error(
-        "Add to cart error:",
-        error
+    if (!response.ok) {
+      throw new Error(
+        data.message ||
+        "Failed to add product to cart"
       );
-
-      alert(
-        error.message ||
-          "Unable to add product to cart"
-      );
-
     }
 
-  };
+    console.log(
+      "✅ PRODUCT ADDED TO CART:",
+      data
+    );
+
+    // ==========================================
+    // TELL NAVBAR CART WAS UPDATED
+    // ==========================================
+
+    window.dispatchEvent(
+      new CustomEvent(
+        "cartUpdated",
+        {
+          detail: {
+            added: true,
+            cartId,
+          },
+        }
+      )
+    );
+
+    console.log(
+      "🛒 PRODUCT DETAILS — CART UPDATED EVENT SENT"
+    );
+
+  } catch (error) {
+    console.error(
+      "Add to cart error:",
+      error
+    );
+
+    alert(
+      error.message ||
+      "Unable to add product to cart"
+    );
+  }
+};
+
 
 
   // ==========================================
