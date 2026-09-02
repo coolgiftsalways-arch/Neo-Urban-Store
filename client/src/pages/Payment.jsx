@@ -430,28 +430,50 @@ export default function Payment() {
             }
 
             // ==========================================
-            // GOOGLE TAG MANAGER PURCHASE EVENT
+            // GOOGLE PURCHASE / ADS CONVERSION
             // ==========================================
 
-            window.dataLayer = window.dataLayer || [];
+            const transactionId =
+              orderResponse.data?._id || response.razorpay_payment_id;
 
-            window.dataLayer.push({
-              event: "purchase",
+            // ------------------------------------------
+            // GOOGLE ADS PURCHASE CONVERSION
+            // ------------------------------------------
 
-              transaction_id: orderResponse.data?._id,
+            if (typeof window.gtag === "function") {
+              window.gtag("event", "conversion", {
+                send_to: "AW-17947306709/4kL5CLrIhOscENXV-O1C",
 
-              value: Number(total),
+                value: Number(total),
 
-              currency: "INR",
-            });
+                currency: "INR",
 
-            console.log("✅ GTM RAZORPAY PURCHASE SENT:", {
-              transaction_id: orderResponse.data?._id,
+                transaction_id: transactionId,
+              });
 
-              value: Number(total),
+              console.log("✅ GOOGLE ADS CONVERSION SENT:", {
+                send_to: "AW-17947306709/4kL5CLrIhOscENXV-O1C",
+                transaction_id: transactionId,
+                value: Number(total),
+                currency: "INR",
+              });
+            } else {
+              console.error("❌ window.gtag is not loaded");
+            }
 
-              currency: "INR",
-            });
+            // ------------------------------------------
+            // GA4 PURCHASE EVENT
+            // ------------------------------------------
+
+            if (typeof window.gtag === "function") {
+              window.gtag("event", "purchase", {
+                transaction_id: transactionId,
+                value: Number(total),
+                currency: "INR",
+              });
+
+              console.log("✅ GA4 PURCHASE EVENT SENT");
+            }
 
             // ==========================================
             // SAVE ORDER ID
