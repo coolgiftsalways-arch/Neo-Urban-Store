@@ -1,118 +1,264 @@
 <!doctype html>
+
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
 
-    <!-- Google Tag Manager -->
-    <script>
-      (function (w, d, s, l, i) {
-        w[l] = w[l] || [];
-        w[l].push({
-          "gtm.start": new Date().getTime(),
-          event: "gtm.js",
-        });
+<head>
 
-        var f = d.getElementsByTagName(s)[0],
-          j = d.createElement(s),
-          dl = l != "dataLayer" ? "&l=" + l : "";
+  <!-- =====================================================
+       BASIC META
+  ====================================================== -->
 
-        j.async = true;
-        j.src =
-          "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+  <meta charset="UTF-8" />
 
-        f.parentNode.insertBefore(j, f);
-      })(window, document, "script", "dataLayer", "GTM-PJJH3DK3");
-    </script>
-    <!-- End Google Tag Manager -->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
 
 
-    <!-- Google Analytics -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-KGVKTP6JSP"
-    ></script>
+  <!-- =====================================================
+       GOOGLE TAG MANAGER
+       Container ID: GTM-PJJH3DK3
+  ====================================================== -->
 
-    <script>
-      window.dataLayer = window.dataLayer || [];
+  <script>
+    (function (w, d, s, l, i) {
 
-      function gtag() {
-        dataLayer.push(arguments);
+      w[l] = w[l] || [];
+
+      w[l].push({
+        "gtm.start": new Date().getTime(),
+        event: "gtm.js",
+      });
+
+      var f = d.getElementsByTagName(s)[0],
+        j = d.createElement(s),
+        dl = l != "dataLayer" ? "&l=" + l : "";
+
+      j.async = true;
+
+      j.src =
+        "https://www.googletagmanager.com/gtm.js?id=" +
+        i +
+        dl;
+
+      f.parentNode.insertBefore(j, f);
+
+    })(
+      window,
+      document,
+      "script",
+      "dataLayer",
+      "GTM-PJJH3DK3"
+    );
+  </script>
+
+  <!-- END GOOGLE TAG MANAGER -->
+
+
+  <!-- =====================================================
+       GOOGLE TAG / GOOGLE ANALYTICS / GOOGLE ADS
+  ====================================================== -->
+
+  <!-- Google Analytics Measurement ID:
+       G-KGVKTP6JSP
+  -->
+
+  <script
+    async
+    src="https://www.googletagmanager.com/gtag/js?id=G-KGVKTP6JSP"
+  ></script>
+
+  <script>
+
+    /* Create Google dataLayer */
+    window.dataLayer = window.dataLayer || [];
+
+
+    /* Create global gtag() function */
+    window.gtag = function () {
+      window.dataLayer.push(arguments);
+    };
+
+
+    /* Initialize Google Tag */
+    window.gtag("js", new Date());
+
+
+    /* =====================================================
+       GOOGLE ANALYTICS 4
+       Measurement ID: G-KGVKTP6JSP
+    ====================================================== */
+
+    window.gtag(
+      "config",
+      "G-KGVKTP6JSP"
+    );
+
+
+    /* =====================================================
+       GOOGLE ADS
+       Google Ads ID: AW-17947306709
+    ====================================================== */
+
+    window.gtag(
+      "config",
+      "AW-17947306709"
+    );
+
+
+    /* =====================================================
+       GOOGLE ADS PURCHASE CONVERSION
+
+       Conversion:
+       AW-17947306709/ZU67CML3w_kcENXV-O1C
+
+       IMPORTANT:
+       DO NOT fire this automatically here.
+
+       This function should ONLY be called after:
+       1. Payment succeeds
+       2. Order is created
+       3. Ideally backend payment verification succeeds
+    ====================================================== */
+
+    window.trackPurchaseConversion = function (
+      value = 1,
+      transactionId = ""
+    ) {
+
+      /* Safety check */
+      if (typeof window.gtag !== "function") {
+        console.warn("Google gtag is not loaded.");
+        return;
       }
 
-      gtag("js", new Date());
 
-      gtag("config", "G-KGVKTP6JSP");
+      /* Send Google Ads purchase conversion */
+      window.gtag("event", "conversion", {
 
-      // Google Ads
-      gtag("config", "AW-17947306709");
-    </script>
+        /* Google Ads Conversion ID + Label */
+        send_to:
+          "AW-17947306709/ZU67CML3w_kcENXV-O1C",
+
+        /* Actual purchase amount */
+        value: Number(value),
+
+        /* Currency */
+        currency: "INR",
+
+        /* Unique Order / Payment ID */
+        transaction_id: transactionId,
+
+      });
 
 
-    <!-- Google Ads Purchase Conversion -->
-    <script>
-      function gtag_report_conversion(url) {
-        var callback = function () {
-          if (typeof url !== "undefined") {
-            window.location = url;
-          }
-        };
+      /* Debug message - you can remove later */
+      console.log(
+        "Google Ads purchase conversion sent:",
+        {
+          value: Number(value),
+          transactionId: transactionId,
+        }
+      );
+    };
 
-        gtag("event", "conversion", {
-          send_to: "AW-17947306709/4kL5CLrIhOscENXV-O1C",
-          transaction_id: "",
-          event_callback: callback,
-        });
+  </script>
 
-        return false;
-      }
-    </script>
-    
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <!-- =====================================================
+       FAVICON
+  ====================================================== -->
 
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0"
-    />
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="/favicon.svg"
+  />
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
 
-    <link
-      rel="preconnect"
-      href="https://fonts.gstatic.com"
-      crossorigin
-    />
+  <!-- =====================================================
+       GOOGLE FONTS
+  ====================================================== -->
 
-    <link
-      href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  />
 
-    <link
-      href="https://fonts.googleapis.com/css2?family=Rubik+Glitch&display=swap"
-      rel="stylesheet"
-    />
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  />
 
-    <title>NEO URBAN STORE</title>
-  </head>
 
-  <body>
+  <!-- Anton + Oswald -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
 
-    <!-- Google Tag Manager (noscript) -->
-    <noscript>
-      <iframe
-        src="https://www.googletagmanager.com/ns.html?id=GTM-PJJH3DK3"
-        height="0"
-        width="0"
-        style="display:none;visibility:hidden"
-      ></iframe>
-    </noscript>
-    <!-- End Google Tag Manager (noscript) -->
 
-    <div id="root"></div>
+  <!-- Rubik Glitch -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Rubik+Glitch&display=swap"
+    rel="stylesheet"
+  />
 
-    <script type="module" src="/src/main.jsx"></script>
 
-  </body>
+  <!-- =====================================================
+       WEBSITE TITLE
+  ====================================================== -->
+
+  <title>NEO URBAN STORE</title>
+
+</head>
+
+
+<body>
+
+
+  <!-- =====================================================
+       GOOGLE TAG MANAGER - NOSCRIPT
+
+       This is required for visitors who have JavaScript
+       disabled.
+
+       Keep it immediately after opening <body>.
+  ====================================================== -->
+
+  <noscript>
+
+    <iframe
+      src="https://www.googletagmanager.com/ns.html?id=GTM-PJJH3DK3"
+      height="0"
+      width="0"
+      style="display:none;visibility:hidden"
+    ></iframe>
+
+  </noscript>
+
+  <!-- END GOOGLE TAG MANAGER -->
+
+
+  <!-- =====================================================
+       REACT APP ROOT
+  ====================================================== -->
+
+  <div id="root"></div>
+
+
+  <!-- =====================================================
+       VITE / REACT ENTRY FILE
+  ====================================================== -->
+
+  <script
+    type="module"
+    src="/src/main.jsx"
+  ></script>
+
+
+</body>
+
 </html>
