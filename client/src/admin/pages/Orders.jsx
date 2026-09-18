@@ -1121,6 +1121,94 @@ const getShiprocketStatus = (order) => {
             </div>
 
             {/* =================================================
+    ORDERED PRODUCTS
+================================================= */}
+
+<div className="order-detail-section">
+
+  <h3>Products Ordered</h3>
+
+  {Array.isArray(selectedOrder.items) &&
+  selectedOrder.items.length > 0 ? (
+
+    <div className="ordered-products-list">
+
+      {selectedOrder.items.map((item, index) => {
+
+        const qty = Number(
+          item.qty ??
+          item.quantity ??
+          1
+        );
+
+        const price = Number(
+          item.price ??
+          0
+        );
+
+        return (
+
+          <div
+            className="ordered-product-card"
+            key={
+              item.productId ||
+              item._id ||
+              index
+            }
+          >
+
+            <div className="ordered-product-info">
+
+              <strong className="ordered-product-name">
+                {item.name || "Product"}
+              </strong>
+
+              <span>
+                Product ID:{" "}
+                {item.productId || "—"}
+              </span>
+
+              <span>
+                Quantity:{" "}
+                <strong>{qty}</strong>
+              </span>
+
+              <span>
+                Price:{" "}
+                <strong>
+                  ₹{price.toLocaleString("en-IN")}
+                </strong>
+              </span>
+
+            </div>
+
+            <div className="ordered-product-total">
+
+              ₹{(price * qty).toLocaleString(
+                "en-IN"
+              )}
+
+            </div>
+
+          </div>
+
+        );
+
+      })}
+
+    </div>
+
+  ) : (
+
+    <p className="no-order-items">
+      No product information available for this order.
+    </p>
+
+  )}
+
+</div>
+
+            {/* =================================================
                 PAYMENT
             ================================================= */}
 
