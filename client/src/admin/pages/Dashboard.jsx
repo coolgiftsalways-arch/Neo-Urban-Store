@@ -1,1915 +1,2005 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import { useNavigate } from "react-router-dom";
 
 import {
+  FiDollarSign,
   FiShoppingBag,
+  FiClock,
+  FiTrendingUp,
+  FiRefreshCw,
+  FiArrowRight,
   FiUsers,
   FiPackage,
-  FiDollarSign,
-  FiSearch,
-  FiRefreshCw,
+  FiAlertTriangle,
+  FiCheckCircle,
+  FiTruck,
+  FiXCircle,
+  FiCreditCard,
+  FiBox,
+  FiActivity,
 } from "react-icons/fi";
 
 import api from "../../config/api";
 
 import "../styles/dashboard.css";
 
-
-// =====================================================
-// DASHBOARD
-// =====================================================
-
 export default function Dashboard() {
+  const navigate = useNavigate();
 
-  // ===================================================
+  // =====================================================
   // STATES
-  // ===================================================
+  // =====================================================
 
-  const [stats, setStats] = useState({
+  const [orders, setOrders] = useState([]);
+  const [products, setProducts] = useState([]);
 
-    totalRevenue: 0,
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-    totalOrders: 0,
+  const [error, setError] = useState("");
+  const [productsError, setProductsError] = useState("");
+  const [ordersError, setOrdersError] = useState("");
 
-    totalCustomers: 0,
-
-    totalProducts: 0,
-
-  });
-
-
-  const [orders, setOrders] =
-    useState([]);
-
-
-  // ===================================================
-  // PRODUCTS
-  // ===================================================
-
-  const [products, setProducts] =
-    useState([]);
-
-
-  const [customers, setCustomers] =
-    useState([]);
-
-
-  const [customerSearch, setCustomerSearch] =
-    useState("");
-
-
-  const [loading, setLoading] =
-    useState(true);
-
-
-  const [refreshing, setRefreshing] =
-    useState(false);
-
-
-  const [error, setError] =
-    useState("");
-
-
-  // ===================================================
-  // GET CUSTOMER NAME
-  // ===================================================
+  // =====================================================
+  // HELPERS
+  // =====================================================
 
   const getCustomerName = (order) => {
-  return (
-    order?.customerName ||
-    order?.fullName ||
-    order?.shippingAddress?.customerName ||
-    order?.shippingAddress?.fullName ||
-    ""
-  );
-};
-
-
-  // ===================================================
-  // GET CUSTOMER EMAIL
-  // ===================================================
+    return (
+      order?.customerName ||
+      order?.fullName ||
+      order?.name ||
+      order?.shippingAddress?.customerName ||
+      order?.shippingAddress?.fullName ||
+      order?.shippingAddress?.name ||
+      order?.billingAddress?.customerName ||
+      order?.billingAddress?.fullName ||
+      order?.billingAddress?.name ||
+      "Customer"
+    );
+  };
 
   const getCustomerEmail = (order) => {
-
     return (
-
       order?.email ||
-
       order?.shippingAddress?.email ||
-
-      "No email"
-
+      order?.billingAddress?.email ||
+      ""
     );
-
   };
-
-
-  // ===================================================
-  // GET CUSTOMER PHONE
-  // ===================================================
 
   const getCustomerPhone = (order) => {
-
     return (
-
       order?.phone ||
-
       order?.phoneNumber ||
-
       order?.shippingAddress?.phone ||
-
-      "Not provided"
-
+      order?.shippingAddress?.phoneNumber ||
+      order?.billingAddress?.phone ||
+      order?.billingAddress?.phoneNumber ||
+      ""
     );
-
   };
-
-
-  // ===================================================
-  // GET ORDER TOTAL
-  // ===================================================
 
   const getOrderTotal = (order) => {
-
     return Number(
-
-      order?.total ??
-
       order?.totalPrice ??
-
-      0
-
+        order?.total ??
+        order?.grandTotal ??
+        0
     );
-
   };
-
-
-  // ===================================================
-  // GET ORDER STATUS
-  // ===================================================
 
   const getOrderStatus = (order) => {
-
     return (
-
       order?.orderStatus ||
-
       order?.status ||
-
       "Pending"
-
     );
-
   };
 
+  const normalizeStatus = (order) => {
+    return String(
+      getOrderStatus(order)
+    )
+      .trim()
+      .toLowerCase();
+  };
 
-  // ===================================================
-  // FETCH DASHBOARD DATA
-  // ===================================================
+  const formatMoney = (amount) => {
+    return Number(
+      amount || 0
+    ).toLocaleString("en-IN");
+  };
 
-  const fetchDashboardData = async () => {
+  const formatDate = (date) => {
+    if (!date) {
+      return "—";
+    }
 
+    const parsedDate = new Date(date);
+
+    if (
+      Number.isNaN(
+        parsedDate.getTime()
+      )
+    ) {
+      return "—";
+    }
+
+    return parsedDate.toLocaleDateString(
+      "en-IN",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }
+    );
+  };
+
+  const getApiErrorMessage = (
+    reason,
+    fallback
+  ) => {
+    if (!reason) {
+      return fallback;
+    }
+
+    if (
+      reason.code === "ECONNABORTED"
+    ) {
+      return `${fallback} Request timed out.`;
+    }
+
+    if (
+      reason.response?.status === 401 ||
+      reason.response?.status === 403
+    ) {
+      return (
+        reason.response?.data?.message ||
+        "Admin session expired. Please login again."
+      );
+    }
+
+    if (reason.response) {
+      return (
+        reason.response?.data?.message ||
+        `${fallback} Server returned ${reason.response.status}.`
+      );
+    }
+
+    if (reason.request) {
+      return `${fallback} Cannot connect to backend.`;
+    }
+
+    return (
+      reason.message ||
+      fallback
+    );
+  };
+
+  // =====================================================
+  // FETCH DASHBOARD
+  // =====================================================
+
+  const fetchDashboardData = async (
+    isRefresh = false
+  ) => {
     try {
-
       setError("");
+      setProductsError("");
+      setOrdersError("");
 
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
 
       console.log(
-        "===================================="
+        "📊 Loading dashboard..."
       );
 
       console.log(
-        "📊 DASHBOARD API"
-      );
-
-      console.log(
-        "API BASE:",
+        "API Base URL:",
         api.defaults.baseURL
       );
 
-      console.log(
-        "ORDERS:",
-        `${api.defaults.baseURL}/orders`
-      );
-
-      console.log(
-        "PRODUCTS:",
-        `${api.defaults.baseURL}/products`
-      );
-
-      console.log(
-        "===================================="
-      );
-
-
       // =================================================
-      // PRODUCTS
+      // BOTH REQUESTS RUN TOGETHER
+      // EACH REQUEST HAS 10 SECOND TIMEOUT
       // =================================================
 
-      const productsResponse =
-        await api.get(
-          "/products"
-        );
+      const results =
+        await Promise.allSettled([
+          api.get("/products", {
+            timeout: 10000,
+          }),
 
+          api.get("/orders", {
+            timeout: 10000,
+          }),
+        ]);
 
-      console.log(
-        "✅ PRODUCTS RESPONSE:",
-        productsResponse.data
-      );
+      const productsResult =
+        results[0];
 
+      const ordersResult =
+        results[1];
 
       let productsData = [];
-
-
-      if (
-        Array.isArray(
-          productsResponse.data
-        )
-      ) {
-
-        productsData =
-          productsResponse.data;
-
-      }
-
-      else if (
-        Array.isArray(
-          productsResponse.data?.products
-        )
-      ) {
-
-        productsData =
-          productsResponse.data.products;
-
-      }
-
-
-      // =================================================
-      // SAVE PRODUCTS
-      // =================================================
-
-      setProducts(
-        productsData
-      );
-
-
-      // =================================================
-      // ORDERS
-      // =================================================
-
-      const ordersResponse =
-        await api.get(
-          "/orders"
-        );
-
-
-      console.log(
-        "✅ ORDERS RESPONSE:",
-        ordersResponse.data
-      );
-
-
       let ordersData = [];
 
+      // =================================================
+      // PRODUCTS RESULT
+      // =================================================
 
       if (
-        Array.isArray(
-          ordersResponse.data
-        )
+        productsResult.status ===
+        "fulfilled"
       ) {
+        const response =
+          productsResult.value;
 
-        ordersData =
-          ordersResponse.data;
-
-      }
-
-      else if (
-        Array.isArray(
-          ordersResponse.data?.orders
-        )
-      ) {
-
-        ordersData =
-          ordersResponse.data.orders;
-
-      }
-
-
-      // =================================================
-      // SAVE ORDERS
-      // =================================================
-
-      setOrders(
-        ordersData
-      );
-
-
-      // =================================================
-      // CALCULATE REVENUE
-      // =================================================
-
-      const totalRevenue =
-        ordersData.reduce(
-          (
-            sum,
-            order
-          ) => {
-
-            return (
-
-              sum +
-              getOrderTotal(
-                order
-              )
-
-            );
-
-          },
-          0
+        console.log(
+          "✅ Products response:",
+          response.data
         );
 
-
-      // =================================================
-      // CREATE UNIQUE CUSTOMERS
-      // =================================================
-
-      const customerMap =
-        new Map();
-
-
-      ordersData.forEach((order) => {
-
-  const name =
-    getCustomerName(order)
-      .trim();
-
-  const email =
-    getCustomerEmail(order)
-      .trim()
-      .toLowerCase();
-
-
-  // -----------------------------------------------
-  // NO CUSTOMER NAME = NOT A CUSTOMER
-  // -----------------------------------------------
-
-  if (!name) {
-    return;
-  }
-
-
-  // -----------------------------------------------
-  // NO EMAIL = NOT A VALID CUSTOMER
-  // -----------------------------------------------
-
-  if (
-    !email ||
-    email === "no email"
-  ) {
-    return;
-  }
-
-
-  // -----------------------------------------------
-  // CREATE CUSTOMER
-  // -----------------------------------------------
-
-  if (!customerMap.has(email)) {
-
-    customerMap.set(
-      email,
-      {
-        _id: email,
-
-        name,
-
-        email,
-
-        phone:
-          getCustomerPhone(order),
-
-        createdAt:
-          order.createdAt,
-      }
-    );
-
-  }
-
-});
-
-
-      const customerList =
-        Array.from(
-          customerMap.values()
+        if (
+          Array.isArray(
+            response.data
+          )
+        ) {
+          productsData =
+            response.data;
+        } else if (
+          Array.isArray(
+            response.data?.products
+          )
+        ) {
+          productsData =
+            response.data.products;
+        } else if (
+          Array.isArray(
+            response.data?.data
+          )
+        ) {
+          productsData =
+            response.data.data;
+        }
+      } else {
+        console.error(
+          "❌ Products API failed:",
+          productsResult.reason
         );
 
-
-      setCustomers(
-        customerList
-      );
-
+        setProductsError(
+          getApiErrorMessage(
+            productsResult.reason,
+            "Products could not be loaded."
+          )
+        );
+      }
 
       // =================================================
-      // UPDATE STATS
+      // ORDERS RESULT
       // =================================================
 
-      setStats({
+      if (
+        ordersResult.status ===
+        "fulfilled"
+      ) {
+        const response =
+          ordersResult.value;
 
-        totalRevenue:
-          totalRevenue,
+        console.log(
+          "✅ Orders response:",
+          response.data
+        );
 
-        totalOrders:
-          ordersData.length,
+        if (
+          Array.isArray(
+            response.data
+          )
+        ) {
+          ordersData =
+            response.data;
+        } else if (
+          Array.isArray(
+            response.data?.orders
+          )
+        ) {
+          ordersData =
+            response.data.orders;
+        } else if (
+          Array.isArray(
+            response.data?.data
+          )
+        ) {
+          ordersData =
+            response.data.data;
+        }
+      } else {
+        console.error(
+          "❌ Orders API failed:",
+          ordersResult.reason
+        );
 
-        totalCustomers:
-          customerList.length,
+        setOrdersError(
+          getApiErrorMessage(
+            ordersResult.reason,
+            "Orders could not be loaded."
+          )
+        );
+      }
 
-        totalProducts:
-          productsData.length,
+      // =================================================
+      // SAVE WHATEVER SUCCESSFULLY LOADED
+      // =================================================
 
-      });
+      setProducts(productsData);
+      setOrders(ordersData);
 
+      // =================================================
+      // BOTH FAILED
+      // =================================================
+
+      if (
+        productsResult.status ===
+          "rejected" &&
+        ordersResult.status ===
+          "rejected"
+      ) {
+        setError(
+          "Dashboard data could not be loaded. Check your backend/API connection."
+        );
+      }
 
       console.log(
-        "===================================="
+        "📦 Products loaded:",
+        productsData.length
       );
 
       console.log(
-        "📊 FINAL DASHBOARD STATS"
+        "🛍 Orders loaded:",
+        ordersData.length
       );
-
-      console.log({
-
-        revenue:
-          totalRevenue,
-
-        orders:
-          ordersData.length,
-
-        customers:
-          customerList.length,
-
-        products:
-          productsData.length,
-
-      });
-
-      console.log(
-        "===================================="
-      );
-
-
-    }
-
-    catch (err) {
-
+    } catch (err) {
       console.error(
-        "❌ DASHBOARD ERROR:",
+        "❌ Unexpected dashboard error:",
         err
       );
 
-
-      if (
-        err.response
-      ) {
-
-        console.error(
-          "STATUS:",
-          err.response.status
-        );
-
-        console.error(
-          "RESPONSE:",
-          err.response.data
-        );
-
-
-        setError(
-          `Backend returned ${err.response.status}`
-        );
-
-      }
-
-      else if (
-        err.request
-      ) {
-
-        setError(
-          "Cannot connect to backend."
-        );
-
-      }
-
-      else {
-
-        setError(
-          err.message ||
+      setError(
+        getApiErrorMessage(
+          err,
           "Failed to load dashboard."
-        );
-
-      }
-
-    }
-
-    finally {
-
+        )
+      );
+    } finally {
+      // IMPORTANT:
+      // Loader ALWAYS stops
       setLoading(false);
-
       setRefreshing(false);
-
     }
-
   };
 
-
-  // ===================================================
+  // =====================================================
   // INITIAL FETCH
-  // ===================================================
+  // =====================================================
 
-  useEffect(
-    () => {
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
-      fetchDashboardData();
+  // =====================================================
+  // UNIQUE CUSTOMERS
+  // =====================================================
 
-    },
-    []
-  );
+  const customers = useMemo(() => {
+    const customerMap =
+      new Map();
 
+    orders.forEach(
+      (order) => {
+        const email =
+          getCustomerEmail(order)
+            ?.trim()
+            .toLowerCase();
 
-  // ===================================================
-  // REFRESH
-  // ===================================================
+        const phone =
+          getCustomerPhone(order)
+            ?.trim();
 
-  const handleRefresh =
-    async () => {
+        const name =
+          getCustomerName(order)
+            ?.trim();
 
-      setRefreshing(
-        true
-      );
+        const key =
+          email ||
+          phone ||
+          null;
 
-      await fetchDashboardData();
-
-    };
-
-
-  // ===================================================
-  // CUSTOMER SEARCH
-  // ===================================================
-
-  const filteredCustomers =
-    customers.filter(
-      (customer) => {
-
-        const search =
-          customerSearch
-            .toLowerCase()
-            .trim();
-
-
-        if (!search) {
-
-          return true;
-
+        if (!key) {
+          return;
         }
 
+        if (
+          !customerMap.has(key)
+        ) {
+          customerMap.set(
+            key,
+            {
+              _id: key,
 
-        return (
+              name:
+                name ||
+                "Customer",
 
-          customer.name
-            ?.toLowerCase()
-            .includes(search)
+              email,
 
-          ||
+              phone,
 
-          customer.email
-            ?.toLowerCase()
-            .includes(search)
+              firstOrder:
+                order.createdAt,
 
-          ||
+              lastOrder:
+                order.createdAt,
 
-          customer.phone
-            ?.toLowerCase()
-            .includes(search)
+              orders: 0,
 
-        );
+              totalSpent: 0,
+            }
+          );
+        }
 
-      }
-    );
+        const customer =
+          customerMap.get(key);
 
+        customer.orders += 1;
 
-  // ===================================================
-  // LOW STOCK PRODUCTS
-  // ===================================================
-  // Products at 10 or below are shown in the admin
-  // dashboard so you know when inventory needs attention.
-  // ===================================================
+        customer.totalSpent +=
+          getOrderTotal(order);
 
-  const lowStockProducts =
-    products
-      .filter((product) => {
-        const stock = Number(
-          product?.stock ?? 0
-        );
-
-        return stock <= 10;
-      })
-      .sort((a, b) => {
-        return (
-          Number(a?.stock ?? 0) -
-          Number(b?.stock ?? 0)
-        );
-      });
-
-
-  // ===================================================
-  // RECENT ORDERS
-  // ===================================================
-
-  const recentOrders =
-    [...orders]
-
-      .sort(
-        (a, b) => {
-
-          return (
-
-            new Date(
-              b.createdAt || 0
-            ) -
-
-            new Date(
-              a.createdAt || 0
-            )
-
+        const newOrderDate =
+          new Date(
+            order.createdAt ||
+              0
           );
 
+        const lastOrderDate =
+          new Date(
+            customer.lastOrder ||
+              0
+          );
+
+        if (
+          newOrderDate >
+          lastOrderDate
+        ) {
+          customer.lastOrder =
+            order.createdAt;
         }
-      )
-
-      .slice(
-        0,
-        5
-      );
-
-
-  // ===================================================
-  // STATUS CLASS
-  // ===================================================
-
-  const getStatusClass =
-    (status) => {
-
-      const value =
-        String(
-          status || ""
-        )
-          .toLowerCase();
-
-
-      if (
-        value ===
-        "delivered"
-      ) {
-
-        return (
-          "cgt-dash-x9-badge-green"
-        );
-
       }
-
-
-      if (
-
-        value ===
-        "shipped"
-
-        ||
-
-        value ===
-        "out for delivery"
-
-      ) {
-
-        return (
-          "cgt-dash-x9-badge-purple"
-        );
-
-      }
-
-
-      if (
-
-        value ===
-        "cancelled"
-
-        ||
-
-        value ===
-        "canceled"
-
-      ) {
-
-        return (
-          "cgt-dash-x9-badge-red"
-        );
-
-      }
-
-
-      return (
-        "cgt-dash-x9-badge-blue"
-      );
-
-    };
-
-
-  // ===================================================
-  // LOADING
-  // ===================================================
-
-  if (loading) {
-
-    return (
-
-      <div
-        className=
-          "cgt-dash-x9-wrapper"
-      >
-
-        <h1
-          className=
-            "cgt-dash-x9-heading"
-        >
-          Dashboard
-        </h1>
-
-
-        <div
-          style={{
-            padding:
-              "60px 20px",
-            textAlign:
-              "center",
-            color:
-              "#888",
-          }}
-        >
-
-          Loading dashboard...
-
-        </div>
-
-      </div>
-
     );
 
+    return Array.from(
+      customerMap.values()
+    );
+  }, [orders]);
+
+  // =====================================================
+  // TOTAL REVENUE
+  // =====================================================
+
+  const totalRevenue =
+    useMemo(() => {
+      return orders.reduce(
+        (
+          total,
+          order
+        ) => {
+          return (
+            total +
+            getOrderTotal(
+              order
+            )
+          );
+        },
+        0
+      );
+    }, [orders]);
+
+  // =====================================================
+  // AVERAGE ORDER VALUE
+  // =====================================================
+
+  const averageOrderValue =
+    orders.length > 0
+      ? totalRevenue /
+        orders.length
+      : 0;
+
+  // =====================================================
+  // STATUS COUNTS
+  // =====================================================
+
+  const statusCounts =
+    useMemo(() => {
+      const counts = {
+        pending: 0,
+        processing: 0,
+        shipped: 0,
+        delivered: 0,
+        cancelled: 0,
+      };
+
+      orders.forEach(
+        (order) => {
+          const status =
+            normalizeStatus(
+              order
+            );
+
+          if (
+            status ===
+              "pending" ||
+            status ===
+              "placed"
+          ) {
+            counts.pending +=
+              1;
+          } else if (
+            status ===
+              "processing" ||
+            status ===
+              "confirmed"
+          ) {
+            counts.processing +=
+              1;
+          } else if (
+            status ===
+              "shipped" ||
+            status ===
+              "out for delivery"
+          ) {
+            counts.shipped +=
+              1;
+          } else if (
+            status ===
+            "delivered"
+          ) {
+            counts.delivered +=
+              1;
+          } else if (
+            status ===
+              "cancelled" ||
+            status ===
+              "canceled"
+          ) {
+            counts.cancelled +=
+              1;
+          } else {
+            counts.pending +=
+              1;
+          }
+        }
+      );
+
+      return counts;
+    }, [orders]);
+
+  // =====================================================
+  // TODAY ORDERS
+  // =====================================================
+
+  const todayOrders =
+    useMemo(() => {
+      const today =
+        new Date();
+
+      return orders.filter(
+        (order) => {
+          if (
+            !order.createdAt
+          ) {
+            return false;
+          }
+
+          const orderDate =
+            new Date(
+              order.createdAt
+            );
+
+          return (
+            orderDate.getDate() ===
+              today.getDate() &&
+            orderDate.getMonth() ===
+              today.getMonth() &&
+            orderDate.getFullYear() ===
+              today.getFullYear()
+          );
+        }
+      );
+    }, [orders]);
+
+  // =====================================================
+  // TODAY REVENUE
+  // =====================================================
+
+  const todayRevenue =
+    useMemo(() => {
+      return todayOrders.reduce(
+        (
+          total,
+          order
+        ) => {
+          return (
+            total +
+            getOrderTotal(
+              order
+            )
+          );
+        },
+        0
+      );
+    }, [todayOrders]);
+
+  // =====================================================
+  // PAYMENT COUNTS
+  // =====================================================
+
+  const paymentCounts =
+    useMemo(() => {
+      let cod = 0;
+      let online = 0;
+
+      orders.forEach(
+        (order) => {
+          const payment =
+            String(
+              order?.paymentMethod ||
+                "cod"
+            )
+              .trim()
+              .toLowerCase();
+
+          if (
+            payment ===
+              "cod" ||
+            payment.includes(
+              "cash"
+            )
+          ) {
+            cod += 1;
+          } else {
+            online += 1;
+          }
+        }
+      );
+
+      return {
+        cod,
+        online,
+      };
+    }, [orders]);
+
+  // =====================================================
+  // LOW STOCK
+  // =====================================================
+
+  const lowStockProducts =
+    useMemo(() => {
+      return products
+        .filter(
+          (product) => {
+            const stock =
+              Number(
+                product?.stock ??
+                  0
+              );
+
+            return (
+              stock <= 10
+            );
+          }
+        )
+        .sort(
+          (a, b) => {
+            return (
+              Number(
+                a?.stock ??
+                  0
+              ) -
+              Number(
+                b?.stock ??
+                  0
+              )
+            );
+          }
+        );
+    }, [products]);
+
+  // =====================================================
+  // RECENT ORDERS
+  // =====================================================
+
+  const recentOrders =
+    useMemo(() => {
+      return [
+        ...orders,
+      ]
+        .sort(
+          (a, b) => {
+            return (
+              new Date(
+                b.createdAt ||
+                  0
+              ) -
+              new Date(
+                a.createdAt ||
+                  0
+              )
+            );
+          }
+        )
+        .slice(
+          0,
+          6
+        );
+    }, [orders]);
+
+  // =====================================================
+  // STATUS CLASS
+  // =====================================================
+
+  const getStatusClass = (
+    status
+  ) => {
+    const value =
+      String(
+        status || ""
+      )
+        .trim()
+        .toLowerCase();
+
+    if (
+      value ===
+      "delivered"
+    ) {
+      return "neo-status-delivered";
+    }
+
+    if (
+      value ===
+        "shipped" ||
+      value ===
+        "out for delivery"
+    ) {
+      return "neo-status-shipped";
+    }
+
+    if (
+      value ===
+        "cancelled" ||
+      value ===
+        "canceled"
+    ) {
+      return "neo-status-cancelled";
+    }
+
+    if (
+      value ===
+        "processing" ||
+      value ===
+        "confirmed"
+    ) {
+      return "neo-status-processing";
+    }
+
+    return "neo-status-pending";
+  };
+
+  // =====================================================
+  // DATE
+  // =====================================================
+
+  const todayTitle =
+    new Date().toLocaleDateString(
+      "en-IN",
+      {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }
+    );
+
+  // =====================================================
+  // INITIAL LOADER
+  // =====================================================
+
+  if (loading) {
+    return (
+      <div className="neo-dashboard">
+        <div className="neo-loading">
+          <div className="neo-loader" />
+
+          <h2>
+            Loading dashboard
+          </h2>
+
+          <p>
+            Getting your latest
+            store information...
+          </p>
+        </div>
+      </div>
+    );
   }
 
-
-  // ===================================================
-  // RENDER
-  // ===================================================
+  // =====================================================
+  // JSX
+  // =====================================================
 
   return (
-
-    <div
-      className=
-        "cgt-dash-x9-wrapper"
-    >
-
-
-      {/* ================================================
+    <div className="neo-dashboard">
+      {/* =================================================
           HEADER
       ================================================= */}
 
-      <div
-        style={{
-          display:
-            "flex",
+      <header className="neo-dashboard-header">
+        <div>
+          <p className="neo-dashboard-eyebrow">
+            ADMIN OVERVIEW
+          </p>
 
-          justifyContent:
-            "space-between",
+          <h1>
+            Dashboard
+          </h1>
 
-          alignItems:
-            "center",
-
-          gap:
-            "15px",
-
-          marginBottom:
-            "25px",
-
-          flexWrap:
-            "wrap",
-        }}
-      >
-
-        <h1
-          className=
-            "cgt-dash-x9-heading"
-
-          style={{
-            marginBottom:
-              0,
-          }}
-        >
-
-          Dashboard
-
-        </h1>
-
+          <p className="neo-dashboard-date">
+            {todayTitle}
+          </p>
+        </div>
 
         <button
           type="button"
-
-          onClick={
-            handleRefresh
+          className="neo-refresh-btn"
+          disabled={refreshing}
+          onClick={() =>
+            fetchDashboardData(
+              true
+            )
           }
-
-          disabled={
-            refreshing
-          }
-
-          style={{
-            display:
-              "flex",
-
-            alignItems:
-              "center",
-
-            gap:
-              "8px",
-
-            padding:
-              "10px 15px",
-
-            borderRadius:
-              "9px",
-
-            border:
-              "1px solid rgba(255,255,255,0.1)",
-
-            background:
-              "rgba(255,255,255,0.04)",
-
-            color:
-              "#fff",
-
-            cursor:
-              refreshing
-                ? "not-allowed"
-                : "pointer",
-
-            opacity:
-              refreshing
-                ? 0.6
-                : 1,
-          }}
         >
-
-          <FiRefreshCw />
+          <FiRefreshCw
+            className={
+              refreshing
+                ? "neo-spin"
+                : ""
+            }
+          />
 
           {refreshing
             ? "Refreshing..."
             : "Refresh"}
-
         </button>
+      </header>
 
-      </div>
-
-
-      {/* ================================================
-          ERROR
+      {/* =================================================
+          MAIN ERROR
       ================================================= */}
 
       {error && (
+        <div className="neo-error-box">
+          <FiAlertTriangle />
 
-        <div
-          style={{
-            marginBottom:
-              "20px",
+          <div>
+            <strong>
+              Dashboard Error
+            </strong>
 
-            padding:
-              "14px 18px",
-
-            borderRadius:
-              "10px",
-
-            background:
-              "rgba(230,0,38,0.1)",
-
-            border:
-              "1px solid rgba(230,0,38,0.3)",
-
-            color:
-              "#ff6b7d",
-          }}
-        >
-
-          ⚠️ {error}
-
-        </div>
-
-      )}
-
-
-      {/* ================================================
-          STAT CARDS
-      ================================================= */}
-
-      <div
-        className=
-          "cgt-dash-x9-grid"
-      >
-
-
-        {/* REVENUE */}
-
-        <div
-          className=
-            "cgt-dash-x9-card"
-        >
-
-          <div
-            className=
-              "cgt-dash-x9-card-header"
-          >
-
-            <div
-              className=
-                "cgt-dash-x9-icon cgt-dash-x9-rev"
-            >
-
-              <FiDollarSign />
-
-            </div>
-
-
-            <span
-              className=
-                "cgt-dash-x9-pill cgt-dash-x9-pill-green"
-            >
-              Live
-            </span>
-
+            <p>
+              {error}
+            </p>
           </div>
 
-
-          <p
-            className=
-              "cgt-dash-x9-label"
+          <button
+            type="button"
+            onClick={() =>
+              fetchDashboardData(
+                true
+              )
+            }
           >
+            Try Again
+          </button>
+        </div>
+      )}
+
+      {/* =================================================
+          PARTIAL API WARNINGS
+      ================================================= */}
+
+      {!error &&
+        (productsError ||
+          ordersError) && (
+          <div className="neo-api-warning">
+            <FiAlertTriangle />
+
+            <div>
+              <strong>
+                Some dashboard data
+                could not be loaded
+              </strong>
+
+              {ordersError && (
+                <p>
+                  Orders:{" "}
+                  {ordersError}
+                </p>
+              )}
+
+              {productsError && (
+                <p>
+                  Products:{" "}
+                  {productsError}
+                </p>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() =>
+                fetchDashboardData(
+                  true
+                )
+              }
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+      {/* =================================================
+          KPI CARDS
+      ================================================= */}
+
+      <section className="neo-kpi-grid">
+        {/* REVENUE */}
+
+        <button
+          type="button"
+          className="neo-kpi-card"
+          onClick={() =>
+            navigate(
+              "/admin/orders"
+            )
+          }
+        >
+          <div className="neo-kpi-top">
+            <div className="neo-kpi-icon neo-kpi-green">
+              <FiDollarSign />
+            </div>
+
+            <span className="neo-kpi-arrow">
+              <FiArrowRight />
+            </span>
+          </div>
+
+          <p className="neo-kpi-label">
             Total Revenue
           </p>
 
-
-          <h2
-            className=
-              "cgt-dash-x9-value"
-          >
-
+          <h2>
             ₹
-            {stats.totalRevenue.toLocaleString(
-              "en-IN"
+            {formatMoney(
+              totalRevenue
             )}
-
           </h2>
 
-        </div>
+          <div className="neo-kpi-bottom">
+            <span className="neo-positive">
+              <FiTrendingUp />
 
+              ₹
+              {formatMoney(
+                todayRevenue
+              )}{" "}
+              today
+            </span>
+
+            <span>
+              View orders
+            </span>
+          </div>
+        </button>
 
         {/* ORDERS */}
 
-        <div
-          className=
-            "cgt-dash-x9-card"
+        <button
+          type="button"
+          className="neo-kpi-card"
+          onClick={() =>
+            navigate(
+              "/admin/orders"
+            )
+          }
         >
-
-          <div
-            className=
-              "cgt-dash-x9-card-header"
-          >
-
-            <div
-              className=
-                "cgt-dash-x9-icon cgt-dash-x9-ord"
-            >
-
+          <div className="neo-kpi-top">
+            <div className="neo-kpi-icon neo-kpi-purple">
               <FiShoppingBag />
-
             </div>
 
-
-            <span
-              className=
-                "cgt-dash-x9-pill cgt-dash-x9-pill-green"
-            >
-              Live
+            <span className="neo-kpi-arrow">
+              <FiArrowRight />
             </span>
-
           </div>
 
-
-          <p
-            className=
-              "cgt-dash-x9-label"
-          >
-            Orders
+          <p className="neo-kpi-label">
+            Total Orders
           </p>
 
-
-          <h2
-            className=
-              "cgt-dash-x9-value"
-          >
-
-            {
-              stats.totalOrders
-            }
-
+          <h2>
+            {orders.length}
           </h2>
 
-        </div>
+          <div className="neo-kpi-bottom">
+            <span className="neo-positive">
+              <FiActivity />
 
+              {todayOrders.length}{" "}
+              today
+            </span>
 
-        {/* CUSTOMERS */}
+            <span>
+              Manage
+            </span>
+          </div>
+        </button>
 
-        <div
-          className=
-            "cgt-dash-x9-card"
+        {/* PENDING */}
+
+        <button
+          type="button"
+          className="neo-kpi-card"
+          onClick={() =>
+            navigate(
+              "/admin/orders"
+            )
+          }
         >
-
-          <div
-            className=
-              "cgt-dash-x9-card-header"
-          >
-
-            <div
-              className=
-                "cgt-dash-x9-icon cgt-dash-x9-cust"
-            >
-
-              <FiUsers />
-
+          <div className="neo-kpi-top">
+            <div className="neo-kpi-icon neo-kpi-orange">
+              <FiClock />
             </div>
 
-
-            <span
-              className=
-                "cgt-dash-x9-pill cgt-dash-x9-pill-green"
-            >
-              Live
+            <span className="neo-kpi-arrow">
+              <FiArrowRight />
             </span>
-
           </div>
 
-
-          <p
-            className=
-              "cgt-dash-x9-label"
-          >
-            Customers
+          <p className="neo-kpi-label">
+            Pending Orders
           </p>
 
-
-          <h2
-            className=
-              "cgt-dash-x9-value"
-          >
-
+          <h2>
             {
-              stats.totalCustomers
+              statusCounts.pending
             }
-
           </h2>
 
-        </div>
+          <div className="neo-kpi-bottom">
+            <span className="neo-warning-text">
+              Needs attention
+            </span>
 
+            <span>
+              Handle
+            </span>
+          </div>
+        </button>
 
-        {/* PRODUCTS */}
+        {/* AVG ORDER */}
 
-        <div
-          className=
-            "cgt-dash-x9-card"
+        <button
+          type="button"
+          className="neo-kpi-card"
+          onClick={() =>
+            navigate(
+              "/admin/orders"
+            )
+          }
         >
-
-          <div
-            className=
-              "cgt-dash-x9-card-header"
-          >
-
-            <div
-              className=
-                "cgt-dash-x9-icon cgt-dash-x9-prod"
-            >
-
-              <FiPackage />
-
+          <div className="neo-kpi-top">
+            <div className="neo-kpi-icon neo-kpi-blue">
+              <FiTrendingUp />
             </div>
 
-
-            <span
-              className=
-                "cgt-dash-x9-pill cgt-dash-x9-pill-green"
-            >
-              Active
+            <span className="neo-kpi-arrow">
+              <FiArrowRight />
             </span>
-
           </div>
 
-
-          <p
-            className=
-              "cgt-dash-x9-label"
-          >
-            Products
+          <p className="neo-kpi-label">
+            Average Order
           </p>
 
-
-          <h2
-            className=
-              "cgt-dash-x9-value"
-          >
-
-            {
-              stats.totalProducts
-            }
-
+          <h2>
+            ₹
+            {formatMoney(
+              Math.round(
+                averageOrderValue
+              )
+            )}
           </h2>
 
-        </div>
+          <div className="neo-kpi-bottom">
+            <span>
+              From{" "}
+              {orders.length}{" "}
+              orders
+            </span>
 
-      </div>
+            <span>
+              Details
+            </span>
+          </div>
+        </button>
+      </section>
 
-
-     
-
-      {/* ================================================
-          LOW STOCK ALERTS
+      {/* =================================================
+          MAIN GRID
       ================================================= */}
 
-      <div
-        className="cgt-dash-x9-table-box"
-        style={{
-          marginBottom: "25px",
-          border: lowStockProducts.length > 0
-            ? "1px solid rgba(255, 179, 71, 0.35)"
-            : "1px solid rgba(255,255,255,0.08)",
-          background: lowStockProducts.length > 0
-            ? "rgba(255,179,71,0.04)"
-            : undefined,
-        }}
-      >
+      <section className="neo-dashboard-main-grid">
+        {/* =================================================
+            RECENT ORDERS
+        ================================================= */}
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "15px",
-            marginBottom: "20px",
-            flexWrap: "wrap",
-          }}
-        >
+        <div className="neo-panel neo-recent-orders-panel">
+          <div className="neo-panel-header">
+            <div>
+              <p className="neo-panel-eyebrow">
+                LIVE ACTIVITY
+              </p>
 
-          <div>
+              <h2>
+                Recent Orders
+              </h2>
 
-            <h2
-              className="cgt-dash-x9-table-title"
-              style={{ marginBottom: 0 }}
-            >
-              ⚠️ Low Stock Alerts
-            </h2>
+              <p>
+                Latest customer
+                purchases
+              </p>
+            </div>
 
-            <p
-              style={{
-                margin: "6px 0 0",
-                color: "#7d8490",
-                fontSize: "13px",
-              }}
-            >
-              Products with 10 or fewer units remaining
-            </p>
-
-          </div>
-
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              minWidth: "34px",
-              height: "30px",
-              padding: "0 10px",
-              borderRadius: "999px",
-              background: lowStockProducts.length > 0
-                ? "rgba(255,179,71,0.14)"
-                : "rgba(110,231,183,0.12)",
-              color: lowStockProducts.length > 0
-                ? "#ffb347"
-                : "#6ee7b7",
-              fontWeight: "800",
-              fontSize: "13px",
-            }}
-          >
-            {lowStockProducts.length}
-          </span>
-
-        </div>
-
-
-        {lowStockProducts.length === 0 ? (
-
-          <div
-            style={{
-              padding: "24px",
-              borderRadius: "10px",
-              background: "rgba(110,231,183,0.05)",
-              border: "1px solid rgba(110,231,183,0.12)",
-              color: "#6ee7b7",
-              textAlign: "center",
-              fontWeight: "600",
-            }}
-          >
-            ✅ All products have more than 10 units in stock.
-          </div>
-
-        ) : (
-
-          <div
-            className="cgt-dash-x9-table-scroll"
-          >
-
-            <table
-              className="cgt-dash-x9-core-table"
-            >
-
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Product ID</th>
-                  <th>Current Stock</th>
-                  <th>Alert</th>
-                </tr>
-              </thead>
-
-              <tbody>
-
-                {lowStockProducts.map((product) => {
-
-                  const stock = Number(
-                    product?.stock ?? 0
-                  );
-
-                  const isOutOfStock = stock <= 0;
-                  const isCritical = stock > 0 && stock <= 5;
-
-                  return (
-
-                    <tr key={product?._id || product?.id || product?.name}>
-
-                      <td>
-                        <strong>
-                          {product?.name || "Unnamed Product"}
-                        </strong>
-                      </td>
-
-                      <td>
-                        <span
-                          style={{
-                            color: "#888",
-                            fontSize: "12px",
-                          }}
-                        >
-                          {product?.id || product?._id || "—"}
-                        </span>
-                      </td>
-
-                      <td>
-                        <strong
-                          style={{
-                            color: isOutOfStock
-                              ? "#ff5c70"
-                              : isCritical
-                                ? "#ff6b7d"
-                                : "#ffb347",
-                            fontSize: "16px",
-                          }}
-                        >
-                          {stock}
-                        </strong>
-                      </td>
-
-                      <td>
-                        <span
-                          style={{
-                            display: "inline-block",
-                            padding: "6px 10px",
-                            borderRadius: "999px",
-                            background: isOutOfStock
-                              ? "rgba(230,0,38,0.15)"
-                              : isCritical
-                                ? "rgba(255,107,125,0.12)"
-                                : "rgba(255,179,71,0.12)",
-                            color: isOutOfStock
-                              ? "#ff5c70"
-                              : isCritical
-                                ? "#ff6b7d"
-                                : "#ffb347",
-                            fontWeight: "700",
-                            fontSize: "12px",
-                          }}
-                        >
-                          {isOutOfStock
-                            ? "🚨 OUT OF STOCK"
-                            : isCritical
-                              ? "🔴 CRITICAL"
-                              : "⚠️ LOW STOCK"}
-                        </span>
-                      </td>
-
-                    </tr>
-
-                  );
-
-                })}
-
-              </tbody>
-
-            </table>
-
-          </div>
-
-        )}
-
-      </div>
-
-
-      {/* ================================================
-          CUSTOMERS
-      ================================================= */}
-
-      <div
-        className=
-          "cgt-dash-x9-table-box"
-      >
-
-        <div
-          style={{
-            display:
-              "flex",
-
-            justifyContent:
-              "space-between",
-
-            alignItems:
-              "center",
-
-            gap:
-              "15px",
-
-            marginBottom:
-              "20px",
-
-            flexWrap:
-              "wrap",
-          }}
-        >
-
-          <div>
-
-            <h2
-              className=
-                "cgt-dash-x9-table-title"
-            >
-              Customers
-            </h2>
-
-
-            <p
-              style={{
-                margin:
-                  "5px 0 0",
-
-                color:
-                  "#7d8490",
-
-                fontSize:
-                  "13px",
-              }}
-            >
-
-              {
-                customers.length
+            <button
+              type="button"
+              className="neo-text-btn"
+              onClick={() =>
+                navigate(
+                  "/admin/orders"
+                )
               }
-              {" "}
-              registered customers
+            >
+              View all
 
-            </p>
-
+              <FiArrowRight />
+            </button>
           </div>
 
+          {ordersError ? (
+            <div className="neo-section-error">
+              <FiAlertTriangle />
 
-          {/* SEARCH */}
+              <p>
+                Orders could not be
+                loaded.
+              </p>
 
-          <div
-            style={{
-              position:
-                "relative",
-
-              width:
-                "280px",
-
-              maxWidth:
-                "100%",
-            }}
-          >
-
-            <FiSearch
-              style={{
-                position:
-                  "absolute",
-
-                left:
-                  "12px",
-
-                top:
-                  "50%",
-
-                transform:
-                  "translateY(-50%)",
-
-                color:
-                  "#777",
-              }}
-            />
-
-
-            <input
-              type="text"
-
-              placeholder=
-                "Search customers..."
-
-              value={
-                customerSearch
-              }
-
-              onChange={
-                (e) =>
-                  setCustomerSearch(
-                    e.target.value
+              <button
+                type="button"
+                onClick={() =>
+                  fetchDashboardData(
+                    true
                   )
-              }
-
-              style={{
-                width:
-                  "100%",
-
-                boxSizing:
-                  "border-box",
-
-                padding:
-                  "11px 12px 11px 38px",
-
-                borderRadius:
-                  "9px",
-
-                border:
-                  "1px solid rgba(255,255,255,0.1)",
-
-                background:
-                  "#111318",
-
-                color:
-                  "#fff",
-
-                outline:
-                  "none",
-              }}
-            />
-
-          </div>
-
-        </div>
-
-
-        <div
-          className=
-            "cgt-dash-x9-table-scroll"
-        >
-
-          <table
-            className=
-              "cgt-dash-x9-core-table"
-          >
-
-            <thead>
-
-              <tr>
-
-                <th>
-                  Name
-                </th>
-
-                <th>
-                  Email
-                </th>
-
-                <th>
-                  Phone
-                </th>
-
-                <th>
-                  Joined
-                </th>
-
-              </tr>
-
-            </thead>
-
-
-            <tbody>
-
-              {
-                filteredCustomers.length >
-                0
-
-                  ? (
-
-                    filteredCustomers.map(
-                      (customer) => (
-
-                        <tr
-                          key={
-                            customer._id
-                          }
-                        >
-
-                          <td>
-
-                            <strong>
-
-                              {
-                                customer.name ||
-                                "Guest Customer"
-                              }
-
-                            </strong>
-
-                          </td>
-
-
-                          <td>
-
-                            {
-                              customer.email ||
-                              "No email"
-                            }
-
-                          </td>
-
-
-                          <td>
-
-                            {
-                              customer.phone ||
-                              "Not provided"
-                            }
-
-                          </td>
-
-
-                          <td>
-
-                            {
-                              customer.createdAt
-
-                                ? new Date(
-                                    customer.createdAt
-                                  ).toLocaleDateString(
-                                    "en-IN",
-                                    {
-                                      day:
-                                        "2-digit",
-
-                                      month:
-                                        "short",
-
-                                      year:
-                                        "numeric",
-                                    }
-                                  )
-
-                                : "—"
-                            }
-
-                          </td>
-
-                        </tr>
-
-                      )
-                    )
-
-                  )
-
-                  : (
-
-                    <tr>
-
-                      <td
-                        colSpan="4"
-
-                        style={{
-                          textAlign:
-                            "center",
-
-                          padding:
-                            "30px",
-
-                          color:
-                            "#777",
-                        }}
-                      >
-
-                        {
-                          customerSearch
-                            ? "No customers found."
-                            : "No customers yet."
-                        }
-
-                      </td>
-
-                    </tr>
-
-                  )
-              }
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </div>
-
-
-      {/* ================================================
-          RECENT ORDERS
-      ================================================= */}
-
-      <div
-        className=
-          "cgt-dash-x9-table-box"
-      >
-
-        <h2
-          className=
-            "cgt-dash-x9-table-title"
-        >
-          Recent Orders
-        </h2>
-
-
-        <div
-          className=
-            "cgt-dash-x9-table-scroll"
-        >
-
-          <table
-            className=
-              "cgt-dash-x9-core-table"
-          >
-
-            <thead>
-
-              <tr>
-
-                <th>
-                  Order
-                </th>
-
-                <th>
-                  Customer
-                </th>
-
-                <th>
-                  Payment
-                </th>
-
-                <th>
-                  Total
-                </th>
-
-                <th>
-                  Status
-                </th>
-
-              </tr>
-
-            </thead>
-
-
-            <tbody>
-
-              {
-                recentOrders.length >
-                0
-
-                  ? (
-
+                }
+              >
+                Try again
+              </button>
+            </div>
+          ) : (
+            <div className="neo-table-wrapper">
+              <table className="neo-orders-table">
+                <thead>
+                  <tr>
+                    <th>
+                      Order
+                    </th>
+
+                    <th>
+                      Customer
+                    </th>
+
+                    <th>
+                      Total
+                    </th>
+
+                    <th>
+                      Payment
+                    </th>
+
+                    <th>
+                      Status
+                    </th>
+
+                    <th>
+                      Date
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {recentOrders.length >
+                  0 ? (
                     recentOrders.map(
                       (order) => {
-
                         const status =
                           getOrderStatus(
                             order
                           );
 
-
                         const payment =
                           String(
-                            order.paymentMethod ||
-                            "cod"
-                          ).toLowerCase();
-
+                            order?.paymentMethod ||
+                              "cod"
+                          )
+                            .trim()
+                            .toLowerCase();
 
                         return (
-
                           <tr
                             key={
                               order._id
                             }
+                            className="neo-order-row"
+                            onClick={() =>
+                              navigate(
+                                "/admin/orders",
+                                {
+                                  state: {
+                                    openOrderId:
+                                      order._id,
+                                  },
+                                }
+                              )
+                            }
                           >
-
-                            {/* ORDER */}
-
                             <td>
-
-                              #
-                              {
-                                order._id
-                                  ?.slice(-6)
-                                  .toUpperCase()
-                              }
-
-                            </td>
-
-
-                            {/* CUSTOMER */}
-
-                            <td>
-
-                              <strong>
-
-                                {
-                                  getCustomerName(
-                                    order
+                              <strong className="neo-order-id">
+                                #
+                                {order._id
+                                  ?.slice(
+                                    -6
                                   )
-                                }
-
+                                  .toUpperCase()}
                               </strong>
-
-
-                              <div
-                                style={{
-                                  marginTop:
-                                    "4px",
-
-                                  fontSize:
-                                    "11px",
-
-                                  color:
-                                    "#777",
-                                }}
-                              >
-
-                                {
-                                  getCustomerEmail(
-                                    order
-                                  )
-                                }
-
-                              </div>
-
                             </td>
 
+                            <td>
+                              <div className="neo-customer-cell">
+                                <strong>
+                                  {getCustomerName(
+                                    order
+                                  )}
+                                </strong>
 
-                            {/* PAYMENT */}
+                                <span>
+                                  {getCustomerEmail(
+                                    order
+                                  ) ||
+                                    "No email"}
+                                </span>
+                              </div>
+                            </td>
 
                             <td>
+                              <strong>
+                                ₹
+                                {formatMoney(
+                                  getOrderTotal(
+                                    order
+                                  )
+                                )}
+                              </strong>
+                            </td>
 
+                            <td>
                               <span
-                                style={{
-                                  color:
-                                    payment ===
-                                    "cod"
-                                      ? "#ffb347"
-                                      : "#6ee7b7",
-
-                                  fontWeight:
-                                    "700",
-
-                                  fontSize:
-                                    "12px",
-                                }}
-                              >
-
-                                {
+                                className={`neo-payment ${
                                   payment ===
                                   "cod"
-                                    ? "COD"
-                                    : "Online"
-                                }
-
-                              </span>
-
-                            </td>
-
-
-                            {/* TOTAL */}
-
-                            <td>
-
-                              ₹
-                              {
-                                getOrderTotal(
-                                  order
-                                ).toLocaleString(
-                                  "en-IN"
-                                )
-                              }
-
-                            </td>
-
-
-                            {/* STATUS */}
-
-                            <td>
-
-                              <span
-                                className={`
-                                  cgt-dash-x9-badge
-                                  ${getStatusClass(
-                                    status
-                                  )}
-                                `}
+                                    ? "neo-payment-cod"
+                                    : "neo-payment-online"
+                                }`}
                               >
-
-                                {
-                                  status
-                                }
-
+                                {payment ===
+                                "cod"
+                                  ? "COD"
+                                  : "Online"}
                               </span>
-
                             </td>
 
+                            <td>
+                              <span
+                                className={`neo-status ${getStatusClass(
+                                  status
+                                )}`}
+                              >
+                                {status}
+                              </span>
+                            </td>
+
+                            <td>
+                              <span className="neo-table-date">
+                                {formatDate(
+                                  order.createdAt
+                                )}
+                              </span>
+                            </td>
                           </tr>
-
                         );
-
                       }
                     )
-
-                  )
-
-                  : (
-
+                  ) : (
                     <tr>
-
                       <td
-                        colSpan="5"
-
-                        style={{
-                          textAlign:
-                            "center",
-
-                          padding:
-                            "30px",
-
-                          color:
-                            "#777",
-                        }}
+                        colSpan="6"
+                        className="neo-empty-table"
                       >
-
-                        No orders found.
-
+                        No orders
+                        found.
                       </td>
-
                     </tr>
-
-                  )
-              }
-
-            </tbody>
-
-          </table>
-
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
-      </div>
+        {/* =================================================
+            ORDER STATUS
+        ================================================= */}
 
+        <div className="neo-panel neo-status-panel">
+          <div className="neo-panel-header">
+            <div>
+              <p className="neo-panel-eyebrow">
+                ORDERS
+              </p>
+
+              <h2>
+                Order Status
+              </h2>
+
+              <p>
+                Current fulfillment
+                overview
+              </p>
+            </div>
+          </div>
+
+          <div className="neo-status-list">
+            <button
+              type="button"
+              className="neo-status-item"
+              onClick={() =>
+                navigate(
+                  "/admin/orders"
+                )
+              }
+            >
+              <span className="neo-status-icon status-pending-icon">
+                <FiClock />
+              </span>
+
+              <div>
+                <strong>
+                  Pending
+                </strong>
+
+                <small>
+                  Waiting to
+                  process
+                </small>
+              </div>
+
+              <b>
+                {
+                  statusCounts.pending
+                }
+              </b>
+            </button>
+
+            <button
+              type="button"
+              className="neo-status-item"
+              onClick={() =>
+                navigate(
+                  "/admin/orders"
+                )
+              }
+            >
+              <span className="neo-status-icon status-processing-icon">
+                <FiActivity />
+              </span>
+
+              <div>
+                <strong>
+                  Processing
+                </strong>
+
+                <small>
+                  Being prepared
+                </small>
+              </div>
+
+              <b>
+                {
+                  statusCounts.processing
+                }
+              </b>
+            </button>
+
+            <button
+              type="button"
+              className="neo-status-item"
+              onClick={() =>
+                navigate(
+                  "/admin/orders"
+                )
+              }
+            >
+              <span className="neo-status-icon status-shipped-icon">
+                <FiTruck />
+              </span>
+
+              <div>
+                <strong>
+                  Shipped
+                </strong>
+
+                <small>
+                  On the way
+                </small>
+              </div>
+
+              <b>
+                {
+                  statusCounts.shipped
+                }
+              </b>
+            </button>
+
+            <button
+              type="button"
+              className="neo-status-item"
+              onClick={() =>
+                navigate(
+                  "/admin/orders"
+                )
+              }
+            >
+              <span className="neo-status-icon status-delivered-icon">
+                <FiCheckCircle />
+              </span>
+
+              <div>
+                <strong>
+                  Delivered
+                </strong>
+
+                <small>
+                  Completed
+                </small>
+              </div>
+
+              <b>
+                {
+                  statusCounts.delivered
+                }
+              </b>
+            </button>
+
+            <button
+              type="button"
+              className="neo-status-item"
+              onClick={() =>
+                navigate(
+                  "/admin/orders"
+                )
+              }
+            >
+              <span className="neo-status-icon status-cancelled-icon">
+                <FiXCircle />
+              </span>
+
+              <div>
+                <strong>
+                  Cancelled
+                </strong>
+
+                <small>
+                  Cancelled orders
+                </small>
+              </div>
+
+              <b>
+                {
+                  statusCounts.cancelled
+                }
+              </b>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* =================================================
+          BOTTOM GRID
+      ================================================= */}
+
+      <section className="neo-dashboard-bottom-grid">
+        {/* =================================================
+            STOCK HEALTH
+        ================================================= */}
+
+        <div className="neo-panel">
+          <div className="neo-panel-header">
+            <div>
+              <p className="neo-panel-eyebrow">
+                INVENTORY
+              </p>
+
+              <h2>
+                Stock Health
+              </h2>
+
+              <p>
+                Products that may
+                require attention
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="neo-text-btn"
+              onClick={() =>
+                navigate(
+                  "/admin/products"
+                )
+              }
+            >
+              Products
+
+              <FiArrowRight />
+            </button>
+          </div>
+
+          {productsError ? (
+            <div className="neo-section-error">
+              <FiAlertTriangle />
+
+              <p>
+                Products could not
+                be loaded.
+              </p>
+
+              <button
+                type="button"
+                onClick={() =>
+                  fetchDashboardData(
+                    true
+                  )
+                }
+              >
+                Try again
+              </button>
+            </div>
+          ) : lowStockProducts.length ===
+            0 ? (
+            <button
+              type="button"
+              className="neo-stock-healthy"
+              onClick={() =>
+                navigate(
+                  "/admin/products"
+                )
+              }
+            >
+              <span className="neo-stock-healthy-icon">
+                <FiCheckCircle />
+              </span>
+
+              <div>
+                <strong>
+                  Inventory Healthy
+                </strong>
+
+                <p>
+                  All products have
+                  more than 10 units
+                  in stock.
+                </p>
+              </div>
+
+              <FiArrowRight className="neo-stock-arrow" />
+            </button>
+          ) : (
+            <div className="neo-low-stock-list">
+              {lowStockProducts
+                .slice(0, 5)
+                .map(
+                  (product) => {
+                    const stock =
+                      Number(
+                        product?.stock ??
+                          0
+                      );
+
+                    return (
+                      <button
+                        type="button"
+                        key={
+                          product?._id ||
+                          product?.id ||
+                          product?.name
+                        }
+                        className="neo-low-stock-item"
+                        onClick={() =>
+                          navigate(
+                            "/admin/products"
+                          )
+                        }
+                      >
+                        <span className="neo-stock-product-icon">
+                          <FiPackage />
+                        </span>
+
+                        <div>
+                          <strong>
+                            {product?.name ||
+                              "Unnamed Product"}
+                          </strong>
+
+                          <small>
+                            {stock <= 0
+                              ? "Out of stock"
+                              : stock <=
+                                  5
+                                ? "Critical stock"
+                                : "Low stock"}
+                          </small>
+                        </div>
+
+                        <span
+                          className={`neo-stock-count ${
+                            stock <= 0
+                              ? "stock-zero"
+                              : stock <=
+                                  5
+                                ? "stock-critical"
+                                : ""
+                          }`}
+                        >
+                          {stock} left
+                        </span>
+                      </button>
+                    );
+                  }
+                )}
+
+              {lowStockProducts.length >
+                5 && (
+                <button
+                  type="button"
+                  className="neo-show-more"
+                  onClick={() =>
+                    navigate(
+                      "/admin/products"
+                    )
+                  }
+                >
+                  +
+                  {lowStockProducts.length -
+                    5}{" "}
+                  more products
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* =================================================
+            QUICK OVERVIEW
+        ================================================= */}
+
+        <div className="neo-panel">
+          <div className="neo-panel-header">
+            <div>
+              <p className="neo-panel-eyebrow">
+                STORE
+              </p>
+
+              <h2>
+                Quick Overview
+              </h2>
+
+              <p>
+                Important store
+                numbers
+              </p>
+            </div>
+          </div>
+
+          <div className="neo-overview-grid">
+            <button
+              type="button"
+              className="neo-overview-card"
+              onClick={() =>
+                navigate(
+                  "/admin/customers"
+                )
+              }
+            >
+              <span className="neo-overview-icon overview-users">
+                <FiUsers />
+              </span>
+
+              <div>
+                <span>
+                  Customers
+                </span>
+
+                <strong>
+                  {
+                    customers.length
+                  }
+                </strong>
+              </div>
+
+              <FiArrowRight />
+            </button>
+
+            <button
+              type="button"
+              className="neo-overview-card"
+              onClick={() =>
+                navigate(
+                  "/admin/products"
+                )
+              }
+            >
+              <span className="neo-overview-icon overview-products">
+                <FiBox />
+              </span>
+
+              <div>
+                <span>
+                  Products
+                </span>
+
+                <strong>
+                  {
+                    products.length
+                  }
+                </strong>
+              </div>
+
+              <FiArrowRight />
+            </button>
+
+            <button
+              type="button"
+              className="neo-overview-card"
+              onClick={() =>
+                navigate(
+                  "/admin/orders"
+                )
+              }
+            >
+              <span className="neo-overview-icon overview-cod">
+                <FiShoppingBag />
+              </span>
+
+              <div>
+                <span>
+                  COD Orders
+                </span>
+
+                <strong>
+                  {
+                    paymentCounts.cod
+                  }
+                </strong>
+              </div>
+
+              <FiArrowRight />
+            </button>
+
+            <button
+              type="button"
+              className="neo-overview-card"
+              onClick={() =>
+                navigate(
+                  "/admin/orders"
+                )
+              }
+            >
+              <span className="neo-overview-icon overview-online">
+                <FiCreditCard />
+              </span>
+
+              <div>
+                <span>
+                  Online
+                </span>
+
+                <strong>
+                  {
+                    paymentCounts.online
+                  }
+                </strong>
+              </div>
+
+              <FiArrowRight />
+            </button>
+          </div>
+        </div>
+
+        {/* =================================================
+            QUICK ACTIONS
+        ================================================= */}
+
+        <div className="neo-panel">
+          <div className="neo-panel-header">
+            <div>
+              <p className="neo-panel-eyebrow">
+                SHORTCUTS
+              </p>
+
+              <h2>
+                Quick Actions
+              </h2>
+
+              <p>
+                Get things done
+                faster
+              </p>
+            </div>
+          </div>
+
+          <div className="neo-actions-grid">
+            <button
+              type="button"
+              onClick={() =>
+                navigate(
+                  "/admin/orders"
+                )
+              }
+            >
+              <span className="neo-action-icon">
+                <FiShoppingBag />
+              </span>
+
+              <div>
+                <strong>
+                  Manage Orders
+                </strong>
+
+                <small>
+                  View and update
+                  orders
+                </small>
+              </div>
+
+              <FiArrowRight />
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                navigate(
+                  "/admin/products"
+                )
+              }
+            >
+              <span className="neo-action-icon">
+                <FiPackage />
+              </span>
+
+              <div>
+                <strong>
+                  Manage Products
+                </strong>
+
+                <small>
+                  Products and
+                  inventory
+                </small>
+              </div>
+
+              <FiArrowRight />
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                navigate(
+                  "/admin/customers"
+                )
+              }
+            >
+              <span className="neo-action-icon">
+                <FiUsers />
+              </span>
+
+              <div>
+                <strong>
+                  Customers
+                </strong>
+
+                <small>
+                  Customer
+                  information
+                </small>
+              </div>
+
+              <FiArrowRight />
+            </button>
+
+            <button
+              type="button"
+              disabled={refreshing}
+              onClick={() =>
+                fetchDashboardData(
+                  true
+                )
+              }
+            >
+              <span className="neo-action-icon">
+                <FiRefreshCw
+                  className={
+                    refreshing
+                      ? "neo-spin"
+                      : ""
+                  }
+                />
+              </span>
+
+              <div>
+                <strong>
+                  Refresh Data
+                </strong>
+
+                <small>
+                  Get latest
+                  information
+                </small>
+              </div>
+
+              <FiArrowRight />
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
-
   );
-
 }
