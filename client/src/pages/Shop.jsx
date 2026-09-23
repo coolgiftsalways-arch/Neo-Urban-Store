@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  FaSearch,
-  FaArrowDown,
-  FaBolt,
-} from "react-icons/fa";
+import { FaSearch, FaArrowDown, FaBolt } from "react-icons/fa";
+
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 
@@ -116,6 +113,59 @@ const categoryInfo = {
   },
 };
 
+
+// =========================================================
+// DISPLAY RATING + REVIEW COUNT
+// Stable per product:
+// rating = 4, 4.5 or 5
+// reviews = 50 to 200
+//
+// These are display/demo values. They stay the same for each
+// product on refresh instead of changing on every React render.
+// =========================================================
+
+const createProductSeed = (value = "") => {
+  const textValue = String(value);
+
+  let hash = 0;
+
+  for (let i = 0; i < textValue.length; i += 1) {
+    hash = (hash << 5) - hash + textValue.charCodeAt(i);
+    hash |= 0;
+  }
+
+  return Math.abs(hash);
+};
+
+const getProductDisplayReviewData = (product) => {
+  const identity = [
+    product?._id,
+    product?.id,
+    product?.slug,
+    product?.name,
+    product?.image,
+  ]
+    .filter(Boolean)
+    .join("-");
+
+  const seed = createProductSeed(identity || "neo-urban-product");
+
+  const ratingOptions = [4, 4.5, 5];
+
+  // Use different parts of the seed so rating/reviews don't
+  // always follow exactly the same repeating pattern.
+  const rating =
+    ratingOptions[(seed + Math.floor(seed / 7)) % ratingOptions.length];
+
+  const reviewCount =
+    50 + ((seed + Math.floor(seed / 13)) % 151);
+
+  return {
+    rating,
+    reviewCount,
+  };
+};
+
 // =========================================================
 // SHOP
 // =========================================================
@@ -136,6 +186,10 @@ export default function Shop() {
   const [error, setError] = useState("");
 
   const [search, setSearch] = useState("");
+
+  // Price sorting:
+  // "default" | "low-high" | "high-low"
+  const [priceSort, setPriceSort] = useState("default");
 
   // =======================================================
   // CATEGORY FROM URL
@@ -290,7 +344,63 @@ export default function Shop() {
   }, [slug]);
 
   // =======================================================
-  // FILTER PRODUCTS
+  // CATEGORY COUNTS
+  // =======================================================
+
+  const categoryCounts = useMemo(() => {
+    const counts = {
+      All: products.length,
+      Regulars: 0,
+      Imported: 0,
+      Rare: 0,
+      Collections: 0,
+    };
+
+    products.forEach((product) => {
+      const collectionType = String(
+        product?.collectionType || ""
+      )
+        .trim()
+        .toLowerCase();
+
+      categories.forEach((category) => {
+        if (category === "All") return;
+
+        if (
+          collectionType ===
+          String(category).trim().toLowerCase()
+        ) {
+          counts[category] += 1;
+        }
+      });
+    });
+
+    return counts;
+  }, [products]);
+
+  // =======================================================
+  // PRICE HELPER
+  // =======================================================
+
+  const getProductPrice = (product) => {
+    const rawPrice =
+      product?.discountedPrice ??
+      product?.salePrice ??
+      product?.sellingPrice ??
+      product?.price ??
+      0;
+
+    const numericPrice = Number(
+      String(rawPrice).replace(/[^0-9.]/g, "")
+    );
+
+    return Number.isFinite(numericPrice)
+      ? numericPrice
+      : 0;
+  };
+
+  // =======================================================
+  // FILTER + SORT PRODUCTS
   // =======================================================
 
   const filteredProducts = useMemo(() => {
@@ -298,7 +408,7 @@ export default function Shop() {
       .trim()
       .toLowerCase();
 
-    return products.filter((product) => {
+    const matchedProducts = products.filter((product) => {
 
       // ---------------------------------------------------
       // COLLECTION FILTER
@@ -337,10 +447,33 @@ export default function Shop() {
       );
     });
 
+    // ---------------------------------------------------
+    // PRICE SORTING
+    // ---------------------------------------------------
+
+    if (priceSort === "low-high") {
+      return [...matchedProducts].sort(
+        (a, b) =>
+          getProductPrice(a) -
+          getProductPrice(b)
+      );
+    }
+
+    if (priceSort === "high-low") {
+      return [...matchedProducts].sort(
+        (a, b) =>
+          getProductPrice(b) -
+          getProductPrice(a)
+      );
+    }
+
+    return matchedProducts;
+
   }, [
     products,
     selectedCategory,
     search,
+    priceSort,
   ]);
 
   // =======================================================
@@ -379,6 +512,7 @@ export default function Shop() {
   const resetFilters = () => {
     setSearch("");
     setSelectedCategory("All");
+    setPriceSort("default");
   };
 
   // =======================================================
@@ -502,10 +636,6 @@ export default function Shop() {
 
           <div className="collection-heading">
 
-            <span className="collection-index">
-              / 02
-            </span>
-
             <div>
 
               <p>
@@ -546,6 +676,42 @@ export default function Shop() {
 
           </div>
 
+          {/* PRICE SORT */}
+
+          <div className="price-sort-box">
+
+            <span className="price-sort-label">
+              PRICE
+            </span>
+
+            <div className="price-sort-select-wrap">
+
+              <select
+                value={priceSort}
+                onChange={(e) =>
+                  setPriceSort(e.target.value)
+                }
+                aria-label="Sort products by price"
+              >
+                <option value="default">
+                  Default
+                </option>
+
+                <option value="low-high">
+                  Low → High
+                </option>
+
+                <option value="high-low">
+                  High → Low
+                </option>
+              </select>
+
+              <FaArrowDown />
+
+            </div>
+
+          </div>
+
         </motion.div>
 
         {/* =====================================================
@@ -571,7 +737,7 @@ export default function Shop() {
         >
 
           {categories.map(
-            (category, index) => (
+            (category) => (
 
               <button
                 key={category}
@@ -589,17 +755,12 @@ export default function Shop() {
                 }
               >
 
-                <span className="category-number">
-
-                  {String(index + 1).padStart(
-                    2,
-                    "0"
-                  )}
-
-                </span>
-
                 <span>
                   {category}
+                </span>
+
+                <span className="category-count">
+                  ({categoryCounts[category] ?? 0})
                 </span>
 
                 {selectedCategory ===
@@ -804,9 +965,33 @@ export default function Shop() {
                         ],
                       }}
                     >
+                      
 
                       <ProductCard
-                        product={product}
+                        product={{
+                          ...product,
+
+                          // Stable display values for this product
+                          displayRating:
+                            getProductDisplayReviewData(product).rating,
+
+                          displayReviewCount:
+                            getProductDisplayReviewData(product).reviewCount,
+
+                          // Common field names are also supplied so
+                          // ProductCard can use whichever naming it expects.
+                          rating:
+                            getProductDisplayReviewData(product).rating,
+
+                          reviewCount:
+                            getProductDisplayReviewData(product).reviewCount,
+
+                          reviewsCount:
+                            getProductDisplayReviewData(product).reviewCount,
+
+                          numReviews:
+                            getProductDisplayReviewData(product).reviewCount,
+                        }}
                       />
 
                     </motion.div>

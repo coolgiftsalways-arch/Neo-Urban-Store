@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import {
   FaHeart,
   FaStar,
+  FaStarHalfAlt,
+  FaRegStar,
   FaMinus,
   FaPlus,
 } from "react-icons/fa";
@@ -14,9 +16,77 @@ import "../styles/ProductCard.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+
+// =========================================================
+// DISPLAY RATING + REVIEW COUNT
+// Stable per product:
+// rating = 4 / 4.5 / 5
+// reviews = 50 - 200
+// =========================================================
+
+const createProductSeed = (value = "") => {
+  const textValue = String(value);
+
+  let hash = 0;
+
+  for (let i = 0; i < textValue.length; i += 1) {
+    hash = (hash << 5) - hash + textValue.charCodeAt(i);
+    hash |= 0;
+  }
+
+  return Math.abs(hash);
+};
+
+const getProductDisplayReviewData = (product) => {
+  const identity = [
+    product?._id,
+    product?.id,
+    product?.slug,
+    product?.name,
+    product?.image,
+  ]
+    .filter(Boolean)
+    .join("-");
+
+  const seed = createProductSeed(
+    identity || "neo-urban-product"
+  );
+
+  const ratingOptions = [4, 4.5, 5];
+
+  const fallbackRating =
+    ratingOptions[
+      (seed + Math.floor(seed / 7)) %
+        ratingOptions.length
+    ];
+
+  const fallbackReviewCount =
+    50 +
+    ((seed + Math.floor(seed / 13)) % 151);
+
+  return {
+    rating: Number(
+      product?.displayRating ??
+      product?.rating ??
+      fallbackRating
+    ),
+
+    reviewCount: Number(
+      product?.displayReviewCount ??
+      product?.reviewCount ??
+      product?.reviewsCount ??
+      product?.numReviews ??
+      fallbackReviewCount
+    ),
+  };
+};
+
 export default function ProductCard({ product }) {
 
   const navigate = useNavigate();
+
+  const { rating, reviewCount } =
+    getProductDisplayReviewData(product);
 
 
   // =====================================================
@@ -729,55 +799,31 @@ console.log(
 
           <div className="stars">
 
-            <FaStar />
-            <FaStar />
-            <FaStar />
-            <FaStar />
-            <FaStar />
+            {[1, 2, 3, 4, 5].map((star) => {
+
+              if (rating >= star) {
+                return (
+                  <FaStar key={star} />
+                );
+              }
+
+              if (rating >= star - 0.5) {
+                return (
+                  <FaStarHalfAlt key={star} />
+                );
+              }
+
+              return (
+                <FaRegStar key={star} />
+              );
+
+            })}
 
           </div>
 
-
           <span>
-
-            (
-            {product.reviews ||
-              124}
-            )
-
+            ({reviewCount})
           </span>
-
-        </div>
-
-
-
-        {/* =================================================
-            STOCK
-        ================================================= */}
-
-        <div
-          className={
-            isOutOfStock
-              ? "product-stock out-of-stock"
-              : "product-stock"
-          }
-        >
-
-          {!isOutOfStock && (
-
-            <span
-              className="stock-dot"
-            />
-
-          )}
-
-          {isOutOfStock
-
-            ? "OUT OF STOCK"
-
-            : `${stock} in stock`
-
-          }
 
         </div>
 

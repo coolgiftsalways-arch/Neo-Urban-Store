@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
+import * as XLSX from "xlsx";
 import api from "../../config/api";
 
 import {
@@ -89,6 +90,153 @@ const emptyForm = {
 
 
 // =========================================================
+// BULK PRICE IMPORT HELPERS
+// =========================================================
+
+const normalizeText = (value = "") =>
+  String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+
+
+const normalizeSourceFolder = (value = "") =>
+  String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/\\/g, "/")
+    .replace(/\s+/g, " ");
+
+
+// =========================================================
+// IMAGE FILE MATCHING
+// =========================================================
+
+const normalizeImageFileName = (value = "") => {
+
+  if (!value) {
+    return "";
+  }
+
+  let clean = String(value)
+    .trim()
+    .replace(/\\/g, "/")
+    .split("?")[0]
+    .split("#")[0];
+
+  try {
+    clean = decodeURIComponent(clean);
+  } catch {
+    // Keep original value if URL decoding fails.
+  }
+
+  return clean
+    .split("/")
+    .pop()
+    .trim()
+    .toLowerCase();
+};
+
+
+const getProductImageFileNames = (product) => {
+
+  const images = [
+    product?.image,
+    ...(Array.isArray(product?.images)
+      ? product.images
+      : []),
+  ].filter(Boolean);
+
+  return [
+    ...new Set(
+      images
+        .map(normalizeImageFileName)
+        .filter(Boolean)
+    ),
+  ];
+};
+
+
+// Extract the collector/image number from a filename.
+// Examples:
+// 73722L.jpg -> 73722
+// 73722-1L.jpg -> 73722
+// 1720000000000-73722L.jpg -> 73722
+const getImageKey = (value = "") => {
+
+  const fileName =
+    normalizeImageFileName(value);
+
+  if (!fileName) {
+    return "";
+  }
+
+  const matches =
+    fileName.match(/\d{4,7}/g);
+
+  if (
+    !matches ||
+    matches.length === 0
+  ) {
+    return "";
+  }
+
+  return matches[
+    matches.length - 1
+  ];
+};
+
+
+// Excel now contains every image filename from each source folder.
+// They are separated by |.
+const parseExcelImageFiles = (value = "") => {
+
+  return [
+    ...new Set(
+      String(value ?? "")
+        .split(/[|\n;,]+/)
+        .map(normalizeImageFileName)
+        .filter(Boolean)
+    ),
+  ];
+};
+
+
+const getExcelValue = (row, possibleNames) => {
+
+  for (const key of possibleNames) {
+
+    if (
+      row[key] !== undefined &&
+      row[key] !== null &&
+      row[key] !== ""
+    ) {
+      return row[key];
+    }
+
+  }
+
+  return "";
+};
+
+
+const parseExcelPrice = (value) => {
+
+  const cleaned =
+    String(value ?? "")
+      .replace(/₹/g, "")
+      .replace(/,/g, "")
+      .trim();
+
+  const price = Number(cleaned);
+
+  return Number.isFinite(price)
+    ? price
+    : NaN;
+};
+
+
+// =========================================================
 // PRODUCTS COMPONENT
 // =========================================================
 
@@ -150,10 +298,30 @@ export default function Products() {
 
 
   // -------------------------------------------------------
-  // FILE INPUT
+  // BULK PRICE IMPORT
+  // -------------------------------------------------------
+
+  const [importedPriceUpdates, setImportedPriceUpdates] =
+    useState([]);
+
+  const [unmatchedPriceRows, setUnmatchedPriceRows] =
+    useState([]);
+
+  const [importingPrices, setImportingPrices] =
+    useState(false);
+
+  const [updatingPrices, setUpdatingPrices] =
+    useState(false);
+
+
+  // -------------------------------------------------------
+  // FILE INPUTS
   // -------------------------------------------------------
 
   const fileInputRef =
+    useRef(null);
+
+  const priceFileInputRef =
     useRef(null);
 
 
@@ -254,6 +422,661 @@ export default function Products() {
       products,
       searchQuery,
     ]);
+
+
+  // =======================================================
+  // CLEAR BULK PRICE IMPORT
+  // =======================================================
+
+  const clearPriceImport = () => {
+
+    if (updatingPrices) {
+      return;
+    }
+
+    setImportedPriceUpdates([]);
+    setUnmatchedPriceRows([]);
+
+    if (priceFileInputRef.current) {
+      priceFileInputRef.current.value = "";
+    }
+
+  };
+
+
+  // =======================================================
+  // IMPORT PRICE EXCEL
+  // =======================================================
+
+  const handlePriceExcelImport = async (event) => {
+
+    const file =
+      event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    try {
+
+      setImportingPrices(true);
+
+      const arrayBuffer =
+        await file.arrayBuffer();
+
+      const workbook =
+        XLSX.read(
+          arrayBuffer,
+          { type: "array" }
+        );
+
+
+      const sheetName =
+        workbook.SheetNames.includes(
+          "Import Prices"
+        )
+          ? "Import Prices"
+          : workbook.SheetNames[0];
+
+
+      const worksheet =
+        workbook.Sheets[sheetName];
+
+
+      if (!worksheet) {
+        throw new Error(
+          "Excel sheet could not be read."
+        );
+      }
+
+
+      const excelRows =
+        XLSX.utils.sheet_to_json(
+          worksheet,
+          { defval: "" }
+        );
+
+
+      if (excelRows.length === 0) {
+        throw new Error(
+          "No price rows found in the Excel file."
+        );
+      }
+
+
+      // ---------------------------------------------------
+      // BUILD LOOKUP MAPS
+      // ---------------------------------------------------
+
+      const productsByImageFile =
+        new Map();
+
+      const productsByImageKey =
+        new Map();
+
+      const productsBySourceFolder =
+        new Map();
+
+      const productsByName =
+        new Map();
+
+
+      products.forEach((product) => {
+
+        // -----------------------------------------------
+        // IMAGE FILE LOOKUP - BEST MATCH FOR THIS DATASET
+        // -----------------------------------------------
+
+        getProductImageFileNames(
+          product
+        ).forEach((imageFile) => {
+
+          if (!productsByImageFile.has(imageFile)) {
+            productsByImageFile.set(
+              imageFile,
+              []
+            );
+          }
+
+          productsByImageFile
+            .get(imageFile)
+            .push(product);
+
+
+          const imageKey =
+            getImageKey(imageFile);
+
+          if (imageKey) {
+
+            if (!productsByImageKey.has(imageKey)) {
+              productsByImageKey.set(
+                imageKey,
+                []
+              );
+            }
+
+            productsByImageKey
+              .get(imageKey)
+              .push(product);
+
+          }
+
+        });
+
+
+        if (product.sourceFolder) {
+
+          const sourceKey =
+            normalizeSourceFolder(
+              product.sourceFolder
+            );
+
+          if (!productsBySourceFolder.has(sourceKey)) {
+            productsBySourceFolder.set(
+              sourceKey,
+              []
+            );
+          }
+
+          productsBySourceFolder
+            .get(sourceKey)
+            .push(product);
+
+        }
+
+
+        if (product.name) {
+
+          const nameKey =
+            normalizeText(
+              product.name
+            );
+
+          if (!productsByName.has(nameKey)) {
+            productsByName.set(
+              nameKey,
+              []
+            );
+          }
+
+          productsByName
+            .get(nameKey)
+            .push(product);
+
+        }
+
+      });
+
+
+      const matched = [];
+      const unmatched = [];
+      const alreadyMatched =
+        new Set();
+
+
+      excelRows.forEach(
+        (row, index) => {
+
+          const excelName =
+            getExcelValue(
+              row,
+              [
+                "Product Name",
+                "product_name",
+                "Name",
+                "name",
+              ]
+            );
+
+
+          const imageFilesValue =
+            getExcelValue(
+              row,
+              [
+                "Image Files",
+                "Image File",
+                "Front Image File",
+                "front_image_file",
+                "imageFile",
+              ]
+            );
+
+          const excelImageFiles =
+            parseExcelImageFiles(
+              imageFilesValue
+            );
+
+          const excelImageKey =
+            String(
+              getExcelValue(
+                row,
+                [
+                  "Image Key",
+                  "imageKey",
+                  "image_key",
+                ]
+              ) || ""
+            ).trim();
+
+
+          const sourceFolder =
+            getExcelValue(
+              row,
+              [
+                "Source Folder",
+                "sourceFolder",
+                "source_folder",
+              ]
+            );
+
+
+          const priceValue =
+            getExcelValue(
+              row,
+              [
+                "Final Price",
+                "Final Website Price (₹)",
+                "Your Selling Price (₹)",
+                "Final Website Price",
+                "Your Selling Price",
+                "Price",
+                "price",
+              ]
+            );
+
+
+          const newPrice =
+            parseExcelPrice(
+              priceValue
+            );
+
+
+          if (
+            !Number.isFinite(newPrice) ||
+            newPrice < 0
+          ) {
+
+            unmatched.push({
+              row: index + 2,
+              name: excelName ||
+                "Unknown product",
+              reason: "Invalid price",
+            });
+
+            return;
+          }
+
+
+          let matchedProduct = null;
+
+
+          // -------------------------------------------------
+          // 1. MATCH ANY IMAGE FILE FROM THE SOURCE FOLDER
+          // -------------------------------------------------
+
+          for (
+            const imageFile of excelImageFiles
+          ) {
+
+            if (matchedProduct) {
+              break;
+            }
+
+            const imageCandidates =
+              productsByImageFile.get(
+                imageFile
+              ) || [];
+
+            matchedProduct =
+              imageCandidates.find(
+                (candidate) =>
+                  !alreadyMatched.has(
+                    candidate._id ||
+                    candidate.id
+                  )
+              ) || null;
+
+          }
+
+
+          // -------------------------------------------------
+          // 2. IMAGE NUMBER / COLLECTOR CODE MATCH
+          // Handles another view (e.g. 73722L vs 73722-1L)
+          // and many renamed upload filenames.
+          // -------------------------------------------------
+
+          if (!matchedProduct) {
+
+            const possibleKeys =
+              new Set();
+
+            if (excelImageKey) {
+              possibleKeys.add(
+                excelImageKey
+              );
+            }
+
+            excelImageFiles.forEach(
+              (imageFile) => {
+
+                const key =
+                  getImageKey(
+                    imageFile
+                  );
+
+                if (key) {
+                  possibleKeys.add(
+                    key
+                  );
+                }
+
+              }
+            );
+
+
+            for (
+              const key of possibleKeys
+            ) {
+
+              const keyCandidates =
+                productsByImageKey.get(
+                  key
+                ) || [];
+
+              matchedProduct =
+                keyCandidates.find(
+                  (candidate) =>
+                    !alreadyMatched.has(
+                      candidate._id ||
+                      candidate.id
+                    )
+                ) || null;
+
+              if (matchedProduct) {
+                break;
+              }
+
+            }
+
+          }
+
+
+          // -------------------------------------------------
+          // 3. SOURCE FOLDER MATCH
+          // -------------------------------------------------
+
+          if (
+            !matchedProduct &&
+            sourceFolder
+          ) {
+
+            const sourceCandidates =
+              productsBySourceFolder.get(
+                normalizeSourceFolder(
+                  sourceFolder
+                )
+              ) || [];
+
+            matchedProduct =
+              sourceCandidates.find(
+                (candidate) =>
+                  !alreadyMatched.has(
+                    candidate._id ||
+                    candidate.id
+                  )
+              ) || null;
+
+          }
+
+
+          // -------------------------------------------------
+          // 4. EXACT PRODUCT NAME FALLBACK
+          // -------------------------------------------------
+
+          if (
+            !matchedProduct &&
+            excelName
+          ) {
+
+            const nameCandidates =
+              productsByName.get(
+                normalizeText(
+                  excelName
+                )
+              ) || [];
+
+            matchedProduct =
+              nameCandidates.find(
+                (candidate) =>
+                  !alreadyMatched.has(
+                    candidate._id ||
+                    candidate.id
+                  )
+              ) || null;
+
+          }
+
+
+          if (!matchedProduct) {
+
+            unmatched.push({
+              row: index + 2,
+              name: excelName ||
+                "Unknown product",
+              imageFiles:
+                excelImageFiles.join(" | "),
+              imageKey:
+                excelImageKey ||
+                excelImageFiles
+                  .map(getImageKey)
+                  .filter(Boolean)
+                  .join(", "),
+              sourceFolder:
+                sourceFolder || "",
+              reason: "Product not found",
+            });
+
+            return;
+          }
+
+
+          const productIdentifier =
+            matchedProduct._id ||
+            matchedProduct.id;
+
+
+          if (!productIdentifier) {
+
+            unmatched.push({
+              row: index + 2,
+              name: excelName ||
+                matchedProduct.name ||
+                "Unknown product",
+              reason: "Product ID missing",
+            });
+
+            return;
+          }
+
+
+          alreadyMatched.add(
+            productIdentifier
+          );
+
+
+          matched.push({
+            productId:
+              productIdentifier,
+            productCode:
+              matchedProduct.id || "",
+            name:
+              matchedProduct.name ||
+              excelName ||
+              "Unnamed Product",
+            oldPrice:
+              Number(
+                matchedProduct.price || 0
+              ),
+            newPrice,
+            sourceFolder:
+              matchedProduct.sourceFolder ||
+              sourceFolder ||
+              "",
+          });
+
+        }
+      );
+
+
+      setImportedPriceUpdates(
+        matched
+      );
+
+      setUnmatchedPriceRows(
+        unmatched
+      );
+
+
+      alert(
+        `${matched.length} products matched.\n${unmatched.length} products unmatched.\n\nMatching priority: Any Image File → Image Key → Source Folder → Product Name.`
+      );
+
+    } catch (error) {
+
+      console.error(
+        "PRICE EXCEL IMPORT ERROR:",
+        error
+      );
+
+      setImportedPriceUpdates([]);
+      setUnmatchedPriceRows([]);
+
+      alert(
+        error.message ||
+        "Failed to read the Excel file."
+      );
+
+    } finally {
+
+      setImportingPrices(false);
+
+      // Allow selecting the same file again.
+      event.target.value = "";
+
+    }
+
+  };
+
+
+  // =======================================================
+  // UPDATE ALL IMPORTED PRICES
+  // =======================================================
+
+  const handleBulkPriceUpdate = async () => {
+
+    if (
+      importedPriceUpdates.length === 0
+    ) {
+
+      alert(
+        "Import the price Excel file first."
+      );
+
+      return;
+    }
+
+
+    const changedProducts =
+      importedPriceUpdates.filter(
+        (item) =>
+          Number(item.oldPrice) !==
+          Number(item.newPrice)
+      );
+
+
+    if (changedProducts.length === 0) {
+
+      alert(
+        "All matched products already have these prices."
+      );
+
+      return;
+    }
+
+
+    const confirmed =
+      window.confirm(
+        `Update ${changedProducts.length} product prices now?`
+      );
+
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    try {
+
+      setUpdatingPrices(true);
+
+
+      const response =
+        await axios.patch(
+          `${PRODUCTS_API}/bulk-prices`,
+          {
+            products:
+              changedProducts.map(
+                (item) => ({
+                  productId:
+                    item.productId,
+                  price:
+                    Number(
+                      item.newPrice
+                    ),
+                })
+              ),
+          }
+        );
+
+
+      const modifiedCount =
+        response.data?.modified ??
+        response.data?.modifiedCount ??
+        changedProducts.length;
+
+
+      alert(
+        `${modifiedCount} product prices updated successfully.`
+      );
+
+
+      setImportedPriceUpdates([]);
+      setUnmatchedPriceRows([]);
+
+
+      await fetchProducts();
+
+    } catch (error) {
+
+      console.error(
+        "BULK PRICE UPDATE ERROR:",
+        error
+      );
+
+      alert(
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to update product prices."
+      );
+
+    } finally {
+
+      setUpdatingPrices(false);
+
+    }
+
+  };
 
 
   // =======================================================
@@ -1031,7 +1854,16 @@ export default function Products() {
           SEARCH
       ================================================= */}
 
-      <div className="product-toolbar">
+      <div
+        className="product-toolbar"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "14px",
+          flexWrap: "wrap",
+        }}
+      >
 
         <div className="product-search">
 
@@ -1057,7 +1889,257 @@ export default function Products() {
 
         </div>
 
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            flexWrap: "wrap",
+          }}
+        >
+
+          <input
+            ref={priceFileInputRef}
+            type="file"
+            accept=".xlsx,.xls"
+            onChange={handlePriceExcelImport}
+            style={{ display: "none" }}
+          />
+
+
+          <button
+            type="button"
+            className="add-product-btn"
+            onClick={() =>
+              priceFileInputRef.current?.click()
+            }
+            disabled={
+              importingPrices ||
+              updatingPrices
+            }
+          >
+            <FiUploadCloud />
+
+            {importingPrices
+              ? "Reading Excel..."
+              : "Import Price Excel"}
+          </button>
+
+
+          <button
+            type="button"
+            className="add-product-btn"
+            onClick={handleBulkPriceUpdate}
+            disabled={
+              updatingPrices ||
+              importedPriceUpdates.length === 0
+            }
+            style={{
+              opacity:
+                importedPriceUpdates.length === 0
+                  ? 0.55
+                  : 1,
+            }}
+          >
+            <FiSave />
+
+            {updatingPrices
+              ? "Updating Prices..."
+              : importedPriceUpdates.length > 0
+                ? `Update ${importedPriceUpdates.length} Prices`
+                : "Update Prices"}
+          </button>
+
+        </div>
+
       </div>
+
+
+      {/* =================================================
+          BULK PRICE IMPORT PREVIEW
+      ================================================= */}
+
+      {(
+        importedPriceUpdates.length > 0 ||
+        unmatchedPriceRows.length > 0
+      ) && (
+
+        <div
+          style={{
+            marginBottom: "18px",
+            padding: "16px",
+            background: "#ffffff",
+            border: "1px solid #e7ebf2",
+            borderRadius: "14px",
+            boxShadow:
+              "0 6px 20px rgba(26, 39, 69, 0.05)",
+          }}
+        >
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "12px",
+              marginBottom: "12px",
+            }}
+          >
+
+            <div>
+              <strong>
+                Price Import Preview
+              </strong>
+
+              <div
+                style={{
+                  marginTop: "4px",
+                  fontSize: "13px",
+                  color: "#78839a",
+                }}
+              >
+                {importedPriceUpdates.length} matched
+                {unmatchedPriceRows.length > 0
+                  ? ` • ${unmatchedPriceRows.length} unmatched`
+                  : ""}
+              </div>
+            </div>
+
+
+            <button
+              type="button"
+              className="icon-btn"
+              title="Clear imported prices"
+              onClick={clearPriceImport}
+              disabled={updatingPrices}
+            >
+              <FiX />
+            </button>
+
+          </div>
+
+
+          {importedPriceUpdates.length > 0 && (
+
+            <div
+              style={{
+                maxHeight: "260px",
+                overflowY: "auto",
+                border: "1px solid #edf0f5",
+                borderRadius: "10px",
+              }}
+            >
+
+              {importedPriceUpdates
+                .slice(0, 30)
+                .map((item) => (
+
+                  <div
+                    key={item.productId}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns:
+                        "minmax(0, 1fr) auto",
+                      gap: "15px",
+                      alignItems: "center",
+                      padding: "10px 12px",
+                      borderBottom:
+                        "1px solid #f0f2f6",
+                    }}
+                  >
+
+                    <span
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        fontSize: "13px",
+                        color: "#313a4d",
+                      }}
+                    >
+                      {item.name}
+                    </span>
+
+
+                    <span
+                      style={{
+                        fontSize: "13px",
+                        color: "#78839a",
+                      }}
+                    >
+                      ₹{Number(item.oldPrice).toLocaleString("en-IN")}
+                      {" → "}
+                      <strong
+                        style={{
+                          color: "#0aa879",
+                        }}
+                      >
+                        ₹{Number(item.newPrice).toLocaleString("en-IN")}
+                      </strong>
+                    </span>
+
+                  </div>
+
+                ))}
+
+
+              {importedPriceUpdates.length > 30 && (
+                <div
+                  style={{
+                    padding: "10px 12px",
+                    textAlign: "center",
+                    color: "#78839a",
+                    fontSize: "13px",
+                  }}
+                >
+                  +{importedPriceUpdates.length - 30} more matched products
+                </div>
+              )}
+
+            </div>
+
+          )}
+
+
+          {unmatchedPriceRows.length > 0 && (
+
+            <div
+              style={{
+                marginTop: "12px",
+                padding: "10px 12px",
+                borderRadius: "10px",
+                background: "#fff5f5",
+                color: "#b42318",
+                fontSize: "13px",
+              }}
+            >
+              <strong>
+                {unmatchedPriceRows.length} rows were not matched.
+              </strong>
+
+              <div style={{ marginTop: "5px" }}>
+                {unmatchedPriceRows
+                  .slice(0, 8)
+                  .map((item, index) => (
+                    <div key={`${item.row}-${index}`}>
+                      Row {item.row}: {item.name} — {item.reason}
+                    </div>
+                  ))}
+
+                {unmatchedPriceRows.length > 8 && (
+                  <div>
+                    +{unmatchedPriceRows.length - 8} more
+                  </div>
+                )}
+              </div>
+            </div>
+
+          )}
+
+        </div>
+
+      )}
 
 
       {/* =================================================

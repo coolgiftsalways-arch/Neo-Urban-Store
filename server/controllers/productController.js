@@ -685,3 +685,85 @@ export const deleteProduct = async (
   }
 
 };
+// =====================================================
+// BULK UPDATE PRODUCT PRICES
+// =====================================================
+
+export const bulkUpdatePrices = async (req, res) => {
+  try {
+    const { products } = req.body;
+
+    if (!Array.isArray(products) || products.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No products received",
+      });
+    }
+
+    const operations = products
+      .filter((item) => {
+        return (
+          item.productId &&
+          Number.isFinite(Number(item.price)) &&
+          Number(item.price) >= 0
+        );
+      })
+      .map((item) => ({
+        updateOne: {
+          filter: {
+            _id: item.productId,
+          },
+
+          update: {
+            $set: {
+              price: Number(item.price),
+            },
+          },
+        },
+      }));
+
+    if (operations.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid prices found",
+      });
+    }
+
+    const result = await Product.bulkWrite(
+      operations,
+      {
+        ordered: false,
+      }
+    );
+
+    console.log("=================================");
+    console.log("BULK PRICE UPDATE");
+    console.log("Requested:", products.length);
+    console.log("Matched:", result.matchedCount);
+    console.log("Modified:", result.modifiedCount);
+    console.log("=================================");
+
+    return res.status(200).json({
+      success: true,
+
+      message: `${result.modifiedCount} prices updated successfully`,
+
+      received: products.length,
+
+      matched: result.matchedCount,
+
+      modified: result.modifiedCount,
+    });
+  } catch (error) {
+    console.error(
+      "BULK PRICE UPDATE ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update prices",
+      error: error.message,
+    });
+  }
+};

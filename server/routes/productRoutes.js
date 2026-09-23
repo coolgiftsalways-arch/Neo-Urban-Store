@@ -9,6 +9,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  bulkUpdatePrices,
 } from "../controllers/productController.js";
 
 const router = express.Router();
@@ -152,7 +153,14 @@ router.get(
   "/",
   getProducts
 );
+// =====================================================
+// BULK UPDATE PRICES
+// =====================================================
 
+router.patch(
+  "/bulk-prices",
+  bulkUpdatePrices
+);
 
 // =====================================================
 // GET SINGLE PRODUCT

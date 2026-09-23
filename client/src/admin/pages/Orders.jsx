@@ -654,6 +654,9 @@ const getShiprocketStatus = (order) => {
                 <th>
                   Date
                 </th>
+                <th>
+  City
+</th>
 
                 <th>
                   Total
@@ -749,20 +752,41 @@ const getShiprocketStatus = (order) => {
                       {/* DATE */}
 
                       <td>
+                        {order.createdAt ? (
+                          <div className="order-date-time">
+                            <div>
+                              {new Date(order.createdAt).toLocaleDateString(
+                                "en-IN",
+                                {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                }
+                              )}
+                            </div>
 
-                        {order.createdAt
-                          ? new Date(
-                              order.createdAt
-                            ).toLocaleDateString(
-                              "en-IN",
-                              {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              }
-                            )
-                          : "—"}
+                            <small>
+                              {new Date(order.createdAt).toLocaleTimeString(
+                                "en-IN",
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: true,
+                                }
+                              )}
+                            </small>
+                          </div>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
 
+                      {/* CITY */}
+
+                      <td>
+                        <span className="order-city">
+                          {getCustomerCity(order) || "—"}
+                        </span>
                       </td>
 
                       {/* TOTAL */}
@@ -852,13 +876,7 @@ const getShiprocketStatus = (order) => {
 
                       <td>
 
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-    }}
-  >
+  <div className="order-actions">
 
     {/* VIEW ORDER */}
 
