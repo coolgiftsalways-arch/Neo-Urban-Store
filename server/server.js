@@ -4,6 +4,7 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import path from "path";
+import { fileURLToPath } from "url";
 
 import connectDB from "./config/db.js";
 
@@ -18,6 +19,13 @@ import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import couponRoutes from "./routes/couponRoutes.js";
+
+// =====================================================
+// PATH SETUP
+// =====================================================
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // =====================================================
 // APP
@@ -37,12 +45,17 @@ connectDB();
 
 app.use(
   cors({
-    origin: "*",
-    credentials: false,
+    origin: [
+      "https://neourbanstore.in",
+      "https://www.neourbanstore.in",
+      "http://localhost:5173",
+    ],
+    credentials: true,
   })
 );
 
 app.use(express.json());
+
 app.use(
   express.urlencoded({
     extended: true,
@@ -55,91 +68,22 @@ app.use(
 
 app.use(
   "/uploads",
-  express.static(
-    path.join(process.cwd(), "uploads")
-  )
+  express.static(path.join(__dirname, "uploads"))
 );
 
 // =====================================================
 // API ROUTES
 // =====================================================
 
-// -----------------------------------------------------
-// CART
-// -----------------------------------------------------
+app.use("/api/cart", cartRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/payment", paymentRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/coupons", couponRoutes);
+app.use("/api/admin", adminRoutes);
 
-app.use(
-  "/api/cart",
-  cartRoutes
-);
-
-// -----------------------------------------------------
-// ORDERS
-// -----------------------------------------------------
-
-app.use(
-  "/api/orders",
-  orderRoutes
-);
-
-// -----------------------------------------------------
-// PAYMENT
-// -----------------------------------------------------
-
-app.use(
-  "/api/payment",
-  paymentRoutes
-);
-
-// -----------------------------------------------------
-// PRODUCTS
-// -----------------------------------------------------
-
-app.use(
-  "/api/products",
-  productRoutes
-);
-
-// -----------------------------------------------------
-// AUTH
-// -----------------------------------------------------
-
-app.use(
-  "/api/auth",
-  authRoutes
-);
-
-//coupon//
-
-app.use(
-  "/api/coupons",
-  couponRoutes
-);
-// -----------------------------------------------------
-// ADMIN
-// IMPORTANT:
-// POST /api/admin/login
-// GET  /api/admin/customers
-// GET  /api/admin/customers/count
-// -----------------------------------------------------
-
-app.use(
-  "/api/admin",
-  adminRoutes
-);
-
-console.log("✅ Admin routes mounted at /api/admin");
-
-// =====================================================
-// ROOT
-// =====================================================
-
-app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Backend Running 🚀",
-  });
-});
+console.log("✅ API routes mounted");
 
 // =====================================================
 // API HEALTH CHECK
@@ -148,7 +92,7 @@ app.get("/", (req, res) => {
 app.get("/api", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "API Running 🚀",
+    message: "NEO URBAN STORE API Running 🚀",
 
     routes: {
       products: "/api/products",
@@ -156,28 +100,63 @@ app.get("/api", (req, res) => {
       cart: "/api/cart",
       payment: "/api/payment",
       auth: "/api/auth",
+      coupons: "/api/coupons",
       admin: "/api/admin",
       adminLogin: "/api/admin/login",
       adminCustomers: "/api/admin/customers",
-      adminCustomerCount:
-        "/api/admin/customers/count",
+      adminCustomerCount: "/api/admin/customers/count",
     },
   });
 });
 
 // =====================================================
-// 404
+// FRONTEND
 // =====================================================
 
-app.use((req, res) => {
+// React production build
+const frontendPath = path.join(
+  __dirname,
+  "../client/dist"
+);
+
+// Serve React assets
+app.use(express.static(frontendPath));
+
+// =====================================================
+// REACT SPA FALLBACK
+// =====================================================
+
+app.get("*", (req, res, next) => {
+  // Never send React index.html for API requests
+  if (
+    req.path === "/api" ||
+    req.path.startsWith("/api/")
+  ) {
+    return next();
+  }
+
+  res.sendFile(
+    path.join(frontendPath, "index.html"),
+    (err) => {
+      if (err) {
+        next(err);
+      }
+    }
+  );
+});
+
+// =====================================================
+// API 404
+// =====================================================
+
+app.use("/api", (req, res) => {
   console.log(
-    `❌ 404: ${req.method} ${req.originalUrl}`
+    `❌ API 404: ${req.method} ${req.originalUrl}`
   );
 
   res.status(404).json({
     success: false,
-    message:
-      `Route not found: ${req.method} ${req.originalUrl}`,
+    message: `API route not found: ${req.method} ${req.originalUrl}`,
   });
 });
 
@@ -185,54 +164,30 @@ app.use((req, res) => {
 // ERROR HANDLER
 // =====================================================
 
-app.use(
-  (err, req, res, next) => {
-    console.error(
-      "❌ SERVER ERROR:",
-      err
-    );
+app.use((err, req, res, next) => {
+  console.error("❌ SERVER ERROR:", err);
 
-    res.status(500).json({
-      success: false,
-      message:
-        "Internal server error",
-      error: err.message,
-    });
-  }
-);
+  res.status(500).json({
+    success: false,
+    message: "Internal server error",
+    error:
+      process.env.NODE_ENV === "production"
+        ? undefined
+        : err.message,
+  });
+});
 
 // =====================================================
 // SERVER
 // =====================================================
 
-const PORT =
-  process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
-app.listen(
-  PORT,
-  () => {
-    console.log(
-      "======================================"
-    );
-
-    console.log(
-      `🚀 Server running on port ${PORT}`
-    );
-
-    console.log(
-      `🌐 http://localhost:${PORT}`
-    );
-
-    console.log(
-      `🔐 Admin Login: POST /api/admin/login`
-    );
-
-    console.log(
-      `👥 Customers: GET /api/admin/customers`
-    );
-
-    console.log(
-      "======================================"
-    );
-  }
-);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("======================================");
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🌐 Environment: ${process.env.NODE_ENV || "development"}`);
+  console.log(`🔐 Admin Login: POST /api/admin/login`);
+  console.log(`👥 Customers: GET /api/admin/customers`);
+  console.log("======================================");
+});

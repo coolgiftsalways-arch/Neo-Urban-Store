@@ -21,7 +21,7 @@ import "../styles/products.css";
 // API
 // =========================================================
 
-const API_URL = "https://api.neourbanstore.in";
+const API_URL = "";
 
 const PRODUCTS_API =
   `${API_URL}/api/products`;
