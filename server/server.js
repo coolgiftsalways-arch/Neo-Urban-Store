@@ -126,8 +126,7 @@ app.use(express.static(frontendPath));
 // REACT SPA FALLBACK
 // =====================================================
 
-app.get("*", (req, res, next) => {
-  // Never send React index.html for API requests
+app.use((req, res, next) => {
   if (
     req.path === "/api" ||
     req.path.startsWith("/api/")
