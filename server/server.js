@@ -114,10 +114,7 @@ app.get("/api", (req, res) => {
 // =====================================================
 
 // React production build
-const frontendPath = path.join(
-  __dirname,
-  "../client/dist"
-);
+const frontendPath = path.join(__dirname, "public");
 
 // Serve React assets
 app.use(express.static(frontendPath));
