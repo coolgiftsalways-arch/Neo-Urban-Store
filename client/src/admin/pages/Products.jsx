@@ -2120,8 +2120,7 @@ export default function Products() {
 
               <div style={{ marginTop: "5px" }}>
                 {unmatchedPriceRows
-                  .slice(0, 8)
-                  .map((item, index) => (
+  .map((item, index) => (
                     <div key={`${item.row}-${index}`}>
                       Row {item.row}: {item.name} — {item.reason}
                     </div>
