@@ -1,12 +1,10 @@
+
 <!doctype html>
-
 <html lang="en">
-
 <head>
-
-  <!-- =====================================================
+  <!-- =========================================
        BASIC META
-  ====================================================== -->
+  ========================================== -->
 
   <meta charset="UTF-8" />
 
@@ -15,25 +13,25 @@
     content="width=device-width, initial-scale=1.0"
   />
 
+  <title>NEO URBAN STORE</title>
 
-  <!-- =====================================================
+  <!-- =========================================
        GOOGLE TAG MANAGER
-       Container ID: GTM-PJJH3DK3
-  ====================================================== -->
+       GTM-PJJH3DK3
+  ========================================== -->
 
   <script>
     (function (w, d, s, l, i) {
-
       w[l] = w[l] || [];
 
       w[l].push({
         "gtm.start": new Date().getTime(),
-        event: "gtm.js",
+        event: "gtm.js"
       });
 
-      var f = d.getElementsByTagName(s)[0],
-        j = d.createElement(s),
-        dl = l != "dataLayer" ? "&l=" + l : "";
+      var f = d.getElementsByTagName(s)[0];
+      var j = d.createElement(s);
+      var dl = l !== "dataLayer" ? "&l=" + l : "";
 
       j.async = true;
 
@@ -53,16 +51,9 @@
     );
   </script>
 
-  <!-- END GOOGLE TAG MANAGER -->
-
-
-  <!-- =====================================================
-       GOOGLE TAG / GOOGLE ANALYTICS / GOOGLE ADS
-  ====================================================== -->
-
-  <!-- Google Analytics Measurement ID:
-       G-KGVKTP6JSP
-  -->
+  <!-- =========================================
+       GOOGLE ANALYTICS + GOOGLE ADS
+  ========================================== -->
 
   <script
     async
@@ -70,105 +61,70 @@
   ></script>
 
   <script>
-
-    /* Create Google dataLayer */
     window.dataLayer = window.dataLayer || [];
 
-
-    /* Create global gtag() function */
     window.gtag = function () {
       window.dataLayer.push(arguments);
     };
 
+    gtag("js", new Date());
 
-    /* Initialize Google Tag */
-    window.gtag("js", new Date());
+    // Google Analytics 4
+    gtag("config", "G-KGVKTP6JSP");
 
+    // Google Ads
+    gtag("config", "AW-17947306709");
 
-    /* =====================================================
-       GOOGLE ANALYTICS 4
-       Measurement ID: G-KGVKTP6JSP
-    ====================================================== */
-
-    window.gtag(
-      "config",
-      "G-KGVKTP6JSP"
-    );
-
-
-    /* =====================================================
-       GOOGLE ADS
-       Google Ads ID: AW-17947306709
-    ====================================================== */
-
-    window.gtag(
-      "config",
-      "AW-17947306709"
-    );
-
-
-    /* =====================================================
-       GOOGLE ADS PURCHASE CONVERSION
-
-       Conversion:
-       AW-17947306709/ZU67CML3w_kcENXV-O1C
-
-       IMPORTANT:
-       DO NOT fire this automatically here.
-
-       This function should ONLY be called after:
-       1. Payment succeeds
-       2. Order is created
-       3. Ideally backend payment verification succeeds
-    ====================================================== */
+    // =========================================
+    // NEW GOOGLE ADS PURCHASE (5)
+    // =========================================
+    // Conversion label:
+    // AW-17947306709/rBlUCMr5qpwdENXV-O1C
+    //
+    // Call this function ONLY after a
+    // successfully confirmed purchase.
+    // Never trigger it on page load.
+    // =========================================
 
     window.trackPurchaseConversion = function (
-      value = 1,
-      transactionId = ""
+      value,
+      transactionId
     ) {
+      const amount = Number(value);
 
-      /* Safety check */
-      if (typeof window.gtag !== "function") {
-        console.warn("Google gtag is not loaded.");
+      if (
+        typeof window.gtag !== "function" ||
+        !Number.isFinite(amount) ||
+        amount <= 0 ||
+        !transactionId
+      ) {
+        console.warn(
+          "Purchase conversion skipped: invalid data."
+        );
         return;
       }
 
-
-      /* Send Google Ads purchase conversion */
-      window.gtag("event", "conversion", {
-
-        /* Google Ads Conversion ID + Label */
+      gtag("event", "conversion", {
         send_to:
-          "AW-17947306709/ZU67CML3w_kcENXV-O1C",
+          "AW-17947306709/rBlUCMr5qpwdENXV-O1C",
 
-        /* Actual purchase amount */
-        value: Number(value),
+        value: amount,
 
-        /* Currency */
         currency: "INR",
 
-        /* Unique Order / Payment ID */
-        transaction_id: transactionId,
-
+        transaction_id: String(transactionId)
       });
 
-
-      /* Debug message - you can remove later */
       console.log(
-        "Google Ads purchase conversion sent:",
-        {
-          value: Number(value),
-          transactionId: transactionId,
-        }
+        "Google Ads purchase conversion queued:",
+        String(transactionId)
       );
     };
-
   </script>
 
-
-  <!-- =====================================================
+  <!-- =========================================
        FAVICON
-  ====================================================== -->
+  ========================================== -->
 
   <link
     rel="icon"
@@ -176,10 +132,9 @@
     href="/favicon.svg"
   />
 
-
-  <!-- =====================================================
+  <!-- =========================================
        GOOGLE FONTS
-  ====================================================== -->
+  ========================================== -->
 
   <link
     rel="preconnect"
@@ -192,73 +147,47 @@
     crossorigin
   />
 
-
-  <!-- Anton + Oswald -->
   <link
     href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;400;500;600;700&display=swap"
     rel="stylesheet"
   />
 
-
-  <!-- Rubik Glitch -->
   <link
     href="https://fonts.googleapis.com/css2?family=Rubik+Glitch&display=swap"
     rel="stylesheet"
   />
 
-
-  <!-- =====================================================
-       WEBSITE TITLE
-  ====================================================== -->
-
-  <title>NEO URBAN STORE</title>
-
 </head>
-
 
 <body>
 
-
-  <!-- =====================================================
-       GOOGLE TAG MANAGER - NOSCRIPT
-
-       This is required for visitors who have JavaScript
-       disabled.
-
-       Keep it immediately after opening <body>.
-  ====================================================== -->
+  <!-- =========================================
+       GOOGLE TAG MANAGER NOSCRIPT
+  ========================================== -->
 
   <noscript>
-
     <iframe
       src="https://www.googletagmanager.com/ns.html?id=GTM-PJJH3DK3"
       height="0"
       width="0"
       style="display:none;visibility:hidden"
     ></iframe>
-
   </noscript>
 
-  <!-- END GOOGLE TAG MANAGER -->
-
-
-  <!-- =====================================================
-       REACT APP ROOT
-  ====================================================== -->
+  <!-- =========================================
+       REACT ROOT
+  ========================================== -->
 
   <div id="root"></div>
 
-
-  <!-- =====================================================
-       VITE / REACT ENTRY FILE
-  ====================================================== -->
+  <!-- =========================================
+       VITE REACT ENTRY
+  ========================================== -->
 
   <script
     type="module"
     src="/src/main.jsx"
   ></script>
 
-
 </body>
-
 </html>
